@@ -1,13 +1,15 @@
-import React from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import GameReadyPage from "./game/ready/GameReadyPage";
+import { ChakraProvider } from "@chakra-ui/react";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<GameReadyPage />} />
-    </Routes>
+    <ChakraProvider>
+      <Routes>
+        <Route path="/game-ready" element={<GameReadyPage mode="Ladder" />} />
+      </Routes>
+    </ChakraProvider>
   );
 }
 
