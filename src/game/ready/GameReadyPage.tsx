@@ -1,9 +1,18 @@
-import React from "react";
+import UserReadyProfile from "./UserReadyProfile";
 
-function GameReadyPage() {
+type GameReadyPageProps = {
+  mode: "Ladder" | "Normal";
+};
+
+function GameReadyPage(props: GameReadyPageProps) {
   return (
-    <div>
-      <span className="text-3xl font-bold underline">GameReadyPage</span>
+    <div className="bg-basic-color h-full flex flex-col items-center justify-start align-middle mt-12">
+      <h1 className="text-3xl font-bold mb-10">{props.mode}</h1>
+      <div className="w-screen h-3/5  flex justify-evenly items-center">
+        <UserReadyProfile url={`./jiwoo.jpeg`} />
+        <h1 className="text-4xl font-bold">VS</h1>
+        <UserReadyProfile url={`./jiwoo.jpeg`} />
+      </div>
     </div>
   );
 }
