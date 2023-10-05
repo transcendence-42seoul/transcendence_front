@@ -1,12 +1,12 @@
 import { Avatar, Button } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 type UserReadyProfileProps = {
   url: string;
 };
 
 function UserReadyProfile(props: UserReadyProfileProps) {
-  let [readyState, setReadyState] = useState(false);
+  const [readyState, setReadyState] = useState(false);
 
   const onClickButton = () => {
     setReadyState(!readyState);
