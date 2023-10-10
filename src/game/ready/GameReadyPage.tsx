@@ -1,7 +1,7 @@
-import UserReadyProfile from "./UserReadyProfile";
+import UserReadyProfile from './UserReadyProfile';
 
 type GameReadyPageProps = {
-  mode: "Ladder" | "Normal";
+  mode: 'Ladder' | 'Normal';
 };
 
 function GameReadyPage(props: GameReadyPageProps) {

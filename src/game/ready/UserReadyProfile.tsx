@@ -1,5 +1,5 @@
-import { Avatar, Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Avatar, Button } from '@chakra-ui/react';
+import { useState } from 'react';
 
 type UserReadyProfileProps = {
   url: string;

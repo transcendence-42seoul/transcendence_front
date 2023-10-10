@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
 type AvatarProps = {
   url: string;
   status?: onlineStatus;
 };
 
-type onlineStatus = "online" | "offline" | "gaming";
+type onlineStatus = 'online' | 'offline' | 'gaming';
 
 /**
  * 이미지를 url과 size를 넣어서 동그란 아바타를 생성할 수 있다.
@@ -14,12 +14,12 @@ type onlineStatus = "online" | "offline" | "gaming";
  */
 function SmallAvatar(props: AvatarProps) {
   let statusColor;
-  if (props.status === "online") {
-    statusColor = "bg-green-400";
-  } else if (props.status === "offline") {
-    statusColor = "bg-slate-500";
-  } else if (props.status === "gaming") {
-    statusColor = "bg-orange-400";
+  if (props.status === 'online') {
+    statusColor = 'bg-green-400';
+  } else if (props.status === 'offline') {
+    statusColor = 'bg-slate-500';
+  } else if (props.status === 'gaming') {
+    statusColor = 'bg-orange-400';
   }
 
   const statusSpan = props.status ? (
