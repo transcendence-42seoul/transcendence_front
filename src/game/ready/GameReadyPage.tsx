@@ -1,12 +1,12 @@
-import UserReadyProfile from "./UserReadyProfile";
+import UserReadyProfile from './UserReadyProfile';
 
 type GameReadyPageProps = {
-  mode: "Ladder" | "Normal";
+  mode: 'Ladder' | 'Normal';
 };
 
 function GameReadyPage(props: GameReadyPageProps) {
   return (
-    <div className="bg-basic-color h-full flex flex-col items-center justify-start align-middle mt-12">
+    <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
       <h1 className="text-3xl font-bold mb-10">{props.mode}</h1>
       <div className="w-screen h-3/5  flex justify-evenly items-center">
         <UserReadyProfile url={`./jiwoo.jpeg`} />
