@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import LadderTypeReadyPage from './game/ready/LadderTypeReadyPage';
-import ChallengeTypeReadyPage from './game/ready/ChallengeTypeReadyPage';
+import GameReadyPage from './game/ready/GameReadyPage';
 import { ChakraProvider } from '@chakra-ui/react';
 
 function App() {
@@ -9,14 +8,9 @@ function App() {
     <ChakraProvider>
       <Routes>
         <Route
-          path="/ladder-type-ready"
-          element={<LadderTypeReadyPage gameType="Ladder" gameMode="Normal" />}
-        />
-        <Route
-          path="/challenge-type-ready"
-          element={
-            <ChallengeTypeReadyPage gameType="Challenge" gameMode="Normal" />
-          }
+          path="/game-ready"
+          // element={<GameReadyPage gameType="Ladder" gameMode="Hard" />}
+          element={<GameReadyPage gameType="Challenge" gameMode="Hard" />}
         />
       </Routes>
     </ChakraProvider>
