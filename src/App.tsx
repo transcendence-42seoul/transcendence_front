@@ -7,7 +7,11 @@ function App() {
   return (
     <ChakraProvider>
       <Routes>
-        <Route path="/game-ready" element={<GameReadyPage mode="Ladder" />} />
+        <Route
+          path="/game-ready"
+          // element={<GameReadyPage gameType="Ladder" gameMode="Hard" />}
+          element={<GameReadyPage gameType="Challenge" gameMode="Hard" />}
+        />
       </Routes>
     </ChakraProvider>
   );
