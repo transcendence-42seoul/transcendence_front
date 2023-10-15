@@ -2,12 +2,17 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import GameReadyPage from './game/ready/GameReadyPage';
 import { ChakraProvider } from '@chakra-ui/react';
+import GamePlayPage from './game/play/GamePlayPage';
 
 function App() {
   return (
     <ChakraProvider>
       <Routes>
-        <Route path="/game-ready" element={<GameReadyPage mode="Ladder" />} />
+        <Route
+          path="/game-ready"
+          element={<GameReadyPage gameType="Ladder" gameMode="Normal" />}
+        />
+        <Route path="/game-play" element={<GamePlayPage />} />
       </Routes>
     </ChakraProvider>
   );
