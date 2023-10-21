@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ChatInput from './ChatInput';
+import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
 type ChatDataType = {
   isMe: boolean;
@@ -28,23 +30,28 @@ function MyChat(props: ChatDataType) {
 }
 
 function MiniChatting() {
+  const navigation = useNavigate();
+
+  // 서버 주소 설정
+  const serverUrl: string = import.meta.env.VITE_SERVER_URL + '/gameChat';
+
+  const socket = io(serverUrl, {
+    // withCredentials: true, // 요청할때 쿠키를 포함안시킬지 정하는 옵션인데 필요할지 의문이다.
+    transports: ['websocket'], // CORS 에러 일단 안발생하게 만듬. 배포할 때는 특정 사이트를 등록해줘야함.
+  });
+
   const [chatList, setChatList] = useState<ChatDataType[]>([
     { isMe: false, message: '오하요~' },
     { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-    { isMe: false, message: '오하요~' },
   ]);
+
+  const handleReceiveChat = (chat: string) => {
+    if (chat === '') return;
+    setChatList((prev) => [
+      ...prev,
+      { id: prev.length + 1, isMe: false, message: chat },
+    ]);
+  };
 
   const handleSubmit = (chat: string) => {
     if (chat === '') return;
@@ -52,6 +59,7 @@ function MiniChatting() {
       ...prev,
       { id: prev.length + 1, isMe: true, message: chat },
     ]);
+    socket.emit('new_chat', chat);
   };
 
   const chatListRef = useRef<HTMLUListElement | null>(null);
@@ -64,6 +72,25 @@ function MiniChatting() {
         lastLi.scrollIntoView();
       }
     }
+
+    socket.on('error', (error) => {
+      navigation('/');
+      console.error('Socket connection error:', error);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('소켓이 연결이 끊겼습니다.');
+    });
+
+    socket.on('receiveMessage', (message: string) => {
+      handleReceiveChat(message);
+    });
+
+    return () => {
+      socket.off('error');
+      socket.off('disconnect');
+      socket.off('receiveMessage');
+    };
   }, [chatList]);
 
   return (
@@ -88,4 +115,4 @@ function MiniChatting() {
   );
 }
 
-export default React.memo(MiniChatting);
+export default MiniChatting;
