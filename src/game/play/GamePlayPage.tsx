@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import SmallUserProfile from './SmallUserProfile';
 import MiniChatting from './MiniChatting';
+import PongGame from './PongGame';
 
 function GamePlayPage() {
   const userA_avatar = {
@@ -67,8 +68,10 @@ function GamePlayPage() {
             />
           </div>
           <div
-            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-md`}
-          ></div>
+            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-md flex justify-center items-center`}
+          >
+            <PongGame />
+          </div>
         </div>
         <MiniChatting />
       </div>
