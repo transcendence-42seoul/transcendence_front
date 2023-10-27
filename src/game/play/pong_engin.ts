@@ -1,5 +1,5 @@
 // Global Variables
-enum DIRECTION {
+export enum DIRECTION {
   IDLE = 0,
   UP = 1,
   DOWN = 2,
@@ -7,10 +7,10 @@ enum DIRECTION {
   RIGHT = 4,
 }
 
-const ROUNDS: number[] = [5, 5, 3, 3, 2];
-const COLORS = ['#1abc9c', '#2ecc71', '#3498db', '#8c52ff', '#9b59b6'];
+export const ROUNDS: number[] = [1, 5, 3, 3, 2];
+export const COLORS = ['#1abc9c', '#2ecc71', '#3498db', '#8c52ff', '#9b59b6'];
 
-type BallType = {
+export type BallType = {
   width: number;
   height: number;
   x: number;
@@ -19,27 +19,6 @@ type BallType = {
   moveY: number;
   speed: number;
 };
-
-// The ball object (The cube that bounces back and forth)
-class CBall {
-  public canvas;
-
-  constructor(game: { canvas: HTMLCanvasElement }) {
-    this.canvas = game.canvas;
-  }
-
-  new(incrementedSpeed?: number): BallType {
-    return {
-      width: 18,
-      height: 18,
-      x: this.canvas.width / 2 - 9,
-      y: this.canvas.height / 2 - 9,
-      moveX: DIRECTION.IDLE,
-      moveY: DIRECTION.IDLE,
-      speed: incrementedSpeed || 7,
-    };
-  }
-}
 
 const Ball = {
   new: function (
@@ -58,9 +37,9 @@ const Ball = {
   },
 };
 
-type Side = 'left' | 'right';
+export type Side = 'left' | 'right';
 
-type PlayerType = {
+export type PlayerType = {
   width: number;
   height: number;
   x: number;
@@ -69,25 +48,6 @@ type PlayerType = {
   move: DIRECTION;
   speed: number;
 };
-class CAi {
-  public canvas;
-
-  constructor(game: { canvas: HTMLCanvasElement }) {
-    this.canvas = game.canvas;
-  }
-
-  new(side: Side): PlayerType {
-    return {
-      width: 18,
-      height: 180,
-      x: side === 'left' ? 150 : this.canvas.width - 150,
-      y: this.canvas.height / 2 - 35,
-      score: 0,
-      move: DIRECTION.IDLE,
-      speed: 8,
-    };
-  }
-}
 
 // The ai object (The two lines that move up and down)
 const Ai = {
@@ -114,10 +74,24 @@ class CGame {
   public turn: PlayerType | null;
   public timer;
   public color: string;
-  public over;
+  public over: boolean;
   public round: number;
 
   constructor() {
+    this.keydownfunction = this.keydownfunction.bind(this);
+    this.keyupfunction = this.keyupfunction.bind(this);
+    this.loop = this.loop.bind(this);
+    this.update = this.update.bind(this);
+    this.draw = this.draw.bind(this);
+    this.menu = this.menu.bind(this);
+    this.endGameMenu = this.endGameMenu.bind(this);
+    this.makeInit = this.makeInit.bind(this);
+    this.initialize = this.initialize.bind(this);
+    this.listen = this.listen.bind(this);
+    this._resetTurn = this._resetTurn.bind(this);
+    this._turnDelayIsOver = this._turnDelayIsOver.bind(this);
+    this._generateRoundColor = this._generateRoundColor.bind(this);
+
     this.canvas = document.querySelector('canvas')!;
     this.context = this.canvas.getContext('2d');
 
@@ -138,7 +112,7 @@ class CGame {
     this.color = '#8c52ff';
   }
 
-  makeInit = () => {
+  makeInit() {
     this.canvas = document.querySelector('canvas')!;
     this.context = this.canvas.getContext('2d');
 
@@ -159,10 +133,10 @@ class CGame {
     this.color = '#8c52ff';
   }
 
-  initialize = ()=> {
+  initialize = () => {
     this.menu();
     this.listen();
-  }
+  };
 
   endGameMenu = (text: string) => {
     if (this.context) {
@@ -188,23 +162,20 @@ class CGame {
         this.canvas.height / 2 + 15,
       );
 
-      const thisMakeInit = this.makeInit;
-      const thisInitialize = this.initialize;
-
-      setTimeout(function () {
-        // Pong = Object.assign({}, Game);
-        thisMakeInit();
-        thisInitialize();
-        // Pong.initialize();
+      setTimeout(() => {
+        this.makeInit();
+        document.removeEventListener('keydown', this.keydownfunction);
+        document.removeEventListener('keyup', this.keyupfunction);
+        this.initialize();
       }, 3000);
     } else {
       console.error('context is null');
     }
-  }
+  };
 
-  menu = ()=> {
+  menu = () => {
     // Draw all the Pong objects in their current state
-    this.draw();
+    this.draw(); // 현재 상태를 draw해준다.
 
     if (!this.context) return;
     // Change the canvas font size and color
@@ -228,15 +199,15 @@ class CGame {
       this.canvas.width / 2,
       this.canvas.height / 2 + 15,
     );
-  }
+  };
 
   // Update all objects (move the player, ai, ball, increment the score, etc.)
-  update = ()=> {
+  update = () => {
     if (!this.over) {
       // If the ball collides with the bound limits - correct the x and y coords.
-      if (this.ball.x <= 0) this._resetTurn.call(this, this.ai, this.player);
+      if (this.ball.x <= 0) this._resetTurn(this.ai, this.player);
       if (this.ball.x >= this.canvas.width - this.ball.width)
-        this._resetTurn.call(this, this.player, this.ai);
+        this._resetTurn(this.player, this.ai);
       if (this.ball.y <= 0) this.ball.moveY = DIRECTION.DOWN;
       if (this.ball.y >= this.canvas.height - this.ball.height)
         this.ball.moveY = DIRECTION.UP;
@@ -248,7 +219,7 @@ class CGame {
 
       // On new serve (start of each turn) move the ball to the correct side
       // and randomize the direction to add some challenge.
-      if (this._turnDelayIsOver.call(this) && this.turn) {
+      if (this._turnDelayIsOver() && this.turn) {
         this.ball.moveX =
           this.turn === this.player ? DIRECTION.LEFT : DIRECTION.RIGHT;
         this.ball.moveY = [DIRECTION.UP, DIRECTION.DOWN][
@@ -327,9 +298,8 @@ class CGame {
       if (!ROUNDS[this.round + 1]) {
         this.over = true;
 
-        const thisEndGameMenu = this.endGameMenu;
-        setTimeout(function () {
-          thisEndGameMenu('Winner!');
+        setTimeout(() => {
+          this.endGameMenu('Winner!');
         }, 1000);
       } else {
         // If there is another round, reset all the values and increment the round number.
@@ -345,15 +315,14 @@ class CGame {
     else if (this.ai.score === ROUNDS[this.round]) {
       this.over = true;
 
-      const thisEndGameMenu = this.endGameMenu;
-      setTimeout(function () {
-        thisEndGameMenu('Game Over!');
+      setTimeout(() => {
+        this.endGameMenu('Game Over!');
       }, 1000);
     }
-  }
+  };
 
   // Draw the objects to the canvas element
-  draw = ()=> {
+  draw = () => {
     if (!this.context) return;
     // Clear the Canvas
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -379,7 +348,7 @@ class CGame {
     this.context.fillRect(this.ai.x, this.ai.y, this.ai.width, this.ai.height);
 
     // Draw the Ball
-    if (this._turnDelayIsOver.call(this)) {
+    if (this._turnDelayIsOver()) {
       this.context.fillRect(
         this.ball.x,
         this.ball.y,
@@ -434,41 +403,51 @@ class CGame {
       : ROUNDS[this.round - 1];
 
     this.context.fillText(curRound.toString(), this.canvas.width / 2, 100);
-  }
+  };
 
-  loop= ()=> {
+  loop = () => {
     this.update();
     this.draw();
 
     // If the game is not over, draw the next frame.
     if (!this.over) requestAnimationFrame(this.loop);
-  }
+    else console.log('game over');
+  };
 
-  listen = ()=>{
+  keydownfunction = (key: KeyboardEvent) => {
     let thisRunning = this.running;
     let thisLoop = this.loop;
-    let thisPlayer = this.player;
-    document.addEventListener('keydown', function (key) {
-      // Handle the 'Press any key to begin' function and start the game.
-      if (thisRunning === false) {
-        thisRunning = true;
-        window.requestAnimationFrame(thisLoop);
-      }
+    // let thisPlayer = {...this.player};
+    console.log('player ' + this.player.score);
+    console.log('ai ' + this.ai.score);
 
-      // Handle up arrow and w key events
-      if (key.keyCode === 38 || key.keyCode === 87)
-        thisPlayer.move = DIRECTION.UP;
+    console.log('keydownfunction and running = ' + this.running);
 
-      // Handle down arrow and s key events
-      if (key.keyCode === 40 || key.keyCode === 83)
-        thisPlayer.move = DIRECTION.DOWN;
-    });
+    // Handle the 'Press any key to begin' function and start the game.
+    if (this.running === false) {
+      this.running = true;
+      window.requestAnimationFrame(thisLoop);
+    }
+
+    // Handle up arrow and w key events
+    if (key.keyCode === 38 || key.keyCode === 87)
+      this.player.move = DIRECTION.UP;
+
+    // Handle down arrow and s key events
+    if (key.keyCode === 40 || key.keyCode === 83)
+      this.player.move = DIRECTION.DOWN;
+  };
+
+  keyupfunction = (key: KeyboardEvent) => {
+    this.player.move = DIRECTION.IDLE;
+  };
+
+  listen = () => {
+    document.addEventListener('keydown', this.keydownfunction);
 
     // Stop the player from moving when there are no keys being pressed.
-    document.addEventListener('keyup', function (key) {
-      thisPlayer.move = DIRECTION.IDLE;
-    });
-  }
+    document.addEventListener('keyup', this.keyupfunction);
+  };
 
   // Reset the ball location, the player turns and set a delay before the next round begins.
   _resetTurn = (victor: PlayerType, loser: PlayerType) => {
@@ -477,21 +456,19 @@ class CGame {
     this.timer = new Date().getTime();
 
     victor.score++;
-  }
+  };
 
   // Wait for a delay to have passed after each turn.
-  _turnDelayIsOver = ()=> {
+  _turnDelayIsOver = () => {
     return new Date().getTime() - this.timer >= 1000;
-  }
+  };
 
   // Select a random color as the background of each level/round.
   _generateRoundColor = (): string => {
     var newColor = COLORS[Math.floor(Math.random() * COLORS.length)];
     if (newColor === this.color) return this._generateRoundColor();
     return newColor;
-  }
+  };
 }
-
-// const Pong = new CGame();
 
 export default CGame;
