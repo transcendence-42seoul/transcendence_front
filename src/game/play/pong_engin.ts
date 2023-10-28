@@ -78,20 +78,6 @@ class CGame {
   public round: number;
 
   constructor() {
-    this.keydownfunction = this.keydownfunction.bind(this);
-    this.keyupfunction = this.keyupfunction.bind(this);
-    this.loop = this.loop.bind(this);
-    this.update = this.update.bind(this);
-    this.draw = this.draw.bind(this);
-    this.menu = this.menu.bind(this);
-    this.endGameMenu = this.endGameMenu.bind(this);
-    this.makeInit = this.makeInit.bind(this);
-    this.initialize = this.initialize.bind(this);
-    this.listen = this.listen.bind(this);
-    this._resetTurn = this._resetTurn.bind(this);
-    this._turnDelayIsOver = this._turnDelayIsOver.bind(this);
-    this._generateRoundColor = this._generateRoundColor.bind(this);
-
     this.canvas = document.querySelector('canvas')!;
     this.context = this.canvas.getContext('2d');
 
@@ -112,7 +98,7 @@ class CGame {
     this.color = '#8c52ff';
   }
 
-  makeInit() {
+  makeInit = () => {
     this.canvas = document.querySelector('canvas')!;
     this.context = this.canvas.getContext('2d');
 
