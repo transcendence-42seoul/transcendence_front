@@ -16,8 +16,9 @@ function UserReadyProfile(props: UserReadyProfileProps) {
       <Avatar size="2xl" name="Segun Adebayo" src={props.url} />
       <h1 className="text-center font-bold text-2xl">sanghan</h1>
       <h3 className="text-center font-bold text-2xl">0승 15패</h3>
+      {/* <h3 className="text-center font-bold text-2xl">#1 1200점</h3> */}
       <div className="flex justify-center pb-8">
-        {readyState ? (
+        {/* {readyState ? (
           <Button colorScheme="teal" variant="solid" onClick={onClickButton}>
             Ready
           </Button>
@@ -25,7 +26,7 @@ function UserReadyProfile(props: UserReadyProfileProps) {
           <Button colorScheme="teal" variant="outline" onClick={onClickButton}>
             Ready
           </Button>
-        )}
+        )} */}
       </div>
     </div>
   );
