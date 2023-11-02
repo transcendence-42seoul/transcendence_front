@@ -10,8 +10,8 @@ function App() {
         <Routes>
           <Route
             path="/game-ready"
-            // element={<GameReadyPage gameType="Ladder" gameMode="Hard" />}
-            element={<GameReadyPage gameType="Challenge" gameMode="Hard" />}
+            element={<GameReadyPage gameType="Ladder" gameMode="Hard" />}
+            // element={<GameReadyPage gameType="Challenge" gameMode="Hard" />}
           />
           <Route path="/game-play" element={<GamePlayPage />} />
         </Routes>

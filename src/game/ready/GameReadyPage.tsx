@@ -13,17 +13,36 @@ type GameReadyPageProps = {
 function GameReadyPage(props: GameReadyPageProps) {
   const navigate = useNavigate();
   const [readyState, setReadyState] = useState(false);
+  const [count, setCount] = useState(0);
 
   if(props.gameType === 'Ladder') {
+
     useEffect(() => {
+      const id = setInterval(() => {
+        setCount(prevCount => prevCount + 1);
+      // }, 5000);
+      }, 1000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
+
+
       const timeout = setTimeout(() => {
         navigate('/game-play');
-      }, 5000); // 5초 설정
+      }, 6000); // 5초 설정
       // }, 10000000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
 
-      return () => clearTimeout(timeout);
-    }
-    , [navigate]);
+      return () => {
+        clearTimeout(timeout);
+        clearInterval(id);
+      }
+    // }, [count, navigate]);
+    }, [navigate]);
+
+    // return (
+    //   <div>
+    //     <p>{`Redirecting in ${count} seconds`}</p>
+    //   </div>
+    // )
+    // }
+    // , [navigate]);
   }
 
 
@@ -104,6 +123,10 @@ function GameReadyPage(props: GameReadyPageProps) {
           ) : null}
           {props.gameType === 'Ladder' ? (
             <div className="flex flex-col justify-between items-center w-full">
+              <div>
+                {/* <p>{`${5 - count} seconds`}</p> */}
+                <p>{`${5 - count} seconds`}</p>
+             </div>
               <div className="">Ranking</div>
               <div className="flex flex-row justify-between w-full">
                 <div className="w-20 h-10 bg-blue-200 rounded-md flex justify-center items-center mr-1">

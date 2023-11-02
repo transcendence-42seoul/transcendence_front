@@ -6,11 +6,11 @@ type UserReadyProfileProps = {
 };
 
 function UserReadyProfile(props: UserReadyProfileProps) {
-  const [readyState, setReadyState] = useState(false);
+  // const [readyState, setReadyState] = useState(false);
 
-  const onClickButton = () => {
-    setReadyState(!readyState);
-  };
+  // const onClickButton = () => {
+  //   setReadyState(!readyState);
+  // };
   return (
     <div className="w-3/12 h-full bg-slate-100 ring-4 rounded-lg flex flex-col justify-between items-center py-8">
       <Avatar size="2xl" name="Segun Adebayo" src={props.url} />
