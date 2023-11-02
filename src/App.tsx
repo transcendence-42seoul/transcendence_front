@@ -14,6 +14,7 @@ function App() {
           element={<GameReadyPage gameType="Challenge" gameMode="Hard" />}
         />
         <Route path="/game-play" element={<GamePlayPage />} />
+        <Route path="/home" element={<div>Home</div>} />
       </Routes>
     </ChakraProvider>
   );
