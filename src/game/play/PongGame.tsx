@@ -1,12 +1,23 @@
-import { useEffect } from 'react';
-import CGame from './pong_engin';
+import { useEffect, useRef, useState } from 'react';
+import { GameType } from './pong_engin';
+import { io } from 'socket.io-client';
 
-function PongGame() {
+const serverUrl: string = 'http://localhost:3000/games';
+
+const PongGame = () => {
+  const socketRef = useRef(
+    io(serverUrl, {
+      transports: ['websocket'],
+    }),
+  );
+  const [game, setGame] = useState<GameType>();
+
   useEffect(() => {
-    const Pong = new CGame();
-    Pong.initialize();
-  }, []);
+    socketRef.current.on('connection', () => {});
+
+    return () => {};
+  }, [game]);
   return <canvas></canvas>;
-}
+};
 
 export default PongGame;

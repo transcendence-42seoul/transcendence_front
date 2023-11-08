@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SmallUserProfile from './SmallUserProfile';
 import MiniChatting from './MiniChatting';
 import PongGame from './PongGame';
@@ -70,7 +70,7 @@ function GamePlayPage() {
           <div
             className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-md flex justify-center items-center`}
           >
-            <PongGame />
+            {/* <PongGame /> */}
           </div>
         </div>
         <MiniChatting />
