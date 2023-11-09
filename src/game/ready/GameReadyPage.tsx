@@ -58,60 +58,22 @@ function GameReadyPage(props: GameReadyPageProps) {
       }, 1000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
 
       const timeout = setTimeout(() => {
-        navigate('/game-play');
+        navigate(`/game-play`);
       }, READY_SECOND + 1000); // 5초 설정
 
       return () => {
         clearTimeout(timeout);
         clearInterval(id);
       };
-      // }, [count, navigate]);
     }, [navigate]);
-
-    // return (
-    //   <div>
-    //     <p>{`Redirecting in ${count} seconds`}</p>
-    //   </div>
-    // )
-    // }
-    // , [navigate]);
   }
-
-  // const [readyState, setReadyState] = useState(false);
-  // const [player1Ready, setPlayer1Ready] = useState(false);
-  // const [reqContent1, setReqContent1] = useState({
-  //   user_idx: 1, // find_by_idx
-  //   ready: false,
-  // });
-
-  // const [reqContent2, setReqContent2] = useState({
-  //   id: 2, // find_by_idx
-  //   ready: false,
-  // });
-
-  // const setContent1 = useSetRecoilState(GameReadyAtom);
-  // const Content1 = useRecoilValue(GameReadyAtom);
-
-  // useEffect(() => {
-  // setContent1(reqContent1);
-  // }
-  // , [reqContent1, setContent1]);
 
   const onClickButton = () => {
     setReadyState(!readyState);
   };
-  // const onClickButton = () => {
-  //   if (player1Ready == false)
-  //     setPlayer1Ready(true)
-  //   if (player2Ready == false)
-  //     setPlayer2Ready(true)
-  //   setPlayer1Ready(!player1Ready);
-  //   setPlayer2Ready(!player2Ready);
-  // };
+
   const startGame = () => {
-    // if (player1Ready && player2Ready) {
     navigate('/game-play');
-    // }
   };
 
   const [player1, setPlayer1] = useState<UserDataType>();
@@ -119,6 +81,13 @@ function GameReadyPage(props: GameReadyPageProps) {
 
   useEffect(() => {
     const getPlayers = async () => {
+      // game 정보 가져오고
+      // const currentGame = await axios.get();
+
+      // host guest의 정보를 가지고 전적 띄워주고
+
+      // 다음 넘어가기
+
       const player1Data = await axios.get('http://localhost:3000/users/1');
       const player2Data = await axios.get('http://localhost:3000/users/2');
 
