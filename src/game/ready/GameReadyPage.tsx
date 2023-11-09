@@ -4,36 +4,68 @@ import UserReadyProfile from './UserReadyProfile';
 import { useNavigate } from 'react-router';
 // import { GameReadyAtom } from '../../recoil/readystate';
 // import { useSetRecoilState, useRecoilValue } from 'recoil';
+import axios from 'axios';
 
 type GameReadyPageProps = {
   gameType: 'Ladder' | 'Challenge';
   gameMode: 'Normal' | 'Hard';
 };
 
+export interface UserDataType {
+  idx: number;
+  id: string;
+  nickname: string;
+  email: string;
+  status: string;
+  tfa_enabled: false;
+  tfa_secret: null;
+  avatar: {
+    idx: 1;
+    image_data: {
+      type: string;
+      data: number[];
+    };
+  };
+  record: {
+    idx: number;
+    total_game: number;
+    total_win: number;
+    ladder_game: number;
+    ladder_win: number;
+    general_game: number;
+    general_win: number;
+  };
+  ranking: {
+    idx: number;
+    score: number;
+  };
+  requester: number[];
+  requested: number[];
+  banner: number[];
+}
+
+const READY_SECOND = 500000;
+
 function GameReadyPage(props: GameReadyPageProps) {
   const navigate = useNavigate();
   const [readyState, setReadyState] = useState(false);
   const [count, setCount] = useState(0);
 
-  if(props.gameType === 'Ladder') {
-
+  if (props.gameType === 'Ladder') {
     useEffect(() => {
       const id = setInterval(() => {
-        setCount(prevCount => prevCount + 1);
-      // }, 5000);
+        setCount((prevCount) => prevCount + 1);
       }, 1000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
-
 
       const timeout = setTimeout(() => {
         navigate('/game-play');
-      }, 6000); // 5초 설정
-      // }, 10000000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
+      }, READY_SECOND + 1000); // 5초 설정
 
       return () => {
         clearTimeout(timeout);
         clearInterval(id);
-      }
-    // }, [count, navigate]);
+      };
+      // }, [count, navigate]);
     }, [navigate]);
 
     // return (
@@ -44,7 +76,6 @@ function GameReadyPage(props: GameReadyPageProps) {
     // }
     // , [navigate]);
   }
-
 
   // const [readyState, setReadyState] = useState(false);
   // const [player1Ready, setPlayer1Ready] = useState(false);
@@ -62,10 +93,9 @@ function GameReadyPage(props: GameReadyPageProps) {
   // const Content1 = useRecoilValue(GameReadyAtom);
 
   // useEffect(() => {
-    // setContent1(reqContent1);
+  // setContent1(reqContent1);
   // }
   // , [reqContent1, setContent1]);
-
 
   const onClickButton = () => {
     setReadyState(!readyState);
@@ -80,25 +110,50 @@ function GameReadyPage(props: GameReadyPageProps) {
   // };
   const startGame = () => {
     // if (player1Ready && player2Ready) {
-      navigate('/game-play');
+    navigate('/game-play');
     // }
   };
 
+  const [player1, setPlayer1] = useState<UserDataType>();
+  const [player2, setPlayer2] = useState<UserDataType>();
+
+  useEffect(() => {
+    const getPlayers = async () => {
+      const player1Data = await axios.get('http://localhost:3000/users/1');
+      const player2Data = await axios.get('http://localhost:3000/users/2');
+
+      setPlayer1(player1Data.data);
+      setPlayer2(player2Data.data);
+
+      console.log(player1Data.data);
+      console.log(player2Data.data);
+    };
+    console.log('getPlayers');
+    getPlayers();
+  }, []);
   return (
     <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
       <h1 className="text-3xl font-bold mb-10">{`${props.gameType} ${props.gameMode}`}</h1>
       <div className="w-screen h-3/5  flex justify-evenly items-center">
-        <UserReadyProfile url={`./jiwoo.jpeg`} />
+        <UserReadyProfile user={player1} url={`./jiwoo.jpeg`} />
 
         <div className="flex flex-col justify-between items-center">
           {props.gameType === 'Challenge' ? (
             <div className="flex flex-row justify-between w-full">
               {readyState ? (
-                <Button colorScheme="teal" variant="solid" onClick={onClickButton}>
+                <Button
+                  colorScheme="teal"
+                  variant="solid"
+                  onClick={onClickButton}
+                >
                   Normal
                 </Button>
               ) : (
-                <Button colorScheme="teal" variant="outline" onClick={onClickButton}>
+                <Button
+                  colorScheme="teal"
+                  variant="outline"
+                  onClick={onClickButton}
+                >
                   Hard
                 </Button>
               )}
@@ -118,7 +173,6 @@ function GameReadyPage(props: GameReadyPageProps) {
               >
                 Hard
               </Button> */}
-
             </div>
           ) : null}
           {props.gameType === 'Ladder' ? (
@@ -126,7 +180,7 @@ function GameReadyPage(props: GameReadyPageProps) {
               <div>
                 {/* <p>{`${5 - count} seconds`}</p> */}
                 <p>{`${5 - count} seconds`}</p>
-             </div>
+              </div>
               <div className="">Ranking</div>
               <div className="flex flex-row justify-between w-full">
                 <div className="w-20 h-10 bg-blue-200 rounded-md flex justify-center items-center mr-1">
@@ -145,14 +199,13 @@ function GameReadyPage(props: GameReadyPageProps) {
             <button onClick={startGame}>Start Game</button>
           ) : null}
         </div>
-        <UserReadyProfile url={`./jiwoo.jpeg`} />
+        <UserReadyProfile user={player2} url={`./jiwoo.jpeg`} />
       </div>
     </div>
   );
 }
 
 export default GameReadyPage;
-
 
 // 플레이어 1 플레이어 2 같은 페이지
 // ready button에 각자의 것만 권한을 가짐
