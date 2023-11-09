@@ -58,7 +58,7 @@ function GameReadyPage(props: GameReadyPageProps) {
       }, 1000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
 
       const timeout = setTimeout(() => {
-        navigate(`/game-play`);
+        navigate('/game-play');
       }, READY_SECOND + 1000); // 5초 설정
 
       return () => {
