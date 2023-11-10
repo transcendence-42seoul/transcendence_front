@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import logo from '../assets/logo.svg';
 
 function WelcomePage() {
