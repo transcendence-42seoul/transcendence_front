@@ -53,17 +53,17 @@ function GameReadyPage(props: GameReadyPageProps) {
 
   if (props.gameType === 'Ladder') {
     useEffect(() => {
-      const id = setInterval(() => {
-        setCount((prevCount) => prevCount + 1);
-      }, 1000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
+      // const id = setInterval(() => {
+      //   setCount((prevCount) => prevCount + 1);
+      // }, 1000); // 페이지 수정할 때 자꾸 넘어가서 임시로 큰 값 설정
 
-      const timeout = setTimeout(() => {
-        navigate('/game-play');
-      }, READY_SECOND + 1000); // 5초 설정
+      // const timeout = setTimeout(() => {
+      //   navigate('/game-play');
+      // }, READY_SECOND + 1000); // 5초 설정
 
       return () => {
-        clearTimeout(timeout);
-        clearInterval(id);
+        // clearTimeout(timeout);
+        // clearInterval(id);
       };
     }, [navigate]);
   }
@@ -88,8 +88,8 @@ function GameReadyPage(props: GameReadyPageProps) {
 
       // 다음 넘어가기
 
-      const player1Data = await axios.get('http://localhost:3000/users/1');
-      const player2Data = await axios.get('http://localhost:3000/users/2');
+      const player1Data = await axios.get('http://localhost:3000/users/idx/5');
+      const player2Data = await axios.get('http://localhost:3000/users/idx/6');
 
       setPlayer1(player1Data.data);
       setPlayer2(player2Data.data);
@@ -97,14 +97,13 @@ function GameReadyPage(props: GameReadyPageProps) {
       console.log(player1Data.data);
       console.log(player2Data.data);
     };
-    console.log('getPlayers');
     getPlayers();
   }, []);
   return (
     <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
       <h1 className="text-3xl font-bold mb-10">{`${props.gameType} ${props.gameMode}`}</h1>
       <div className="w-screen h-3/5  flex justify-evenly items-center">
-        <UserReadyProfile user={player1} url={`./jiwoo.jpeg`} />
+        <UserReadyProfile user={player1} />
 
         <div className="flex flex-col justify-between items-center">
           {props.gameType === 'Challenge' ? (
@@ -168,7 +167,7 @@ function GameReadyPage(props: GameReadyPageProps) {
             <button onClick={startGame}>Start Game</button>
           ) : null}
         </div>
-        <UserReadyProfile user={player2} url={`./jiwoo.jpeg`} />
+        <UserReadyProfile user={player2} />
       </div>
     </div>
   );
