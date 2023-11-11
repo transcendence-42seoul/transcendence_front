@@ -46,7 +46,7 @@ function MiniChatting() {
     { isMe: false, message: '오하요~' },
     { isMe: true, message: '안녕하세요' },
   ]);
-
+  4;
   const handleReceiveChat = (chat: string) => {
     if (chat === '') return;
     setChatList((prev) => [
