@@ -6,6 +6,8 @@ import { io } from 'socket.io-client';
 // import { GameReadyAtom } from '../../recoil/readystate';
 // import { useSetRecoilState, useRecoilValue } from 'recoil';
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { GameUsersAtom } from '../../recoil/gameAtom';
 
 type GameReadyPageProps = {
   gameMode: GameModeType;
@@ -20,14 +22,14 @@ const GameModeType = {
 
 export type GameModeType = (typeof GameModeType)[keyof typeof GameModeType];
 
-interface IGame {
+export interface IGame {
   end_time: string;
   start_time: string;
   game_mode: GameModeType;
   game_status: boolean;
   gameHost_score: number;
   gameGuest_score: number;
-  room_id: number;
+  room_id: string;
   idx: number;
 }
 
@@ -66,7 +68,8 @@ export interface UserDataType {
   banner: number[];
 }
 
-const READY_SECOND = 50000000;
+// const READY_SECOND = 50000000;
+const READY_SECOND = 3000;
 
 function GameReadyPage(props: GameReadyPageProps) {
   const navigate = useNavigate();
@@ -100,9 +103,7 @@ function GameReadyPage(props: GameReadyPageProps) {
       clearInterval(id);
     };
   }, [navigate]);
-
-  const [host, setHost] = useState<UserDataType>();
-  const [guest, setGuest] = useState<UserDataType>();
+  const [users, setUsers] = useRecoilState(GameUsersAtom);
 
   useEffect(() => {
     const getPlayers = async () => {
@@ -113,13 +114,19 @@ function GameReadyPage(props: GameReadyPageProps) {
 
       // 다음 넘어가기
 
-      const hostData = await axios.get('http://localhost:3000/users/idx/5');
-      const guestData = await axios.get('http://localhost:3000/users/idx/6');
+      const hostData = await axios
+        .get('http://localhost:3000/users/idx/3')
+        .then((res) => res.data);
+      const guestData = await axios
+        .get('http://localhost:3000/users/idx/4')
+        .then((res) => res.data);
 
-      setHost(hostData.data);
-      setGuest(guestData.data);
-
-      const gameRoomId = '1234';
+      setUsers({
+        host: hostData,
+        guest: guestData,
+      });
+      // setHost(hostData.data);
+      // setGuest(guestData.data);
     };
     getPlayers();
   }, []);
@@ -137,13 +144,13 @@ function GameReadyPage(props: GameReadyPageProps) {
     <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
       <h1 className="text-3xl font-bold mb-10">{`${gameTitle}`}</h1>
       <div className="w-screen h-3/5  flex justify-evenly items-center">
-        <UserReadyProfile user={host} />
+        <UserReadyProfile user={users.host} />
 
         <div className="flex flex-col justify-between items-center">
           <div className="flex flex-col justify-between items-center w-full">
             <div>
               {/* <p>{`${5 - count} seconds`}</p> */}
-              <p>{`${5 - count} seconds`}</p>
+              <p>{`${3 - count} seconds`}</p>
             </div>
             <div className="">Ranking</div>
             <div className="flex flex-row justify-between w-full">
@@ -159,7 +166,7 @@ function GameReadyPage(props: GameReadyPageProps) {
           </div>
           <h1 className="text-4xl font-bold mt-3 mb-3">VS</h1>
         </div>
-        <UserReadyProfile user={guest} />
+        <UserReadyProfile user={users.guest} />
       </div>
     </div>
   );
