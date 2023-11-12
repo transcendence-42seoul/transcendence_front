@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import SmallUserProfile from './SmallUserProfile';
-import MiniChatting from './MiniChatting';
+import MiniChatting from '../mini_chat/MiniChatting';
 import PongGame from './PongGame';
 
 function GamePlayPage() {

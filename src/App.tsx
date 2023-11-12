@@ -1,8 +1,8 @@
 import './App.css';
 import { ChakraProvider } from '@chakra-ui/react';
 import GameReadyPage from './game/ready/GameReadyPage';
-import GamePlayPage from './game/play/GamePlayPage';
-import PongGame from './game/play/PongGame';
+import GamePlayPage from './game/play/pong/GamePlayPage';
+import PongGame from './game/play/pong/PongGame';
 import { Routes, Route } from 'react-router-dom';
 
 function App() {
