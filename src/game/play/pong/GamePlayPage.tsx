@@ -5,8 +5,11 @@ import PongGame from './PongGame';
 import { useRecoilValue } from 'recoil';
 import {
   GameHostInfoSelector,
+  GameRoomIdSelector,
   GameguestInfoSelector,
 } from '../../../recoil/gameAtom';
+import { gameSocket, gameSocketConnect } from '../../socket/game.socket';
+import { useNavigate } from 'react-router';
 
 function GamePlayPage() {
   const host = useRecoilValue(GameHostInfoSelector);
@@ -26,6 +29,31 @@ function GamePlayPage() {
 
   const [userASetScore, setserASetScore] = useState(0);
   const [userBSetScore, setserBSetScore] = useState(0);
+
+  const roomId = useRecoilValue(GameRoomIdSelector);
+  const navigation = useNavigate();
+
+  useEffect(() => {
+    gameSocket.on('error', (error) => {
+      navigation('/');
+      console.error('Socket connection error:', error);
+    });
+
+    gameSocket.on('disconnect', () => {
+      console.log('소켓이 연결이 끊겼습니다.');
+    });
+
+    gameSocket.emit('joinGame', {
+      room_id: roomId,
+    });
+
+    gameSocketConnect();
+
+    return () => {
+      gameSocket.off('error');
+      gameSocket.off('disconnect');
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">

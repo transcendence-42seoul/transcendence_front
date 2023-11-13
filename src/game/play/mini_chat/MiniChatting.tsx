@@ -1,8 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useEffect, useRef, useState } from 'react';
 import ChatInput from './ChatInput';
-import { io } from 'socket.io-client';
-import { useNavigate } from 'react-router-dom';
+import { gameSocket, gameSocketConnect } from '../../socket/game.socket';
 
 type ChatDataType = {
   isMe: boolean;
@@ -30,22 +29,7 @@ function MyChat(props: ChatDataType) {
 }
 
 function MiniChatting() {
-  const navigation = useNavigate();
-
-  // 서버 주소 설정
-  const serverUrl: string = import.meta.env.VITE_SERVER_URL + '/gameChat';
-
-  const sockerRef = useRef(
-    io(serverUrl, {
-      // withCredentials: true, // 요청할때 쿠키를 포함안시킬지 정하는 옵션인데 필요할지 의문이다.
-      transports: ['websocket'], // CORS 에러 일단 안발생하게 만듬. 배포할 때는 특정 사이트를 등록해줘야함.
-    }),
-  );
-
-  const [chatList, setChatList] = useState<ChatDataType[]>([
-    { isMe: false, message: '오하요~' },
-    { isMe: true, message: '안녕하세요' },
-  ]);
+  const [chatList, setChatList] = useState<ChatDataType[]>([]);
 
   const handleReceiveChat = (chat: string) => {
     if (chat === '') return;
@@ -61,19 +45,21 @@ function MiniChatting() {
       ...prev,
       { id: prev.length + 1, isMe: true, message: chat },
     ]);
-    sockerRef.current.emit('new_chat', chat);
+    gameSocket.emit('new_chat', chat);
   };
 
-  // const joinRoom = (chat: string) => {
-  //   if (chat === '') return;
-  //   setChatList((prev) => [
-  //     ...prev,
-  //     { id: prev.length + 1, isMe: true, message: chat },
-  //   ]);
-  //   sockerRef.current.emit('new_chat', roomid);
-  // };
-
   const chatListRef = useRef<HTMLUListElement | null>(null);
+
+  useEffect(() => {
+    gameSocket.on('receiveMessage', (message: string) => {
+      handleReceiveChat(message);
+    });
+
+    gameSocketConnect();
+    return () => {
+      gameSocket.off('receiveMessage');
+    };
+  }, []);
 
   useEffect(() => {
     // chatList가 업데이트될 때마다 마지막 li 엘리먼트로 스크롤 이동
@@ -83,25 +69,6 @@ function MiniChatting() {
         lastLi.scrollIntoView();
       }
     }
-
-    sockerRef.current.on('error', (error) => {
-      navigation('/');
-      console.error('Socket connection error:', error);
-    });
-
-    sockerRef.current.on('disconnect', () => {
-      console.log('소켓이 연결이 끊겼습니다.');
-    });
-
-    sockerRef.current.on('receiveMessage', (message: string) => {
-      handleReceiveChat(message);
-    });
-
-    return () => {
-      sockerRef.current.off('error');
-      sockerRef.current.off('disconnect');
-      sockerRef.current.off('receiveMessage');
-    };
   }, [chatList]);
 
   return (
