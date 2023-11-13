@@ -13,7 +13,7 @@ export const HostMock: UserDataType = {
     idx: 1,
     image_data: {
       type: 'string',
-      data: [1, 2, 3, 4],
+      data: [],
     },
   },
   record: {
