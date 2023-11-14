@@ -66,18 +66,6 @@
 //   },
 // };
 
-// export type GameType = {
-//   player: PlayerType;
-//   ai: PlayerType;
-//   ball: BallType;
-//   running: boolean;
-//   turn: PlayerType | undefined;
-//   timer: number;
-//   color: string;
-//   over: boolean;
-//   round: number;
-// };
-
 // Global Variables
 export enum DIRECTION {
   IDLE = 0,
@@ -100,7 +88,7 @@ export type BallType = {
   speed: number;
 };
 
-const Ball = {
+export const Ball = {
   new: function (
     this: { canvas: HTMLCanvasElement },
     incrementedSpeed?: number,
@@ -130,7 +118,7 @@ export type PlayerType = {
 };
 
 // The ai object (The two lines that move up and down)
-const Ai = {
+export const Ai = {
   new: function (this: { canvas: HTMLCanvasElement }, side: Side) {
     return {
       width: 18,

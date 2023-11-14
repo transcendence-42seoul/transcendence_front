@@ -75,20 +75,6 @@ function GameReadyPage(props: GameReadyPageProps) {
   const navigate = useNavigate();
   const [count, setCount] = useState(0);
 
-  const serverUrl = import.meta.env.VITE_SERVER_URL + '/game';
-  // const sockerRef = useRef(
-  //   io(serverUrl, {
-  //     // withCredentials: true, // 요청할때 쿠키를 포함안시킬지 정하는 옵션인데 필요할지 의문이다.
-  //     transports: ['websocket'], // CORS 에러 일단 안발생하게 만듬. 배포할 때는 특정 사이트를 등록해줘야함.
-  //   }),
-  // );
-  const socketRef = useRef(
-    io(serverUrl, {
-      // withCredentials: true, // 요청할때 쿠키를 포함안시킬지 정하는 옵션인데 필요할지 의문이다.
-      transports: ['websocket'], // CORS 에러 일단 안발생하게 만듬. 배포할 때는 특정 사이트를 등록해줘야함.
-    }),
-  );
-
   useEffect(() => {
     const id = setInterval(() => {
       setCount((prevCount) => prevCount + 1);
