@@ -222,7 +222,7 @@ const PongGame = () => {
 
   //게임 이벤트 등록
   useEffect(() => {
-    gameSocket.emit('gameStart');
+    gameSocket.emit('startGame');
     gameSocket.on('getGameData', (gameData: GameType) => {
       GameDataHandle(gameData);
     });
