@@ -8,7 +8,9 @@ function SettingPage() {
   const navigate = useNavigate();
 
   // 각 설정 항목에 대한 클릭 이벤트 핸들러
-  const handleAuthenticationClick = () => {};
+  const handleAuthenticationClick = () => {
+    navigate('/authentication');
+  };
 
   const handleBlockClick = () => {};
 
