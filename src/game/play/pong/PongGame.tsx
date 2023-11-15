@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gameSocket } from '../../socket/game.socket';
+import { GameRoomIdSelector } from '../../../recoil/gameAtom';
+import { useRecoilValue } from 'recoil';
 
 type BallType = {
   width: number;
@@ -42,7 +44,8 @@ type GameType = {
 };
 
 const ROUNDS: number[] = [7];
-
+const canvasWidth = 1400;
+const canvasHeight = 1000;
 const PongGame = () => {
   const [pongData, setPongData] = useState<GameType>();
 
@@ -94,7 +97,6 @@ const PongGame = () => {
     if (!canvasRef.current) return;
     if (pongData === undefined) return;
     const context = canvasRef.current?.getContext('2d');
-
     if (!context) return;
     // Clear the Canvas
     context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -182,35 +184,34 @@ const PongGame = () => {
     context.fillText(curRound.toString(), canvasRef.current.width / 2, 100);
   };
 
-  const animationIdRef = useRef<number>();
-
-  const loop = () => {
-    if (pongData === undefined) return;
-    // pongData.update();
-    draw();
-
-    // If the game is not over, draw the next frame.
-    if (!pongData.over) animationIdRef.current = requestAnimationFrame(loop);
-    else console.log('game over');
-  };
-
   const keydownfunction = (key: KeyboardEvent) => {
-    gameSocket.emit('gameStart');
-
-    if (pongData === undefined) return;
     // Handle up arrow and w key events
-    if (key.keyCode === 38 || key.keyCode === 87)
-      // pongData.player.move = DIRECTION.UP;
-      gameSocket.emit('keyUp');
+    const identity = 'Host';
+
+    if (key.key === 'ArrowUp')
+      gameSocket.emit('keyEvent', {
+        key: 'keyUp',
+        room_id: roomId,
+        identity: identity,
+      });
 
     // Handle down arrow and s key events
-    if (key.keyCode === 40 || key.keyCode === 83) gameSocket.emit('keyDown');
-    // pongData.player.move = DIRECTION.DOWN;
+    if (key.key === 'ArrowDown')
+      gameSocket.emit('keyEvent', {
+        key: 'keyDown',
+        room_id: roomId,
+        identity: identity,
+      });
   };
 
   const keyupfunction = () => {
-    gameSocket.emit('keyIdle');
-    // pongData.player.move = DIRECTION.IDLE;
+    const identity = 'Host';
+
+    gameSocket.emit('keyEvent', {
+      key: 'keyIdle',
+      room_id: roomId,
+      identity: identity,
+    });
   };
 
   const listen = () => {
@@ -220,25 +221,73 @@ const PongGame = () => {
     document.addEventListener('keyup', keyupfunction);
   };
 
+  const endGameMenu = (text: string) => {
+    if (canvasRef.current === null) return;
+    if (pongData === undefined) return;
+    const context = canvasRef.current.getContext('2d');
+    if (context) {
+      // Change the canvas font size and color
+      context.font = '45px Courier New';
+      context.fillStyle = pongData.color;
+
+      // Draw the rectangle behind the 'Press any key to begin' text.
+      context.fillRect(canvasWidth / 2 - 350, canvasHeight / 2 - 48, 700, 100);
+
+      // Change the canvas color;
+      context.fillStyle = '#ffffff';
+
+      // Draw the end game menu text ('Game Over' and 'Winner')
+      context.fillText(text, canvasWidth / 2, canvasHeight / 2 + 15);
+
+      // setTimeout(() => {
+      // this.makeInit();
+      // document.removeEventListener('keydown', this.keydownfunction);
+      // document.removeEventListener('keyup', this.keyupfunction);
+      // this.initialize();
+      // }, 3000);
+    } else {
+      console.error('context is null');
+    }
+  };
+
+  const roomId = useRecoilValue(GameRoomIdSelector);
+
   //게임 이벤트 등록
   useEffect(() => {
-    gameSocket.emit('startGame');
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d');
+    if (canvas === null || context === null) return;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvas.style.width = canvasWidth / 2 + 'px';
+    canvas.style.height = canvasHeight / 2 + 'px';
+
+    gameSocket.emit('joinGame', {
+      room_id: roomId,
+    });
+    gameSocket.emit('startGame', {
+      rood_id: roomId,
+    });
     gameSocket.on('getGameData', (gameData: GameType) => {
       GameDataHandle(gameData);
     });
-    window.requestAnimationFrame(loop);
     listen();
     return () => {
       document.removeEventListener('keydown', keydownfunction);
       document.removeEventListener('keyup', keyupfunction);
-      gameSocket.off('connection');
-      cancelAnimationFrame(animationIdRef.current!);
-      // gameSocket.emit('leaveGame', { room_id: roomId });
     };
   }, []);
+
   //pongData가 업데이트 될 시 실행할 함수 = 매 라운드 정보 업데이트
   useEffect(() => {
-    // draw();
+    if (pongData?.over) {
+      endGameMenu('Game Over');
+      gameSocket.emit('endGame', {
+        room_id: roomId,
+      });
+      gameSocket.off('getGameData');
+    }
+    draw();
   }, [pongData]);
 
   return <canvas ref={canvasRef}></canvas>;

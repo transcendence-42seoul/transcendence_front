@@ -43,10 +43,6 @@ function GamePlayPage() {
       console.log('소켓이 연결이 끊겼습니다.');
     });
 
-    gameSocket.emit('joinGame', {
-      room_id: roomId,
-    });
-
     gameSocketConnect();
 
     return () => {
@@ -60,7 +56,7 @@ function GamePlayPage() {
       <h1 className="text-3xl h-[5%] font-bold mb-10">GamePlayPage</h1>
       <div className="w-full h-[85%] flex justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
-          <div className="flex bg-slate-200 h-[8rem] justify-evenly">
+          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-tl-md rounded-tr-md">
             <SmallUserProfile
               mode="Ladder"
               avatarData={userA_avatar}
@@ -82,7 +78,7 @@ function GamePlayPage() {
             />
           </div>
           <div
-            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-md flex justify-center items-center`}
+            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-bl-md rounded-br-md flex justify-center items-center`}
           >
             <PongGame />
           </div>
