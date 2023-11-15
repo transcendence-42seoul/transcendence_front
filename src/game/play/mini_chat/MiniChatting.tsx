@@ -72,7 +72,7 @@ function MiniChatting() {
   }, [chatList]);
 
   return (
-    <div className="bg-lime-600 w-3/12 max-h-full h-full rounded-lg p-3 flex-col justify-between lg:visual lg:flex hidden">
+    <div className="bg-sky-200 w-3/12 max-h-full h-full rounded-lg p-3 flex-col justify-between lg:visual lg:flex hidden">
       <ul
         ref={chatListRef}
         key={uuidv4()}
