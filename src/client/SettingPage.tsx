@@ -12,7 +12,9 @@ function SettingPage() {
     navigate('/authentication');
   };
 
-  const handleBlockClick = () => {};
+  const handleBlockClick = () => {
+    navigate('/ban-list');
+  };
 
   const handleLogoutClick = () => {
     navigate('/login');
