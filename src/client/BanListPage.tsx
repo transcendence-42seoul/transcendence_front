@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.jpg';
 
 function BannedUser({ ban, onClick, onDoubleClick, handleUnban }) {
+  const total_lose = ban.total_game - ban.total_win;
+
   return (
     <Flex
       key={ban.id}
@@ -42,7 +44,7 @@ function BannedUser({ ban, onClick, onDoubleClick, handleUnban }) {
         </Text>
       </Flex>
       <Text fontSize="xl" fontWeight="medium" flex="1">
-        {ban.record}
+        {`${ban.total_game}전 ${ban.total_win}승 ${total_lose}패`}
       </Text>
       <Button
         colorScheme="red"
@@ -66,105 +68,120 @@ function BanListPage() {
       id: 1,
       name: 'user123',
       avatar: '../assets/logo.jpg',
-      record: '10W - 2L',
+      total_game: 12,
+      total_win: 10,
       isHighlighted: false,
     },
     {
       id: 2,
       name: 'exampleUser',
       avatar: '../assets/logo.jpg',
-      record: '5W - 3L',
+      total_game: 8,
+      total_win: 3,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
     {
       id: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
-      record: '7W - 5L',
+      total_game: 12,
+      total_win: 7,
       isHighlighted: false,
     },
   ];
