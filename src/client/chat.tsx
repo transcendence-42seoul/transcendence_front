@@ -4,9 +4,9 @@ import logo from '../assets/logo.jpg';
 import { useNavigate } from 'react-router';
 import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
-import MiniChatting from '../game/play/mini_chat/MiniChatting';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
+import MiniChatting from './mini_chat/MiniChatting';
 
 function ChatPage() {
   const navigate = useNavigate();
