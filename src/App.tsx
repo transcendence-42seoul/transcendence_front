@@ -9,6 +9,8 @@ import LoginPage from './client/LoginPage';
 import MainPage from './client/MainPage';
 import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
+import UserPage from './client/UserPage';
+import MyPage from './client/MyPage';
 import BanListPage from './client/BanListPage';
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/setting" element={<SettingPage />} />
+        <Route path="/user" element={<UserPage />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route path="/authentication" element={<AuthenticationPage />} />
         <Route path="/ban-list" element={<BanListPage />} />
       </Routes>
