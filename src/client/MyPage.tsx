@@ -1,7 +1,50 @@
 import React, { useState } from 'react';
 import logo from '../assets/logo.jpg';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Button,
+  useDisclosure,
+  Input,
+} from '@chakra-ui/react';
 
-function UserProfile() {
+function ProfilePictureChangeModal({ isOpen, onClose }) {
+  const handlePictureSubmit = () => {
+    // 프로필 사진을 변경하는 로직 구현
+    // 폼 데이터를 서버에 전송
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>프로필 사진 변경</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Input type="file" accept="image/*" pt={1} />
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={handlePictureSubmit}>
+            변경하기
+          </Button>
+          <Button variant="ghost" onClick={onClose}>
+            취소
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+function MyProfile() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [activeTab, setActiveTab] = useState('all');
 
   const createRandomGame = () => {
@@ -119,18 +162,17 @@ function UserProfile() {
           </div>
 
           {/* profile button */}
-          <div className="flex justify-end pr-7">
-            <div className="flex flex-row items-center">
-              <button className="bg-blue-500 text-white rounded text-sm p-0.5 mr-1">
-                친구신청
-              </button>
-              <button className="bg-blue-500 text-white rounded text-sm p-0.5 ml-1">
-                차단하기
-              </button>
-            </div>
+          <div className="flex justify-end pr-8">
+            <button
+              className="bg-blue-500 text-white px-4 rounded text-sm p-0.5"
+              onClick={onOpen}
+            >
+              프로필 수정
+            </button>
           </div>
           {/* profile button */}
         </div>
+        <ProfilePictureChangeModal isOpen={isOpen} onClose={onClose} />
         {/* screen */}
 
         <div className="border-t">
@@ -216,4 +258,4 @@ function GameTable({ games }) {
   );
 }
 
-export default UserProfile;
+export default MyProfile;

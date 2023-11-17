@@ -10,6 +10,7 @@ import MainPage from './client/MainPage';
 import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
 import UserPage from './client/UserPage';
+import MyPage from './client/MyPage';
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/setting" element={<SettingPage />} />
-        <Route path="user" element={<UserPage />} />
+        <Route path="/user" element={<UserPage />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route path="/authentication" element={<AuthenticationPage />} />
       </Routes>
     </ChakraProvider>
