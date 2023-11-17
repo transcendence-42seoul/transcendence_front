@@ -11,6 +11,7 @@ import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
 import UserPage from './client/UserPage';
 import MyPage from './client/MyPage';
+import BanListPage from './client/BanListPage';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/user" element={<UserPage />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/authentication" element={<AuthenticationPage />} />
+        <Route path="/ban-list" element={<BanListPage />} />
       </Routes>
     </ChakraProvider>
   );

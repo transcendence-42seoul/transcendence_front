@@ -10,6 +10,7 @@ import {
   ModalOverlay,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -17,10 +18,16 @@ import { useEffect, useRef, useState } from 'react';
 import bell from '../assets/bell.svg';
 import setting from '../assets/setting.svg';
 import logo from '../assets/logo.jpg';
+import { useNavigate } from 'react-router';
+import { UserContextMenu, UserItem } from './components/UserItem';
+import { FriendContextMenu, FriendItem } from './components/FriendItem';
+import CustomButton from './components/CustomButton';
 
 function CreateChannelModal({ isOpen, onClose }) {
   const [channelType, setChannelType] = useState('public');
   const [password, setPassword] = useState('');
+  const [maxPeople, setMaxPeople] = useState('');
+  const maxPeopleOptions = Array.from({ length: 9 }, (_, i) => i + 2);
 
   const isPrivate = channelType === 'private';
 
@@ -43,7 +50,18 @@ function CreateChannelModal({ isOpen, onClose }) {
         <ModalCloseButton />
         <ModalBody pb={6}>
           <Input placeholder="채널명" mb={4} />
-          <Input placeholder="최대 인원" mb={4} />
+          <Select
+            placeholder="최대 인원 선택"
+            mb={4}
+            value={maxPeople}
+            onChange={(e) => setMaxPeople(e.target.value)}
+          >
+            {maxPeopleOptions.map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </Select>
           <RadioGroup onChange={handleTypeChange} value={channelType}>
             <Stack direction="row">
               <Radio value="public">Public</Radio>
@@ -72,10 +90,6 @@ function CreateChannelModal({ isOpen, onClose }) {
 }
 
 function ChatItem({ chatRoom, onClick, onDoubleClick }) {
-  const handleSingleClick = () => {
-    onClick(chatRoom);
-  };
-
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -125,75 +139,9 @@ function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
   );
 }
 
-function FriendItem({ friend, onClick, onContextMenu }) {
-  return (
-    <div
-      className={`flex justify-between items-center p-4 my-2 mx-2
-		  border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-        friend.isHighlighted ? 'bg-blue-100' : 'bg-white'
-      }`}
-      onClick={onClick}
-      onContextMenu={(e) => onContextMenu(e, friend)}
-    >
-      <span>{friend.name}</span>
-    </div>
-  );
-}
-
-function OnlineItem({ online, onClick, onContextMenu }) {
-  return (
-    <div
-      className={`flex justify-between items-center p-4 my-2 mx-2
-			border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-        online.isHighlighted ? 'bg-blue-100' : 'bg-white'
-      } cursor-pointer`}
-      onClick={onClick}
-      onContextMenu={onContextMenu}
-    >
-      <span>{online.name}</span>
-    </div>
-  );
-}
-
-function OnlineUserContextMenu({ user, position, onClose }) {
-  // useEffect를 제거하고, position을 직접 스타일로 사용
-  return (
-    <div
-      className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
-      style={{ top: `${position.y}px`, left: `${position.x}px` }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* 메뉴 내용 */}
-      <ul className="divide-y divide-gray-100">
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">친구신청</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">차단</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">노말 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">하드 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
-      </ul>
-    </div>
-  );
-}
-
-function FriendContextMenu({ friend, position, onClose }) {
-  return (
-    <div
-      className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
-      style={{ top: position.y, left: position.x }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <ul className="divide-y divide-gray-100">
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">친구 삭제</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">차단</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">노말 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">하드 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">DM 보내기</li>
-      </ul>
-    </div>
-  );
-}
-
 function MainPage() {
+  const navigate = useNavigate();
+
   const [normalMode, setNormalMode] = useState(false);
   const [ladderMode, setLadderMode] = useState(false);
   const [chatRooms, setChatRooms] = useState([
@@ -211,84 +159,6 @@ function MainPage() {
       isPrivate: true,
       isHighlighted: false,
     },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-    // 다른 채팅방 항목들...
   ]);
   const [activeTab, setActiveTab] = useState('lobby');
   const [showNotifications, setShowNotifications] = useState(false);
@@ -336,14 +206,6 @@ function MainPage() {
   const [friendsList, setFriendsList] = useState([
     { id: 1, name: '친구 A', isHighlighted: false },
     { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-    // 추가적인 친구 데이터...
   ]);
 
   const [onlineList, setOnlineList] = useState([
@@ -362,9 +224,11 @@ function MainPage() {
     setLadderMode(!ladderMode);
   };
 
-  const showNotificationButton = () => {
-    setShowNotifications(!showNotifications);
-  };
+  const buttonData = [
+    { label: '노말 경쟁전', onClick: normalModeButton },
+    { label: '하드 경쟁전', onClick: ladderModeButton },
+    { label: '채널 생성', onClick: onOpenCreateChannel },
+  ];
 
   const handleNotificationResponse = (e, id) => {
     e.stopPropagation();
@@ -396,7 +260,7 @@ function MainPage() {
 
   const renderPasswordModal = () => {
     if (!selectedChat) {
-      return null; // selectedChat이 없으면 PasswordModal을 렌더링하지 않음
+      return null;
     }
 
     return (
@@ -404,7 +268,7 @@ function MainPage() {
         isOpen={isPasswordModalOpen}
         onClose={() => {
           onClosePasswordModal();
-          setSelectedChat(null); // 모달을 닫을 때 selectedChat을 초기화
+          setSelectedChat(null);
         }}
         onSubmit={(password) => {
           console.log('Password for room', selectedChat.name, ':', password);
@@ -445,7 +309,7 @@ function MainPage() {
           : { ...item, isHighlighted: false },
       ),
     );
-    // 컨텍스트 메뉴가 이미 열려 있고, 같은 사용자를 다시 우클릭하면 메뉴를 닫음
+
     if (
       contextMenu &&
       contextMenu.type === 'online' &&
@@ -454,36 +318,23 @@ function MainPage() {
       closeContextMenu();
     } else {
       setContextMenu({
-        type: 'online', // 타입을 추가하여 친구인지 온라인 유저인지 구분
+        type: 'online',
         user: online,
         position: { x: e.clientX, y: e.clientY },
       });
     }
   };
 
-  useEffect(() => {
-    // 메뉴 외부 클릭 감지를 위한 이벤트 리스너
-    const handleOutsideClick = (event) => {
-      if (contextMenu) {
-        closeContextMenu();
-      }
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [contextMenu]);
-
   const closeContextMenu = () => {
-    setContextMenu(null);
-    setFriendsList(
-      friendsList.map((item) => ({ ...item, isHighlighted: false })),
-    );
-    setOnlineList(
-      onlineList.map((item) => ({ ...item, isHighlighted: false })),
-    );
+    if (contextMenu) {
+      setContextMenu(null);
+      setFriendsList(
+        friendsList.map((item) => ({ ...item, isHighlighted: false })),
+      );
+      setOnlineList(
+        onlineList.map((item) => ({ ...item, isHighlighted: false })),
+      );
+    }
   };
 
   const handleFriendRightClick = (e, friend) => {
@@ -504,44 +355,57 @@ function MainPage() {
       closeContextMenu();
     } else {
       setContextMenu({
-        type: 'friend', // 타입을 추가하여 친구인지 온라인 유저인지 구분
+        type: 'friend',
         user: friend,
         position: { x: e.clientX, y: e.clientY },
       });
     }
   };
 
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target)
+      ) {
+        closeContextMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [contextMenuRef, closeContextMenu]);
+
+  const handleDeleteFriend = (friendId) => {
+    setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
+  };
+
+  const handleBlockFriend = (friendId) => {
+    setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
+  };
+
+  const handleBlockOnline = (onlineId) => {
+    setOnlineList(onlineList.filter((online) => online.id !== onlineId));
+  };
+
+  const handleSettingsClick = () => {
+    navigate('/setting');
+  };
+
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
         <div className="h-1/6 flex flex-row items-center align-middle justify-between">
-          <Button
-            colorScheme="teal"
-            variant="outline"
-            width={'full'}
-            mx={2}
-            onClick={normalModeButton}
-          >
-            노말 경쟁전
-          </Button>
-          <Button
-            colorScheme="teal"
-            variant="outline"
-            width={'full'}
-            mx={2}
-            onClick={ladderModeButton}
-          >
-            하드 경쟁전
-          </Button>
-          <Button
-            colorScheme="teal"
-            variant="outline"
-            width={'full'}
-            mx={2}
-            onClick={onOpenCreateChannel}
-          >
-            채널 생성
-          </Button>
+          {buttonData.map((button, index) => (
+            <CustomButton
+              key={index}
+              label={button.label}
+              onClick={button.onClick}
+            />
+          ))}
           <CreateChannelModal
             isOpen={isCreateChannelOpen}
             onClose={onCloseCreateChannel}
@@ -639,13 +503,13 @@ function MainPage() {
             </div>
           </div>
           <div className="w-1/2 flex justify-center items-center">
-            <div className="relative">
+            <button onClick={handleSettingsClick} aria-label="Settings">
               <img
                 className="object-scale-down h-12 w-12"
                 src={setting}
-                alt="setting"
+                alt="Settings"
               />
-            </div>
+            </button>
           </div>
         </div>
         <div className="h-2/6 flex flex-row border-dashed border-4 border-sky-500 rounded-lg mx-2">
@@ -668,7 +532,6 @@ function MainPage() {
         </div>
         <div className="h-3/6 flex flex-col border-2 border-sky-500 rounded-lg mx-2 my-2 min-h-0">
           <div className="h-full flex flex-col">
-            {/* Tab Headers */}
             <div className="flex border-b border-blue-200 overflow-auto">
               <div
                 className={`flex-1 text-center p-2 cursor-pointer ${
@@ -687,15 +550,13 @@ function MainPage() {
                 친구 목록
               </div>
             </div>
-
-            {/* Tab Content */}
             <div className="flex flex-col p-4 bg-blue-200 h-full overflow-auto">
               {activeTab === 'lobby' && (
                 <div className="flex-grow">
                   {onlineList.map((online) => (
-                    <OnlineItem
+                    <UserItem
                       key={online.id}
-                      online={online}
+                      user={online}
                       onClick={() => handleOnlineClick(online)}
                       onContextMenu={(e) => handleOnlineRightClick(e, online)}
                     />
@@ -704,7 +565,6 @@ function MainPage() {
               )}
               {activeTab === 'friends' && (
                 <div className="flex-grow">
-                  {/* 친구 목록을 렌더링합니다. */}
                   {friendsList.map((friend) => (
                     <FriendItem
                       key={friend.id}
@@ -716,20 +576,25 @@ function MainPage() {
                 </div>
               )}
 
-              {contextMenu &&
-                (contextMenu.type === 'online' ? (
-                  <OnlineUserContextMenu
-                    user={contextMenu.user}
-                    position={contextMenu.position}
-                    onClose={closeContextMenu}
-                  />
-                ) : (
-                  <FriendContextMenu
-                    friend={contextMenu.user}
-                    position={contextMenu.position}
-                    onClose={closeContextMenu}
-                  />
-                ))}
+              <div ref={contextMenuRef}>
+                {contextMenu &&
+                  (contextMenu.type === 'online' ? (
+                    <UserContextMenu
+                      user={contextMenu.user}
+                      position={contextMenu.position}
+                      onBlock={() => handleBlockOnline(contextMenu.user.id)}
+                      closeContextMenu={() => closeContextMenu()}
+                    />
+                  ) : (
+                    <FriendContextMenu
+                      friend={contextMenu.user}
+                      position={contextMenu.position}
+                      onDelete={() => handleDeleteFriend(contextMenu.user.id)}
+                      onBlock={() => handleBlockFriend(contextMenu.user.id)}
+                      closeContextMenu={() => closeContextMenu()}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
         </div>
