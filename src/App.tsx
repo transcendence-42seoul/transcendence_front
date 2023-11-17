@@ -22,7 +22,7 @@ function App() {
         <Route path="/game-play" element={<GamePlayPage />} />
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/main" element={<MainPage />} />
+        <Route path="/" element={<MainPage />} />
         <Route path="/setting" element={<SettingPage />} />
         <Route path="/authentication" element={<AuthenticationPage />} />
       </Routes>

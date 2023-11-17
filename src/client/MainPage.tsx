@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import bell from '../assets/bell.svg';
 import setting from '../assets/setting.svg';
 import logo from '../assets/logo.jpg';
+import { CreateLadderModal } from './modal/CreateLadderModal/CreateLadderModal';
 
 function CreateChannelModal({ isOpen, onClose }) {
   const [channelType, setChannelType] = useState('public');
@@ -354,14 +355,6 @@ function MainPage() {
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
 
-  const normalModeButton = () => {
-    setNormalMode(!normalMode);
-  };
-
-  const ladderModeButton = () => {
-    setLadderMode(!ladderMode);
-  };
-
   const showNotificationButton = () => {
     setShowNotifications(!showNotifications);
   };
@@ -515,24 +508,7 @@ function MainPage() {
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
         <div className="h-1/6 flex flex-row items-center align-middle justify-between">
-          <Button
-            colorScheme="teal"
-            variant="outline"
-            width={'full'}
-            mx={2}
-            onClick={normalModeButton}
-          >
-            노말 경쟁전
-          </Button>
-          <Button
-            colorScheme="teal"
-            variant="outline"
-            width={'full'}
-            mx={2}
-            onClick={ladderModeButton}
-          >
-            하드 경쟁전
-          </Button>
+          <CreateLadderModal />
           <Button
             colorScheme="teal"
             variant="outline"
