@@ -12,35 +12,7 @@ import {
   useDisclosure,
   Input,
 } from '@chakra-ui/react';
-
-function ProfilePictureChangeModal({ isOpen, onClose }) {
-  const handlePictureSubmit = () => {
-    // 프로필 사진을 변경하는 로직 구현
-    // 폼 데이터를 서버에 전송
-    onClose();
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>프로필 사진 변경</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Input type="file" accept="image/*" pt={1} />
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handlePictureSubmit}>
-            변경하기
-          </Button>
-          <Button variant="ghost" onClick={onClose}>
-            취소
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-}
+import ProfilePictureChangeModal from './components/ProfilePictureChange';
 
 function MyProfile() {
   const { isOpen, onOpen, onClose } = useDisclosure();
