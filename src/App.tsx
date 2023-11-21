@@ -12,6 +12,7 @@ import AuthenticationPage from './client/Authentication';
 import UserPage from './client/UserPage';
 import MyPage from './client/MyPage';
 import BanListPage from './client/BanListPage';
+import ChatPage from './client/chat';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/authentication" element={<AuthenticationPage />} />
         <Route path="/ban-list" element={<BanListPage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </ChakraProvider>
   );

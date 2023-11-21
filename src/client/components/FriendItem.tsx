@@ -1,4 +1,9 @@
-export const FriendItem = ({ friend, onClick, onContextMenu }) => {
+export const FriendItem = ({
+  friend,
+  onClick,
+  onDoubleClick,
+  onContextMenu,
+}) => {
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -6,6 +11,7 @@ export const FriendItem = ({ friend, onClick, onContextMenu }) => {
         friend.isHighlighted ? 'bg-blue-100' : 'bg-white'
       }`}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       onContextMenu={(e) => onContextMenu(e, friend)}
     >
       <span>{friend.name}</span>
