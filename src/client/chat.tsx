@@ -1,15 +1,3 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
 import logo from '../assets/logo.jpg';
@@ -18,136 +6,25 @@ import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
+import MiniChatting from './mini_chat/MiniChatting';
 
-function ChatItem({ chatRoom, onClick, onDoubleClick }) {
-  return (
-    <div
-      className={`flex justify-between items-center p-4 my-2 mx-2
-		border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-      chatRoom.isHighlighted ? 'bg-blue-100' : 'bg-white'
-    }`}
-      onClick={() => onClick(chatRoom)}
-      onDoubleClick={() => onDoubleClick(chatRoom)}
-    >
-      <span>{chatRoom.name}</span>
-      <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span>
-      <span>{chatRoom.isPrivate ? 'Private' : 'Public'}</span>
-    </div>
-  );
-}
-
-function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
-  const [password, setPassword] = useState('');
-
-  const handlePasswordSubmit = () => {
-    onSubmit(password, chatRoom); // 비밀번호와 채팅방 정보를 전달
-    onClose(); // 모달 닫기
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{chatRoom.name} - Enter Password</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handlePasswordSubmit}>
-            Submit
-          </Button>
-          <Button onClick={onClose}>Cancel</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-}
-
-function MainPage() {
+function ChatPage() {
   const navigate = useNavigate();
 
-  const [chatRooms, setChatRooms] = useState([
-    {
-      name: '채팅방 1',
-      maxPeople: 10,
-      currentPeople: 3,
-      isPrivate: false,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-  ]);
-  const [activeTab, setActiveTab] = useState('lobby');
-
-  const [selectedChat, setSelectedChat] = useState(null);
-
-  const {
-    isOpen: isPasswordModalOpen,
-    onOpen: onOpenPasswordModal,
-    onClose: onClosePasswordModal,
-  } = useDisclosure();
+  const [activeTab, setActiveTab] = useState('chat');
 
   const [friendsList, setFriendsList] = useState([
     { id: 1, name: '친구 A', isHighlighted: false },
     { id: 2, name: '친구 B', isHighlighted: false },
   ]);
 
-  const [onlineList, setOnlineList] = useState([
-    { id: 1, name: '온라인 A', isHighlighted: false },
-    { id: 2, name: '온라인 B', isHighlighted: false },
+  const [chatMemberList, setChatMemberList] = useState([
+    { id: 1, name: '채팅 참여자 A', isHighlighted: false },
+    { id: 2, name: '채팅 참여자 B', isHighlighted: false },
   ]);
 
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
-
-  const handleChatClick = (chatRoom) => {
-    setChatRooms((prevChatRooms) =>
-      prevChatRooms.map((room) =>
-        room.name === chatRoom.name
-          ? { ...room, isHighlighted: !room.isHighlighted }
-          : { ...room, isHighlighted: false },
-      ),
-    );
-  };
-
-  const handleChatDoubleClick = (chatRoom) => {
-    if (chatRoom.isPrivate) {
-      setSelectedChat(chatRoom);
-      onOpenPasswordModal();
-    }
-  };
-
-  const renderPasswordModal = () => {
-    if (!selectedChat) {
-      return null;
-    }
-
-    return (
-      <PasswordModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => {
-          onClosePasswordModal();
-          setSelectedChat(null);
-        }}
-        onSubmit={(password) => {
-          console.log('Password for room', selectedChat.name, ':', password);
-          // 비밀번호 검증 처리
-        }}
-        chatRoom={selectedChat}
-      />
-    );
-  };
 
   const handleFriendClick = (clickedFriend) => {
     setFriendsList(
@@ -159,22 +36,22 @@ function MainPage() {
     );
   };
 
-  const handleOnlineClick = (clickedOnline) => {
-    setOnlineList(
-      onlineList.map((online) =>
-        online.id === clickedOnline.id
-          ? { ...online, isHighlighted: !online.isHighlighted }
-          : { ...online, isHighlighted: false },
+  const handleChatMemberClick = (clickChatMember) => {
+    setChatMemberList(
+      chatMemberList.map((chatMember) =>
+        chatMember.id === clickChatMember.id
+          ? { ...chatMember, isHighlighted: !chatMember.isHighlighted }
+          : { ...chatMember, isHighlighted: false },
       ),
     );
   };
 
-  const handleOnlineRightClick = (e, online) => {
+  const handleChatMemberRightClick = (e, chatMember) => {
     e.preventDefault();
-    const isAlreadyHighlighted = online.isHighlighted;
-    setOnlineList(
-      onlineList.map((item) =>
-        item.id === online.id
+    const isAlreadyHighlighted = chatMember.isHighlighted;
+    setChatMemberList(
+      chatMemberList.map((item) =>
+        item.id === chatMember.id
           ? { ...item, isHighlighted: !isAlreadyHighlighted }
           : { ...item, isHighlighted: false },
       ),
@@ -182,14 +59,14 @@ function MainPage() {
 
     if (
       contextMenu &&
-      contextMenu.type === 'online' &&
-      contextMenu.user.id === online.id
+      contextMenu.type === 'chatMember' &&
+      contextMenu.user.id === chatMember.id
     ) {
       closeContextMenu();
     } else {
       setContextMenu({
-        type: 'online',
-        user: online,
+        type: 'chatMember',
+        user: chatMember,
         position: { x: e.clientX, y: e.clientY },
       });
     }
@@ -201,8 +78,8 @@ function MainPage() {
       setFriendsList(
         friendsList.map((item) => ({ ...item, isHighlighted: false })),
       );
-      setOnlineList(
-        onlineList.map((item) => ({ ...item, isHighlighted: false })),
+      setChatMemberList(
+        chatMemberList.map((item) => ({ ...item, isHighlighted: false })),
       );
     }
   };
@@ -261,8 +138,10 @@ function MainPage() {
     setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
   };
 
-  const handleBlockOnline = (onlineId) => {
-    setOnlineList(onlineList.filter((online) => online.id !== onlineId));
+  const handleBlockChatMember = (chatMemberId) => {
+    setChatMemberList(
+      chatMemberList.filter((chatMember) => chatMember.id !== chatMemberId),
+    );
   };
 
   const handleSettingsClick = () => {
@@ -272,24 +151,15 @@ function MainPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton pageType={'main'} />
+        <UtilButton pageType={'chat'} />
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
-              <h1>채팅 목록</h1>
+              {/*채팅방 이름 들어갈 곳*/}
             </div>
             <div className="bg-sky-200 mx-2 my-2 rounded-lg flex flex-col overflow-auto h-full">
-              <ul>
-                {chatRooms.map((chatRoom, index) => (
-                  <ChatItem
-                    key={index}
-                    chatRoom={chatRoom}
-                    onClick={handleChatClick}
-                    onDoubleClick={handleChatDoubleClick}
-                  />
-                ))}
-              </ul>
-              {renderPasswordModal()}
+              {/*채팅 들어갈 곳*/}
+              <MiniChatting />
             </div>
           </div>
         </div>
@@ -330,11 +200,11 @@ function MainPage() {
             <div className="flex border-b border-blue-200 overflow-auto">
               <div
                 className={`flex-1 text-center p-2 cursor-pointer ${
-                  activeTab === 'lobby' ? 'bg-blue-200' : 'bg-blue-100'
+                  activeTab === 'chat' ? 'bg-blue-200' : 'bg-blue-100'
                 }`}
-                onClick={() => setActiveTab('lobby')}
+                onClick={() => setActiveTab('chat')}
               >
-                온라인 목록
+                채팅 참여자 목록
               </div>
               <div
                 className={`flex-1 text-center p-2 cursor-pointer ${
@@ -346,15 +216,17 @@ function MainPage() {
               </div>
             </div>
             <div className="flex flex-col p-4 bg-blue-200 h-full overflow-auto">
-              {activeTab === 'lobby' && (
+              {activeTab === 'chat' && (
                 <div className="flex-grow">
-                  {onlineList.map((online) => (
+                  {chatMemberList.map((chatMember) => (
                     <UserItem
-                      key={online.id}
-                      user={online}
-                      onClick={() => handleOnlineClick(online)}
-                      onDoubleClick={() => handleUserDoubleClick(online)}
-                      onContextMenu={(e) => handleOnlineRightClick(e, online)}
+                      key={chatMember.id}
+                      user={chatMember}
+                      onClick={() => handleChatMemberClick(chatMember)}
+                      onDoubleClick={() => handleUserDoubleClick(chatMember)}
+                      onContextMenu={(e) =>
+                        handleChatMemberRightClick(e, chatMember)
+                      }
                     />
                   ))}
                 </div>
@@ -375,11 +247,11 @@ function MainPage() {
 
               <div ref={contextMenuRef}>
                 {contextMenu &&
-                  (contextMenu.type === 'online' ? (
+                  (contextMenu.type === 'chatMember' ? (
                     <UserContextMenu
                       user={contextMenu.user}
                       position={contextMenu.position}
-                      onBlock={() => handleBlockOnline(contextMenu.user.id)}
+                      onBlock={() => handleBlockChatMember(contextMenu.user.id)}
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ) : (
@@ -400,4 +272,4 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+export default ChatPage;

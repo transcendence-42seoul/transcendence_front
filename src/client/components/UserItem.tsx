@@ -1,4 +1,4 @@
-export const UserItem = ({ user, onClick, onContextMenu }) => {
+export const UserItem = ({ user, onClick, onDoubleClick, onContextMenu }) => {
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -6,6 +6,7 @@ export const UserItem = ({ user, onClick, onContextMenu }) => {
           user.isHighlighted ? 'bg-blue-100' : 'bg-white'
         } cursor-pointer`}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
       <span>{user.name}</span>
