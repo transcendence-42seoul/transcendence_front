@@ -14,10 +14,25 @@ import {
 } from '@chakra-ui/react';
 import ProfilePictureChangeModal from './components/ProfilePictureChange';
 
+const userData = {
+  nickname: 'sanghan',
+  rank: 2147483647,
+  record: '100전 1승 99패',
+  winRate: 1, // 1% 승률로 가정
+  profileImage: logo, // 프로필 이미지 경로
+};
+
 function MyProfile() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [activeTab, setActiveTab] = useState('all');
+
+  const [profileImage, setProfileImage] = useState(userData.profileImage);
+
+  const handleAvatarChange = (newAvatar) => {
+    setProfileImage(newAvatar);
+    onClose();
+  };
 
   const createRandomGame = () => {
     let score1 = 0;
@@ -55,14 +70,6 @@ function MyProfile() {
   const rankGames = createDummyData('랭크전');
   const normalGames = createDummyData('일반전');
   const allGames = [...rankGames, ...normalGames];
-
-  const userData = {
-    nickname: 'sanghan',
-    rank: 2147483647,
-    record: '100전 1승 99패',
-    winRate: 1, // 1% 승률로 가정
-    profileImage: logo, // 프로필 이미지 경로
-  };
 
   // 승률을 나타내는 원의 둘레 계산
   const radius = 45; // 반지름
@@ -126,7 +133,7 @@ function MyProfile() {
             <div className="shrink-0">
               <img
                 className="w-24 h-24 rounded-full object-cover"
-                src={userData.profileImage}
+                src={profileImage}
                 alt="Profile"
               />
             </div>
@@ -144,7 +151,11 @@ function MyProfile() {
           </div>
           {/* profile button */}
         </div>
-        <ProfilePictureChangeModal isOpen={isOpen} onClose={onClose} />
+        <ProfilePictureChangeModal
+          isOpen={isOpen}
+          onClose={onClose}
+          onAvatarChange={handleAvatarChange}
+        />
         {/* screen */}
 
         <div className="border-t">
