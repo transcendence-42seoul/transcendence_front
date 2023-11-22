@@ -18,22 +18,8 @@ function UserReadyProfile(props: UserReadyProfileProps) {
   const total = user ? user.record.total_game : 0;
   const win = user ? user.record.total_win : 0;
   const lose = total - win;
-  const idx = user ? user.idx : 0;
-  const image_data = user?.avatar.image_data;
 
-  console.log(idx);
-  let imageDataArray;
-  if (image_data && Object.keys(image_data).length === 0) {
-    imageDataArray = undefined;
-    console.log('dfalsdjfasdfdsf');
-  } else {
-    imageDataArray = user?.avatar.image_data?.data;
-  }
-  console.log('imageDataArray ' + imageDataArray);
-  console.log('user' + JSON.stringify(user, null, 2));
-  // const onClickButton = () => {
-  //   setReadyState(!readyState);
-  // };
+  const imageDataArray = user?.avatar.image_data?.data;
   return (
     <div className="w-3/12 h-full bg-slate-100 ring-4 rounded-lg flex flex-col justify-between items-center py-8">
       {imageDataArray === undefined ? (
