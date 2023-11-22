@@ -14,11 +14,23 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import {
+  gameSocket,
+  gameSocketConnect,
+  gameSocketDisconnect,
+} from '../../../game/socket/game.socket';
+import axios from 'axios';
+import { getCookie, removeCookie } from '../../../common/cookie/cookie';
+import { useNavigate } from 'react-router';
+
+// import { Cookies } from 'react-cookie';
+// import Cookies from 'js-cookie';
 
 type difficultyLevelType = 'normal' | 'hard';
 
 export const CreateLadderModal = () => {
+  const navigate = useNavigate();
   const [difficultyLevel, setDifficultyLevel] =
     useState<difficultyLevelType>('normal');
 
@@ -29,9 +41,21 @@ export const CreateLadderModal = () => {
   const [submitState, setSubmitState] = useState<boolean>(false);
 
   const handleSubmit = () => {
-    // radder 대기열에 등록
     setSubmitState(true);
-    // onCloseCreateRadder();
+    gameSocketConnect();
+    gameSocket.emit('joinLadderQueue', {
+      mode: difficultyLevel,
+      token: getCookie('token'),
+    });
+
+    gameSocket.on('error', () => {
+      removeCookie('token');
+      navigate('/login');
+    });
+
+    gameSocket.on('createGameSuccess', (game) => {
+      navigate(`/game/${game.room_id}`);
+    });
   };
 
   const {
@@ -40,16 +64,18 @@ export const CreateLadderModal = () => {
     onClose: onCloseCreateRadder,
   } = useDisclosure();
 
-  const handleCancleButton = () => {
-    setSubmitState(false);
-    onCloseCreateRadder();
-  };
-
   const handleModalClose = () => {
     setSubmitState(false);
     onCloseCreateRadder();
+    setDifficultyLevel('normal');
+    gameSocket.off('error');
   };
 
+  useEffect(() => {
+    return () => {
+      handleModalClose();
+    };
+  }, []);
   return (
     <>
       <Button
@@ -93,7 +119,7 @@ export const CreateLadderModal = () => {
                 Submit
               </Button>
             )}
-            <Button onClick={handleCancleButton}>Cancel</Button>
+            <Button onClick={handleModalClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
