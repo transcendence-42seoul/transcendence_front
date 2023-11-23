@@ -18,8 +18,10 @@ import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
+import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
+import { getCookie } from '../common/cookie/cookie';
 
-function ChatItem({ chatRoom, onClick, onDoubleClick }) {
+function ChatItem({ chatRoom, onClick, onDoubleClick, token }) {
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -27,7 +29,7 @@ function ChatItem({ chatRoom, onClick, onDoubleClick }) {
       chatRoom.isHighlighted ? 'bg-blue-100' : 'bg-white'
     }`}
       onClick={() => onClick(chatRoom)}
-      onDoubleClick={() => onDoubleClick(chatRoom)}
+      onDoubleClick={() => onDoubleClick(chatRoom, token)}
     >
       <span>{chatRoom.name}</span>
       <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span>
@@ -36,12 +38,12 @@ function ChatItem({ chatRoom, onClick, onDoubleClick }) {
   );
 }
 
-function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
+function PasswordModal({ isOpen, onClose, onSubmit, chatRoom, token }) {
   const [password, setPassword] = useState('');
 
   const handlePasswordSubmit = () => {
-    onSubmit(password, chatRoom); // 비밀번호와 채팅방 정보를 전달
-    onClose(); // 모달 닫기
+    onSubmit(password, chatRoom, token);
+    onClose();
   };
 
   return (
@@ -71,6 +73,8 @@ function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
 
 function MainPage() {
   const navigate = useNavigate();
+
+  const token = getCookie('token');
 
   const [chatRooms, setChatRooms] = useState([
     {
@@ -121,11 +125,33 @@ function MainPage() {
     );
   };
 
-  const handleChatDoubleClick = (chatRoom) => {
+  const handleChatDoubleClick = (chatRoom, token) => {
     if (chatRoom.isPrivate) {
       setSelectedChat(chatRoom);
       onOpenPasswordModal();
+    } else {
+      chatSocketConnect(token);
+
+      // joinChat 이벤트 보내기
+      chatSocket.emit('joinChat', {
+        room_id: chatRoom.id,
+        password: chatRoom.password,
+      });
+
+      // navigate(`/chat/${chatRoom.id}`);
+      navigate('/chat');
     }
+  };
+
+  const handleJoinPrivateChat = (chatRoom, password, token) => {
+    chatSocketConnect(token);
+
+    chatSocket.emit('joinChat', {
+      room_id: chatRoom.id,
+      password: password,
+    });
+
+    navigate('/chat');
   };
 
   const renderPasswordModal = () => {
@@ -140,11 +166,11 @@ function MainPage() {
           onClosePasswordModal();
           setSelectedChat(null);
         }}
-        onSubmit={(password) => {
-          console.log('Password for room', selectedChat.name, ':', password);
-          // 비밀번호 검증 처리
-        }}
+        onSubmit={(password) =>
+          handleJoinPrivateChat(selectedChat, password, token)
+        }
         chatRoom={selectedChat}
+        token={token}
       />
     );
   };
@@ -237,6 +263,11 @@ function MainPage() {
   };
 
   useEffect(() => {
+    if (token) {
+      console.log('useEffect token:', token);
+      chatSocketConnect(token);
+    }
+
     const handleOutsideClick = (event) => {
       if (
         contextMenuRef.current &&
@@ -251,7 +282,7 @@ function MainPage() {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [contextMenuRef, closeContextMenu]);
+  }, [contextMenuRef, closeContextMenu, token]);
 
   const handleDeleteFriend = (friendId) => {
     setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
@@ -286,6 +317,7 @@ function MainPage() {
                     chatRoom={chatRoom}
                     onClick={handleChatClick}
                     onDoubleClick={handleChatDoubleClick}
+                    token={token}
                   />
                 ))}
               </ul>

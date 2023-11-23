@@ -7,9 +7,13 @@ import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
 import MiniChatting from './mini_chat/MiniChatting';
+import { getCookie } from '../common/cookie/cookie';
+import { chatSocketConnect } from './mini_chat/chat.socket';
 
 function ChatPage() {
   const navigate = useNavigate();
+
+  const token = getCookie('token');
 
   const [activeTab, setActiveTab] = useState('chat');
 
@@ -114,6 +118,11 @@ function ChatPage() {
   };
 
   useEffect(() => {
+    if (token) {
+      console.log('useEffect token:', token);
+      chatSocketConnect(token);
+    }
+
     const handleOutsideClick = (event) => {
       if (
         contextMenuRef.current &&

@@ -1,7 +1,7 @@
 import * as ioClient from 'socket.io-client';
 
 export const chatSocket = ioClient.io(
-  `${import.meta.env.VITE_SERVER_URL}/chat`,
+  `${import.meta.env.VITE_SERVER_URL}/chats`,
   {
     autoConnect: false,
     reconnection: true,
@@ -12,8 +12,20 @@ export const chatSocket = ioClient.io(
   },
 );
 
-export const chatSocketConnect = () => {
-  if (chatSocket.disconnected) {
+export const chatSocketConnect = (token) => {
+  console.log('chatSocketConnect:', token);
+
+  if (!chatSocket.connected) {
+    chatSocket.io.opts.query = { token };
+
     chatSocket.connect();
   }
+
+  chatSocket.on('connect', () => {
+    console.log('Connected to chat server');
+  });
+
+  chatSocket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+  });
 };
