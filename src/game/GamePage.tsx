@@ -6,7 +6,11 @@ import { useRecoilState } from 'recoil';
 import { GameAtom } from '../recoil/gameAtom';
 import axios from 'axios';
 import { getCookie } from '../common/cookie/cookie';
-import { gameSocket, gameSocketConnect } from './socket/game.socket';
+import {
+  gameSocket,
+  gameSocketConnect,
+  gameSocketDisconnect,
+} from './socket/game.socket';
 
 export enum UserStatus {
   ONLINE = 'ONLINE',
@@ -15,14 +19,29 @@ export enum UserStatus {
 }
 
 const GamePage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [userStatus, setUserStatus] = useState<UserStatus>();
+  // const { id } = useParams<{ id: string }>();
+  const [userStatus, setUserStatus] = useState<UserStatus>(UserStatus.ONLINE);
   const [gameData, setGameData] = useRecoilState(GameAtom);
 
+  const [myId, setMyId] = useState<string>('');
   const navigation = useNavigate();
   useEffect(() => {
+    const getMyId = async () => {
+      const token = getCookie('token');
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      response.data.id && setMyId(response.data.id);
+    };
+
     const setGameState = async () => {
-      if (Object.keys(gameData).length === 0) {
+      try {
         const token = getCookie('token');
         const response = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/games`,
@@ -34,11 +53,15 @@ const GamePage = () => {
         );
         setUserStatus(response.data.__game_guest__.status);
         setGameData(response.data);
+      } catch (error) {
+        navigation('/main');
+        console.log(error);
       }
     };
 
     gameSocket.on('error', (error) => {
       navigation('/login');
+      console.log(error);
       console.error('Socket connection error:', error);
     });
 
@@ -49,6 +72,7 @@ const GamePage = () => {
     try {
       gameSocketConnect();
       setGameState();
+      getMyId();
     } catch (error) {
       console.log(error);
     }
@@ -57,13 +81,14 @@ const GamePage = () => {
       gameSocket.off('error');
       gameSocket.off('disconnect');
       gameSocket.off('getGameInfo');
+      gameSocketDisconnect();
     };
   }, []);
 
   return (
     <>
       {userStatus === UserStatus.PLAYING ? (
-        <GamePlayPage />
+        <GamePlayPage myId={myId} />
       ) : (
         <GameReadyPage
           gameMode={gameData.game_mode}

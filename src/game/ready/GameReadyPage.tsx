@@ -9,10 +9,11 @@ import {
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import './styles.css';
 import { UserStatus } from '../GamePage';
+import { gameSocket } from '../socket/game.socket';
 
 type GameReadyPageProps = {
   gameMode: GameModeType;
-  setUserStatus: React.Dispatch<React.SetStateAction<UserStatus | undefined>>;
+  setUserStatus: React.Dispatch<React.SetStateAction<UserStatus>>;
 };
 
 const GameModeType = {
@@ -74,7 +75,7 @@ export interface UserDataType {
 
 // const READY_SECOND = 3000;
 
-const renderTime = ({ remainingTime, setUserStatus }) => {
+const renderTime = ({ remainingTime }) => {
   const currentTime = useRef(remainingTime);
   const prevTime = useRef(null);
   const isNewTimeFirstTick = useRef(false);
@@ -93,7 +94,6 @@ const renderTime = ({ remainingTime, setUserStatus }) => {
     setTimeout(() => {
       setOneLastRerender((val) => val + 1);
     }, 20);
-    setUserStatus(UserStatus.PLAYING);
   }
 
   const isTimeUp = isNewTimeFirstTick.current;
@@ -128,6 +128,24 @@ function GameReadyPage(props: GameReadyPageProps) {
   else if (props.gameMode === GameModeType.CHALLENGE_NORMAL)
     gameTitle = 'Challenge Normal';
 
+  const [countDown, setCountDown] = useState(5);
+  useEffect(() => {
+    gameSocket.on('countDown', (data) => {
+      console.log('countDown', data);
+      setCountDown(data);
+    });
+
+    return () => {
+      gameSocket.off('countDown');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (countDown === 0) {
+      props.setUserStatus(UserStatus.PLAYING);
+    }
+  }, [countDown]);
+
   return (
     <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
       <h1 className="text-3xl font-bold mb-10">{`${gameTitle}`}</h1>
@@ -138,14 +156,13 @@ function GameReadyPage(props: GameReadyPageProps) {
             <div className="timer-wrapper">
               <CountdownCircleTimer
                 isPlaying
-                duration={300}
+                duration={5}
                 colors={['#004777', '#F7B801', '#A30000', '#A30000']}
                 colorsTime={[5, 3, 1, 0]}
               >
-                {({ remainingTime }) =>
+                {() =>
                   renderTime({
-                    remainingTime: remainingTime,
-                    setUserStatus: props.setUserStatus,
+                    remainingTime: countDown,
                   })
                 }
               </CountdownCircleTimer>

@@ -7,12 +7,8 @@ import ImageComponent from '../../common/ImageComponent/ImageComponent';
 type UserReadyProfileProps = {
   user: UserDataType | undefined;
 };
-
 function UserReadyProfile(props: UserReadyProfileProps) {
-  console.log('props.user ' + props.user);
-  // const [readyState, setReadyState] = useState(false);
   const user = props.user;
-  console.log('abasdfasdfababa = ' + user);
 
   const id = user ? user.id : 'guest';
   const total = user ? user.record.total_game : 0;

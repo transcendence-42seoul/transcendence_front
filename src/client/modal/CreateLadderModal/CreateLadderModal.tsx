@@ -68,6 +68,7 @@ export const CreateLadderModal = () => {
     setSubmitState(false);
     onCloseCreateRadder();
     setDifficultyLevel('normal');
+    gameSocketDisconnect();
     gameSocket.off('error');
   };
 

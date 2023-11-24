@@ -2,8 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { gameSocket } from '../../socket/game.socket';
 import { GameRoomIdSelector } from '../../../recoil/gameAtom';
 import { useRecoilValue } from 'recoil';
+import { getCookie } from '../../../common/cookie/cookie';
+import axios from 'axios';
+// import { GameType, ROUNDS, canvasHeight, canvasWidth } from './pong_engin';
+import { useCookies } from 'react-cookie';
 
-type BallType = {
+export interface BallType {
   width: number;
   height: number;
   x: number;
@@ -11,9 +15,9 @@ type BallType = {
   moveX: number;
   moveY: number;
   speed: number;
-};
+}
 
-enum DIRECTION {
+export enum DIRECTION {
   IDLE = 0,
   UP = 1,
   DOWN = 2,
@@ -21,7 +25,7 @@ enum DIRECTION {
   RIGHT = 4,
 }
 
-type PlayerType = {
+export interface PlayerType {
   width: number;
   height: number;
   x: number;
@@ -29,9 +33,9 @@ type PlayerType = {
   score: number;
   move: DIRECTION;
   speed: number;
-};
+}
 
-type GameType = {
+export interface GameType {
   host: PlayerType;
   guest: PlayerType;
   ball: BallType;
@@ -41,14 +45,21 @@ type GameType = {
   color: string;
   over: boolean;
   round: number;
-};
+}
 
-const ROUNDS: number[] = [7];
-const canvasWidth = 1400;
-const canvasHeight = 1000;
-const PongGame = () => {
+export const ROUNDS: number[] = [7];
+export const canvasWidth = 1400;
+export const canvasHeight = 1000;
+
+interface PongGameProps {
+  player: 'Host' | 'Guest';
+  setGameEndState: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const PongGame = (props: PongGameProps) => {
   const [pongData, setPongData] = useState<GameType>();
 
+  const [winnerLadderScore, setWinnerLadderScore] = useState<number>(-1);
   // const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -59,38 +70,6 @@ const PongGame = () => {
   const _turnDelayIsOver = () => {
     if (pongData === undefined) return false;
     return new Date().getTime() - pongData.timer >= 1000;
-  };
-
-  const menu = () => {
-    if (!canvasRef.current) return;
-    if (pongData === undefined) return;
-    const context = canvasRef.current?.getContext('2d');
-
-    // Draw all the Pong objects in their current state
-    draw(); // 현재 상태를 draw해준다.
-
-    if (!context) return;
-    // Change the canvas font size and color
-    context.font = '50px Courier New';
-    context.fillStyle = pongData.color;
-
-    // Draw the rectangle behind the 'Press any key to begin' text.
-    context.fillRect(
-      canvasRef.current.width / 2 - 350,
-      canvasRef.current.height / 2 - 48,
-      700,
-      100,
-    );
-
-    // Change the canvas color;
-    context.fillStyle = '#ffffff';
-
-    // Draw the 'press any key to begin' text
-    context.fillText(
-      'Press any key to begin',
-      canvasRef.current.width / 2,
-      canvasRef.current.height / 2 + 15,
-    );
   };
 
   const draw = () => {
@@ -186,13 +165,12 @@ const PongGame = () => {
 
   const keydownfunction = (key: KeyboardEvent) => {
     // Handle up arrow and w key events
-    const identity = 'Host';
 
     if (key.key === 'ArrowUp')
       gameSocket.emit('keyEvent', {
         key: 'keyUp',
         room_id: roomId,
-        identity: identity,
+        identity: props.player,
       });
 
     // Handle down arrow and s key events
@@ -200,17 +178,15 @@ const PongGame = () => {
       gameSocket.emit('keyEvent', {
         key: 'keyDown',
         room_id: roomId,
-        identity: identity,
+        identity: props.player,
       });
   };
 
   const keyupfunction = () => {
-    const identity = 'Host';
-
     gameSocket.emit('keyEvent', {
       key: 'keyIdle',
       room_id: roomId,
-      identity: identity,
+      identity: props.player,
     });
   };
 
@@ -238,13 +214,6 @@ const PongGame = () => {
 
       // Draw the end game menu text ('Game Over' and 'Winner')
       context.fillText(text, canvasWidth / 2, canvasHeight / 2 + 15);
-
-      // setTimeout(() => {
-      // this.makeInit();
-      // document.removeEventListener('keydown', this.keydownfunction);
-      // document.removeEventListener('keyup', this.keyupfunction);
-      // this.initialize();
-      // }, 3000);
     } else {
       console.error('context is null');
     }
@@ -278,19 +247,27 @@ const PongGame = () => {
     };
   }, []);
 
-  //pongData가 업데이트 될 시 실행할 함수 = 매 라운드 정보 업데이트
   useEffect(() => {
     if (pongData?.over) {
       endGameMenu('Game Over');
-      gameSocket.emit('endGame', {
-        room_id: roomId,
-      });
       gameSocket.off('getGameData');
+      props.setGameEndState(true);
     }
     draw();
   }, [pongData]);
 
-  return <canvas ref={canvasRef}></canvas>;
+  return (
+    <>
+      {!pongData?.over ? (
+        <canvas ref={canvasRef}></canvas>
+      ) : (
+        <div>
+          <h1 className="text-7xl font-bold">{}</h1>
+          {winnerLadderScore === -1 ? null : `${winnerLadderScore + 20} (+ 20)`}
+        </div>
+      )}
+    </>
+  );
 };
 
 export default PongGame;
