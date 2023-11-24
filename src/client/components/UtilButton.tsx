@@ -16,9 +16,11 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 
-function CreateChannelModal({ isOpen, onClose }) {
+function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
   const [channelType, setChannelType] = useState('public');
+  const [title, setTitle] = useState('');
   const [password, setPassword] = useState('');
   const [maxPeople, setMaxPeople] = useState('');
   const maxPeopleOptions = Array.from({ length: 9 }, (_, i) => i + 2);
@@ -33,7 +35,17 @@ function CreateChannelModal({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
+    onChatRoomAdded();
     onClose();
+    chatSocketConnect();
+
+    console.log(title, password, maxPeople);
+
+    chatSocket.emit('createChat', {
+      title,
+      password,
+      maxPeople,
+    });
   };
 
   return (
@@ -43,7 +55,11 @@ function CreateChannelModal({ isOpen, onClose }) {
         <ModalHeader>채널 생성</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <Input placeholder="채널명" mb={4} />
+          <Input
+            placeholder="채널명"
+            mb={4}
+            onChange={(e) => setTitle(e.target.value)}
+          />
           <Select
             placeholder="최대 인원 선택"
             mb={4}
@@ -83,7 +99,7 @@ function CreateChannelModal({ isOpen, onClose }) {
   );
 }
 
-function UtilButton({ pageType }) {
+function UtilButton({ pageType, onChatRoomAdded }) {
   const navigate = useNavigate();
 
   const [normalMode, setNormalMode] = useState(false);
@@ -140,6 +156,7 @@ function UtilButton({ pageType }) {
       <CreateChannelModal
         isOpen={isCreateChannelOpen}
         onClose={onCloseCreateChannel}
+        onChatRoomAdded={onChatRoomAdded}
       />
     </div>
   );

@@ -19,9 +19,9 @@ import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
 import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
-import { getCookie } from '../common/cookie/cookie';
+import axios from 'axios';
 
-function ChatItem({ chatRoom, onClick, onDoubleClick, token }) {
+function ChatItem({ chatRoom, onClick, onDoubleClick }) {
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -29,7 +29,7 @@ function ChatItem({ chatRoom, onClick, onDoubleClick, token }) {
       chatRoom.isHighlighted ? 'bg-blue-100' : 'bg-white'
     }`}
       onClick={() => onClick(chatRoom)}
-      onDoubleClick={() => onDoubleClick(chatRoom, token)}
+      onDoubleClick={() => onDoubleClick(chatRoom)}
     >
       <span>{chatRoom.name}</span>
       <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span>
@@ -38,11 +38,11 @@ function ChatItem({ chatRoom, onClick, onDoubleClick, token }) {
   );
 }
 
-function PasswordModal({ isOpen, onClose, onSubmit, chatRoom, token }) {
+function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
   const [password, setPassword] = useState('');
 
   const handlePasswordSubmit = () => {
-    onSubmit(password, chatRoom, token);
+    onSubmit(password, chatRoom);
     onClose();
   };
 
@@ -74,24 +74,8 @@ function PasswordModal({ isOpen, onClose, onSubmit, chatRoom, token }) {
 function MainPage() {
   const navigate = useNavigate();
 
-  const token = getCookie('token');
-
-  const [chatRooms, setChatRooms] = useState([
-    {
-      name: '채팅방 1',
-      maxPeople: 10,
-      currentPeople: 3,
-      isPrivate: false,
-      isHighlighted: false,
-    },
-    {
-      name: '채팅방 2',
-      maxPeople: 5,
-      currentPeople: 5,
-      isPrivate: true,
-      isHighlighted: false,
-    },
-  ]);
+  const [chatRooms, setChatRooms] = useState([]);
+  const [chatRoomAdded, setChatRoomAdded] = useState(true);
   const [activeTab, setActiveTab] = useState('lobby');
 
   const [selectedChat, setSelectedChat] = useState(null);
@@ -115,22 +99,26 @@ function MainPage() {
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
 
+  const onChatRoomAdded = () => {
+    setChatRoomAdded(true);
+  };
+
   const handleChatClick = (chatRoom) => {
     setChatRooms((prevChatRooms) =>
       prevChatRooms.map((room) =>
-        room.name === chatRoom.name
+        room.idx === chatRoom.idx
           ? { ...room, isHighlighted: !room.isHighlighted }
           : { ...room, isHighlighted: false },
       ),
     );
   };
 
-  const handleChatDoubleClick = (chatRoom, token) => {
+  const handleChatDoubleClick = (chatRoom) => {
     if (chatRoom.isPrivate) {
       setSelectedChat(chatRoom);
       onOpenPasswordModal();
     } else {
-      chatSocketConnect(token);
+      chatSocketConnect();
 
       // joinChat 이벤트 보내기
       chatSocket.emit('joinChat', {
@@ -143,8 +131,8 @@ function MainPage() {
     }
   };
 
-  const handleJoinPrivateChat = (chatRoom, password, token) => {
-    chatSocketConnect(token);
+  const handleJoinPrivateChat = (chatRoom, password) => {
+    chatSocketConnect();
 
     chatSocket.emit('joinChat', {
       room_id: chatRoom.id,
@@ -166,11 +154,8 @@ function MainPage() {
           onClosePasswordModal();
           setSelectedChat(null);
         }}
-        onSubmit={(password) =>
-          handleJoinPrivateChat(selectedChat, password, token)
-        }
+        onSubmit={(password) => handleJoinPrivateChat(selectedChat, password)}
         chatRoom={selectedChat}
-        token={token}
       />
     );
   };
@@ -263,9 +248,24 @@ function MainPage() {
   };
 
   useEffect(() => {
-    if (token) {
-      console.log('useEffect token:', token);
-      chatSocketConnect(token);
+    const fetchChatRooms = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3000/chats/private-public',
+        );
+        const chatRoomsData = response.data.map((chatRoom) => ({
+          ...chatRoom,
+          isHighlighted: false,
+        }));
+        setChatRooms(chatRoomsData);
+      } catch (error) {
+        console.error('채팅방 데이터를 가져오는데 실패했습니다:', error);
+      }
+    };
+
+    if (chatRoomAdded) {
+      fetchChatRooms();
+      setChatRoomAdded(false); // 상태를 초기화
     }
 
     const handleOutsideClick = (event) => {
@@ -282,7 +282,7 @@ function MainPage() {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [contextMenuRef, closeContextMenu, token]);
+  }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
 
   const handleDeleteFriend = (friendId) => {
     setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
@@ -303,7 +303,7 @@ function MainPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton pageType={'main'} />
+        <UtilButton pageType={'main'} onChatRoomAdded={onChatRoomAdded} />
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
@@ -317,7 +317,6 @@ function MainPage() {
                     chatRoom={chatRoom}
                     onClick={handleChatClick}
                     onDoubleClick={handleChatDoubleClick}
-                    token={token}
                   />
                 ))}
               </ul>

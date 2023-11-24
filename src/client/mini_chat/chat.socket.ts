@@ -1,4 +1,7 @@
 import * as ioClient from 'socket.io-client';
+import { getCookie } from '../../common/cookie/cookie';
+
+const token = getCookie('token');
 
 export const chatSocket = ioClient.io(
   `${import.meta.env.VITE_SERVER_URL}/chats`,
@@ -9,11 +12,13 @@ export const chatSocket = ioClient.io(
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     transports: ['websocket'],
+    // path: '/chats',
   },
 );
 
-export const chatSocketConnect = (token) => {
+export const chatSocketConnect = () => {
   console.log('chatSocketConnect:', token);
+  console.log(chatSocket);
 
   if (!chatSocket.connected) {
     chatSocket.io.opts.query = { token };
