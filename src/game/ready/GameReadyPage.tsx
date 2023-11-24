@@ -25,6 +25,16 @@ const GameModeType = {
 
 export type GameModeType = (typeof GameModeType)[keyof typeof GameModeType];
 
+export interface IRecord {
+  idx: number;
+  total_game: number;
+  total_win: number;
+  ladder_game: number;
+  ladder_win: number;
+  general_game: number;
+  general_win: number;
+}
+
 export interface IGame {
   end_time: string;
   start_time: string;
@@ -53,15 +63,7 @@ export interface UserDataType {
       data: number[];
     };
   };
-  record: {
-    idx: number;
-    total_game: number;
-    total_win: number;
-    ladder_game: number;
-    ladder_win: number;
-    general_game: number;
-    general_win: number;
-  };
+  record: IRecord;
   host: IGame | null;
   guest: IGame | null;
   ranking: {

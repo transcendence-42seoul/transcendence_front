@@ -6,6 +6,7 @@ import { getCookie } from '../../../common/cookie/cookie';
 import axios from 'axios';
 // import { GameType, ROUNDS, canvasHeight, canvasWidth } from './pong_engin';
 import { useCookies } from 'react-cookie';
+import ResultComponent from './ResultComponent';
 
 export interface BallType {
   width: number;
@@ -54,6 +55,7 @@ export const canvasHeight = 1000;
 interface PongGameProps {
   player: 'Host' | 'Guest';
   setGameEndState: React.Dispatch<React.SetStateAction<boolean>>;
+  setWinner: React.Dispatch<React.SetStateAction<'Host' | 'Guest'>>;
 }
 
 const PongGame = (props: PongGameProps) => {
@@ -231,12 +233,6 @@ const PongGame = (props: PongGameProps) => {
     canvas.style.width = canvasWidth / 2 + 'px';
     canvas.style.height = canvasHeight / 2 + 'px';
 
-    gameSocket.emit('joinGame', {
-      room_id: roomId,
-    });
-    gameSocket.emit('startGame', {
-      rood_id: roomId,
-    });
     gameSocket.on('getGameData', (gameData: GameType) => {
       GameDataHandle(gameData);
     });
@@ -251,23 +247,14 @@ const PongGame = (props: PongGameProps) => {
     if (pongData?.over) {
       endGameMenu('Game Over');
       gameSocket.off('getGameData');
-      props.setGameEndState(true);
+      props.setWinner(
+        pongData.host.score > pongData.guest.score ? 'Host' : 'Guest',
+      );
     }
     draw();
   }, [pongData]);
 
-  return (
-    <>
-      {!pongData?.over ? (
-        <canvas ref={canvasRef}></canvas>
-      ) : (
-        <div>
-          <h1 className="text-7xl font-bold">{}</h1>
-          {winnerLadderScore === -1 ? null : `${winnerLadderScore + 20} (+ 20)`}
-        </div>
-      )}
-    </>
-  );
+  return <canvas ref={canvasRef}></canvas>;
 };
 
 export default PongGame;

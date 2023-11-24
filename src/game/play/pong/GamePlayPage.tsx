@@ -8,8 +8,8 @@ import {
   GameguestInfoSelector,
 } from '../../../recoil/gameAtom';
 import { gameSocket } from '../../socket/game.socket';
-import { Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router';
+import ResultComponent from './ResultComponent';
 
 interface GamePlayPageProps {
   myId: string;
@@ -34,6 +34,7 @@ function GamePlayPage(props: GamePlayPageProps) {
   };
 
   const [gameEndState, setGameEndState] = useState(false);
+  const [winner, setWinner] = useState<'Host' | 'Guest'>('Host');
 
   useEffect(() => {
     gameSocket.on('endGame', () => {
@@ -43,8 +44,6 @@ function GamePlayPage(props: GamePlayPageProps) {
       gameSocket.off('endGame');
     };
   }, []);
-
-  console.log('GamePlayPage');
   return (
     <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
       <h1 className="text-3xl h-[5%] font-bold mb-10">GamePlayPage</h1>
@@ -69,18 +68,13 @@ function GamePlayPage(props: GamePlayPageProps) {
               <PongGame
                 player={props.myId === userA_avatar.name ? 'Host' : 'Guest'}
                 setGameEndState={setGameEndState}
+                setWinner={setWinner}
               />
             ) : (
-              <>
-                <div>Game End!</div>
-                <Button
-                  onClick={() => {
-                    navigate('/main');
-                  }}
-                >
-                  Go Home
-                </Button>
-              </>
+              <ResultComponent
+                player={props.myId === userA_avatar.name ? 'Host' : 'Guest'}
+                winner={winner}
+              />
             )}
           </div>
         </div>
