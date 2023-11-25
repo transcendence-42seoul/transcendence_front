@@ -13,6 +13,60 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
 import logo from '../assets/logo.jpg';
+import { CreateLadderModal } from './modal/CreateLadderModal/CreateLadderModal';
+
+function CreateChannelModal({ isOpen, onClose }) {
+  const [channelType, setChannelType] = useState('public');
+  const [password, setPassword] = useState('');
+
+  const isPrivate = channelType === 'private';
+
+  const handleTypeChange = (value) => {
+    setChannelType(value);
+    if (value === 'public') {
+      setPassword('');
+    }
+  };
+
+  const handleSubmit = () => {
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>채널 생성</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <Input placeholder="채널명" mb={4} />
+          <Input placeholder="최대 인원" mb={4} />
+          <RadioGroup onChange={handleTypeChange} value={channelType}>
+            <Stack direction="row">
+              <Radio value="public">Public</Radio>
+              <Radio value="private">Private</Radio>
+            </Stack>
+          </RadioGroup>
+          {isPrivate && (
+            <Input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              mt={4}
+            />
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+            Create
+          </Button>
+          <Button onClick={onClose}>Cancel</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
 import { useNavigate } from 'react-router';
 import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
@@ -110,6 +164,21 @@ function MainPage() {
 
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
+
+  const showNotificationButton = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const handleNotificationResponse = (e, id) => {
+    e.stopPropagation();
+    removeNotification(id);
+  };
+
+  const removeNotification = (id) => {
+    setNotifications(
+      notifications.filter((notification) => notification.id !== id),
+    );
+  };
 
   const handleChatClick = (chatRoom) => {
     setChatRooms((prevChatRooms) =>
@@ -272,6 +341,22 @@ function MainPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
+        <div className="h-1/6 flex flex-row items-center align-middle justify-between">
+          <CreateLadderModal />
+          <Button
+            colorScheme="teal"
+            variant="outline"
+            width={'full'}
+            mx={2}
+            onClick={onOpenCreateChannel}
+          >
+            채널 생성
+          </Button>
+          <CreateChannelModal
+            isOpen={isCreateChannelOpen}
+            onClose={onCloseCreateChannel}
+          />
+        </div>
         <UtilButton pageType={'main'} />
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
