@@ -8,7 +8,6 @@ import {
   GameguestInfoSelector,
 } from '../../../recoil/gameAtom';
 import { gameSocket } from '../../socket/game.socket';
-import { useNavigate } from 'react-router';
 import ResultComponent from './ResultComponent';
 
 interface GamePlayPageProps {
@@ -18,8 +17,6 @@ interface GamePlayPageProps {
 function GamePlayPage(props: GamePlayPageProps) {
   const host = useRecoilValue(GameHostInfoSelector);
   const guest = useRecoilValue(GameguestInfoSelector);
-
-  const navigate = useNavigate();
 
   const userA_avatar = {
     idx: host.idx,

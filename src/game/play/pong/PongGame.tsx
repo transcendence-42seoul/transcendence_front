@@ -2,11 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { gameSocket } from '../../socket/game.socket';
 import { GameRoomIdSelector } from '../../../recoil/gameAtom';
 import { useRecoilValue } from 'recoil';
-import { getCookie } from '../../../common/cookie/cookie';
-import axios from 'axios';
-// import { GameType, ROUNDS, canvasHeight, canvasWidth } from './pong_engin';
-import { useCookies } from 'react-cookie';
-import ResultComponent from './ResultComponent';
 
 export interface BallType {
   width: number;
@@ -61,8 +56,6 @@ interface PongGameProps {
 const PongGame = (props: PongGameProps) => {
   const [pongData, setPongData] = useState<GameType>();
 
-  const [winnerLadderScore, setWinnerLadderScore] = useState<number>(-1);
-  // const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const GameDataHandle = (gameData: GameType) => {
