@@ -1,5 +1,6 @@
 import { Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { useState } from 'react';
+import { useParams } from 'react-router';
 
 type ChatInputProps = {
   handleSubmit: Function;
@@ -12,10 +13,24 @@ function ChatInput(props: ChatInputProps) {
     setChat(event.target.value);
   };
 
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   props.handleSubmit(props.room_id, chat);
+  //   setChat('');
+  // };
+
+  const { idx } = useParams();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    console.log('chatinput handleSubmit');
     event.preventDefault();
     props.handleSubmit(chat);
     setChat('');
+
+    // console.log('room_id', idx);
+    // console.log('chat', chat);
+
+    // chatSocket.emit('sendMessage', { room_id: idx, message: chat });
   };
 
   return (

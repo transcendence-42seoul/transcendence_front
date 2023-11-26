@@ -19,6 +19,8 @@ import { useNavigate } from 'react-router';
 import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 
 function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
+  const navigate = useNavigate();
+
   const [channelType, setChannelType] = useState('public');
   const [title, setTitle] = useState('');
   const [password, setPassword] = useState('');
@@ -41,11 +43,18 @@ function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
 
     console.log(title, password, maxPeople);
 
-    chatSocket.emit('createChat', {
-      title,
-      password,
-      maxPeople,
-    });
+    chatSocket.emit(
+      'createChat',
+      { title, password, maxPeople },
+      (response) => {
+        if (response.status === 'success') {
+          console.log('Created chat room with chat_idx:', response.chat.idx);
+          navigate(`/chat/${response.chat.idx}`);
+        } else {
+          console.error('Failed to create chat room');
+        }
+      },
+    );
   };
 
   return (
@@ -99,7 +108,7 @@ function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
   );
 }
 
-function UtilButton({ pageType, onChatRoomAdded }) {
+function UtilButton({ pageType, onChatState }) {
   const navigate = useNavigate();
 
   const [normalMode, setNormalMode] = useState(false);
@@ -119,10 +128,6 @@ function UtilButton({ pageType, onChatRoomAdded }) {
     setLadderMode(!ladderMode);
   };
 
-  const onClickChannelList = () => {
-    navigate('/main');
-  };
-
   const utilButtonData = [
     { label: '노말 경쟁전', onClick: normalModeButton },
     { label: '하드 경쟁전', onClick: ladderModeButton },
@@ -130,7 +135,7 @@ function UtilButton({ pageType, onChatRoomAdded }) {
       ? [{ label: '채널 생성', onClick: onOpenCreateChannel }]
       : []),
     ...(pageType === 'chat'
-      ? [{ label: '채널 목록', onClick: onClickChannelList }]
+      ? [{ label: '채널 나가기', onClick: onChatState }]
       : []),
   ];
 
@@ -156,7 +161,7 @@ function UtilButton({ pageType, onChatRoomAdded }) {
       <CreateChannelModal
         isOpen={isCreateChannelOpen}
         onClose={onCloseCreateChannel}
-        onChatRoomAdded={onChatRoomAdded}
+        onChatRoomAdded={onChatState}
       />
     </div>
   );

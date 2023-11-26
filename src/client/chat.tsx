@@ -7,13 +7,11 @@ import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
 import MiniChatting from './mini_chat/MiniChatting';
-import { getCookie } from '../common/cookie/cookie';
-import { chatSocketConnect } from './mini_chat/chat.socket';
+import { chatSocket } from './mini_chat/chat.socket';
+import { chatSocketLeave } from './mini_chat/chat.socket';
 
 function ChatPage() {
   const navigate = useNavigate();
-
-  const token = getCookie('token');
 
   const [activeTab, setActiveTab] = useState('chat');
 
@@ -118,11 +116,6 @@ function ChatPage() {
   };
 
   useEffect(() => {
-    if (token) {
-      console.log('useEffect token:', token);
-      chatSocketConnect(token);
-    }
-
     const handleOutsideClick = (event) => {
       if (
         contextMenuRef.current &&
@@ -131,13 +124,20 @@ function ChatPage() {
         closeContextMenu();
       }
     };
-
     document.addEventListener('mousedown', handleOutsideClick);
 
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [contextMenuRef, closeContextMenu]);
+  }, [navigate, contextMenuRef, closeContextMenu]);
+
+  const onClickChannelLeave = (room_id) => {
+    console.log('room_id:', room_id);
+    chatSocket.emit('leaveChat', room_id);
+    chatSocketLeave();
+
+    navigate('/main');
+  };
 
   const handleDeleteFriend = (friendId) => {
     setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
@@ -160,7 +160,10 @@ function ChatPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton pageType={'chat'} />
+        <UtilButton
+          pageType={'chat'}
+          onChatState={() => onClickChannelLeave(roomIdInt)}
+        />
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">

@@ -32,8 +32,9 @@ function ChatItem({ chatRoom, onClick, onDoubleClick }) {
       onDoubleClick={() => onDoubleClick(chatRoom)}
     >
       <span>{chatRoom.name}</span>
-      <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span>
-      <span>{chatRoom.isPrivate ? 'Private' : 'Public'}</span>
+      {/* <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span> */}
+      <span>{`${chatRoom.currentParticipant}/${chatRoom.limit}`}</span>
+      <span>{chatRoom.type === 'PRIVATE' ? 'Private' : 'Public'}</span>
     </div>
   );
 }
@@ -122,12 +123,13 @@ function MainPage() {
 
       // joinChat 이벤트 보내기
       chatSocket.emit('joinChat', {
-        room_id: chatRoom.id,
+        room_id: chatRoom.idx,
         password: chatRoom.password,
       });
 
-      // navigate(`/chat/${chatRoom.id}`);
-      navigate('/chat');
+      console.log('chatRoom.idx', chatRoom.idx);
+
+      navigate(`/chat/${chatRoom.idx}`);
     }
   };
 
@@ -135,11 +137,11 @@ function MainPage() {
     chatSocketConnect();
 
     chatSocket.emit('joinChat', {
-      room_id: chatRoom.id,
+      room_id: chatRoom.idx,
       password: password,
     });
 
-    navigate('/chat');
+    navigate(`/chat/${chatRoom.idx}`);
   };
 
   const renderPasswordModal = () => {
@@ -265,7 +267,7 @@ function MainPage() {
 
     if (chatRoomAdded) {
       fetchChatRooms();
-      setChatRoomAdded(false); // 상태를 초기화
+      setChatRoomAdded(false);
     }
 
     const handleOutsideClick = (event) => {
@@ -303,7 +305,7 @@ function MainPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton pageType={'main'} onChatRoomAdded={onChatRoomAdded} />
+        <UtilButton pageType={'main'} onChatState={onChatRoomAdded} />
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">

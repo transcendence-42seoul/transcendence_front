@@ -18,7 +18,6 @@ export const chatSocket = ioClient.io(
 
 export const chatSocketConnect = () => {
   console.log('chatSocketConnect:', token);
-  console.log(chatSocket);
 
   if (!chatSocket.connected) {
     chatSocket.io.opts.query = { token };
@@ -33,4 +32,10 @@ export const chatSocketConnect = () => {
   chatSocket.on('connect_error', (error) => {
     console.error('Connection error:', error);
   });
+};
+
+export const chatSocketLeave = () => {
+  if (chatSocket.connected) {
+    chatSocket.disconnect();
+  }
 };
