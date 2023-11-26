@@ -133,7 +133,6 @@ function GameReadyPage(props: GameReadyPageProps) {
   const [countDown, setCountDown] = useState(5);
   useEffect(() => {
     gameSocket.on('countDown', (data) => {
-      console.log('countDown', data);
       setCountDown(data);
     });
 
