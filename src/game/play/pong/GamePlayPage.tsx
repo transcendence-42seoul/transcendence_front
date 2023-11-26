@@ -47,11 +47,11 @@ function GamePlayPage(props: GamePlayPageProps) {
   const mode = game.game_mode <= 2 ? 'Ladder' : 'Challenge';
 
   return (
-    <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
-      <h1 className="text-3xl h-[5%] font-bold mb-10">GAME PlAY</h1>
+    <div className="flex bg-sky-100 flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
+      <h1 className="text-5xl h-[5%] font-bold mb-10">GAME PlAY</h1>
       <div className="w-full flex h-[85%] justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
-          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-tl-md rounded-tr-md">
+          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-md">
             <SmallUserProfile
               mode={mode}
               avatarData={userA_avatar}
