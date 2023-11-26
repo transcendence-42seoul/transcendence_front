@@ -44,7 +44,7 @@ function GamePlayPage(props: GamePlayPageProps) {
   return (
     <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
       <h1 className="text-3xl h-[5%] font-bold mb-10">GamePlayPage</h1>
-      <div className="w-full h-[85%] flex justify-center">
+      <div className="w-full flex h-[85%] justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
           <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-tl-md rounded-tr-md">
             <SmallUserProfile
@@ -59,7 +59,7 @@ function GamePlayPage(props: GamePlayPageProps) {
             />
           </div>
           <div
-            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-bl-md rounded-br-md flex justify-center items-center`}
+            className={`w-ful h-[calc(100%-8rem)] bg-sky-100 rounded-bl-md rounded-br-md flex justify-center items-center`}
           >
             {!gameEndState ? (
               <PongGame

@@ -19,7 +19,6 @@ const ResultComponent = (props: ResultComponentProps) => {
   const guest = useRecoilValue(GameguestInfoSelector);
   const game = useRecoilValue(GameAtom);
   const navigate = useNavigate();
-  console.log(game);
   const myData = player === 'Host' ? host : guest;
 
   return (
