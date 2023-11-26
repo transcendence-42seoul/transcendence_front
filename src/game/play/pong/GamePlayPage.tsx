@@ -4,6 +4,7 @@ import MiniChatting from '../mini_chat/MiniChatting';
 import PongGame from './PongGame';
 import { useRecoilValue } from 'recoil';
 import {
+  GameAtom,
   GameHostInfoSelector,
   GameguestInfoSelector,
 } from '../../../recoil/gameAtom';
@@ -15,6 +16,7 @@ interface GamePlayPageProps {
 }
 
 function GamePlayPage(props: GamePlayPageProps) {
+  const game = useRecoilValue(GameAtom);
   const host = useRecoilValue(GameHostInfoSelector);
   const guest = useRecoilValue(GameguestInfoSelector);
 
@@ -41,19 +43,22 @@ function GamePlayPage(props: GamePlayPageProps) {
       gameSocket.off('endGame');
     };
   }, []);
+
+  const mode = game.game_mode <= 2 ? 'Ladder' : 'Challenge';
+
   return (
     <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
-      <h1 className="text-3xl h-[5%] font-bold mb-10">GamePlayPage</h1>
+      <h1 className="text-3xl h-[5%] font-bold mb-10">GAME PlAY</h1>
       <div className="w-full flex h-[85%] justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
           <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-tl-md rounded-tr-md">
             <SmallUserProfile
-              mode="Ladder"
+              mode={mode}
               avatarData={userA_avatar}
               recordData={host.record}
             />
             <SmallUserProfile
-              mode="Ladder"
+              mode={mode}
               avatarData={userB_avatar}
               recordData={guest.record}
             />
