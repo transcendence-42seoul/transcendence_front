@@ -150,7 +150,7 @@ function GameReadyPage(props: GameReadyPageProps) {
   return (
     <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
       <h1 className="text-3xl font-bold mb-10">{`${gameTitle}`}</h1>
-      <div className="w-screen h-3/5  flex justify-evenly items-center">
+      <div className="w-screen flex justify-evenly items-center">
         <UserReadyProfile user={host} />
         <div className="flex flex-col justify-between items-center">
           <div className="flex flex-col justify-between items-center w-full relative">
