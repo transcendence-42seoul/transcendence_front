@@ -4,11 +4,11 @@ import MiniChatting from '../mini_chat/MiniChatting';
 import PongGame from './PongGame';
 import { useRecoilValue } from 'recoil';
 import {
+  GameAtom,
   GameHostInfoSelector,
   GameguestInfoSelector,
 } from '../../../recoil/gameAtom';
 import { gameSocket } from '../../socket/game.socket';
-import { useNavigate } from 'react-router';
 import ResultComponent from './ResultComponent';
 
 interface GamePlayPageProps {
@@ -16,10 +16,9 @@ interface GamePlayPageProps {
 }
 
 function GamePlayPage(props: GamePlayPageProps) {
+  const game = useRecoilValue(GameAtom);
   const host = useRecoilValue(GameHostInfoSelector);
   const guest = useRecoilValue(GameguestInfoSelector);
-
-  const navigate = useNavigate();
 
   const userA_avatar = {
     idx: host.idx,
@@ -44,25 +43,28 @@ function GamePlayPage(props: GamePlayPageProps) {
       gameSocket.off('endGame');
     };
   }, []);
+
+  const mode = game.game_mode <= 2 ? 'Ladder' : 'Challenge';
+
   return (
-    <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
-      <h1 className="text-3xl h-[5%] font-bold mb-10">GamePlayPage</h1>
-      <div className="w-full h-[85%] flex justify-center">
+    <div className="flex bg-sky-100 flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
+      <h1 className="text-5xl h-[5%] font-bold mb-10">GAME PlAY</h1>
+      <div className="w-full flex h-[85%] justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
-          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-tl-md rounded-tr-md">
+          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-md">
             <SmallUserProfile
-              mode="Ladder"
+              mode={mode}
               avatarData={userA_avatar}
               recordData={host.record}
             />
             <SmallUserProfile
-              mode="Ladder"
+              mode={mode}
               avatarData={userB_avatar}
               recordData={guest.record}
             />
           </div>
           <div
-            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-bl-md rounded-br-md flex justify-center items-center`}
+            className={`w-ful h-[calc(100%-8rem)] bg-sky-100 rounded-bl-md rounded-br-md flex justify-center items-center`}
           >
             {!gameEndState ? (
               <PongGame

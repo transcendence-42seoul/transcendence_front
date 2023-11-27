@@ -1,7 +1,5 @@
-import { Avatar, Button } from '@chakra-ui/react';
-import { useState } from 'react';
+import { Avatar } from '@chakra-ui/react';
 import { UserDataType } from './GameReadyPage';
-import React, { useEffect, useRef } from 'react';
 import ImageComponent from '../../common/ImageComponent/ImageComponent';
 
 type UserReadyProfileProps = {
@@ -11,9 +9,6 @@ function UserReadyProfile(props: UserReadyProfileProps) {
   const user = props.user;
 
   const id = user ? user.id : 'guest';
-  const total = user ? user.record.total_game : 0;
-  const total_win = user ? user.record.total_win : 0;
-  const total_lose = total - total_win;
   const ladder_total = user ? user.record.ladder_game : 0;
   const ladder_win = user ? user.record.ladder_win : 0;
   const ladder_lose = ladder_total - ladder_win;

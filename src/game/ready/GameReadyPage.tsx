@@ -122,18 +122,17 @@ function GameReadyPage(props: GameReadyPageProps) {
   const guest = useRecoilValue(GameguestInfoSelector);
 
   let gameTitle;
-  if (props.gameMode === GameModeType.LADDER_HARD) gameTitle = 'Ladder Hard';
+  if (props.gameMode === GameModeType.LADDER_HARD) gameTitle = 'LADDER HARD';
   else if (props.gameMode === GameModeType.LADDER_NORMAL)
-    gameTitle = 'Ladder Normal';
+    gameTitle = 'LADDER NORMAL';
   else if (props.gameMode === GameModeType.CHALLENGE_HARD)
-    gameTitle = 'Challenge Hard';
+    gameTitle = 'CHALLENGE HARD';
   else if (props.gameMode === GameModeType.CHALLENGE_NORMAL)
-    gameTitle = 'Challenge Normal';
+    gameTitle = 'CHALLENGE NORMAL';
 
   const [countDown, setCountDown] = useState(5);
   useEffect(() => {
     gameSocket.on('countDown', (data) => {
-      console.log('countDown', data);
       setCountDown(data);
     });
 
@@ -149,9 +148,9 @@ function GameReadyPage(props: GameReadyPageProps) {
   }, [countDown]);
 
   return (
-    <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24">
-      <h1 className="text-3xl font-bold mb-10">{`${gameTitle}`}</h1>
-      <div className="w-screen h-3/5  flex justify-evenly items-center">
+    <div className="bg-basic-color bg-sky-100 h-screen flex flex-col items-center justify-start align-middle pt-24">
+      <h1 className="text-5xl font-bold mb-24">{`${gameTitle}`}</h1>
+      <div className="w-screen flex justify-evenly items-center">
         <UserReadyProfile user={host} />
         <div className="flex flex-col justify-between items-center">
           <div className="flex flex-col justify-between items-center w-full relative">

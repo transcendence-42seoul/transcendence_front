@@ -1,16 +1,6 @@
 import { Avatar } from '@chakra-ui/react';
 import { IRecord } from '../../ready/GameReadyPage';
 
-type UserRecordDataType = {
-  idx: number;
-  total_game: number;
-  total_win: number;
-  ladder_game: number;
-  ladder_win: number;
-  general_game: number;
-  general_win: number;
-};
-
 type UserAvatarDataType = {
   idx: number;
   name: string;
