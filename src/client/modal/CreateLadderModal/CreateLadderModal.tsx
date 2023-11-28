@@ -49,7 +49,7 @@ export const CreateLadderModal = () => {
     });
 
     gameSocket.on('error', () => {
-      removeCookie('token');
+      // removeCookie('token');
       navigate('/login');
     });
 

@@ -17,6 +17,7 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
+import { CreateLadderModal } from '../modal/CreateLadderModal/CreateLadderModal';
 
 function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
   const navigate = useNavigate();
@@ -129,8 +130,6 @@ function UtilButton({ pageType, onChatState }) {
   };
 
   const utilButtonData = [
-    { label: '노말 경쟁전', onClick: normalModeButton },
-    { label: '하드 경쟁전', onClick: ladderModeButton },
     ...(pageType === 'main'
       ? [{ label: '채널 생성', onClick: onOpenCreateChannel }]
       : []),
@@ -155,9 +154,11 @@ function UtilButton({ pageType, onChatState }) {
 
   return (
     <div className="h-1/6 flex flex-row items-center align-middle justify-between">
+      <CreateLadderModal />
       {utilButtonData.map((button, index) => (
         <UtilButton key={index} label={button.label} onClick={button.onClick} />
       ))}
+
       <CreateChannelModal
         isOpen={isCreateChannelOpen}
         onClose={onCloseCreateChannel}
