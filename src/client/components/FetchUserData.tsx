@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 interface User {
   idx: number;
@@ -48,6 +49,8 @@ const convertToBase64Image = (imageBuffer: any) => {
 };
 
 export const FetchUserData = (props: FetchUserDataProp) => {
+  const navigate = useNavigate();
+
   const [userData, setUserData] = useState<User>();
 
   const fetchUserData = async () => {
@@ -62,8 +65,15 @@ export const FetchUserData = (props: FetchUserDataProp) => {
     fetchUserData();
   }, []);
 
+  const onClickUser = () => {
+    navigate('/mypage');
+  };
+
   return (
-    <div className="h-2/6 flex flex-row border-dashed border-4 border-sky-500 rounded-lg mx-2">
+    <div
+      className="h-2/6 flex flex-row border-dashed border-4 border-sky-500 rounded-lg mx-2 cursor-pointer"
+      onClick={onClickUser}
+    >
       <div className="w-2/5 flex justify-center items-center">
         <div className="w-full aspect-square mx-1 flex justify-center items-center">
           <div className="rounded-full border-2 border-black w-full h-full aspect-square overflow-hidden">

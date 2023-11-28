@@ -72,7 +72,6 @@ function MiniChatting() {
       const response = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/chats/message/${idx}/${userIdx}`,
       );
-      console.log(response);
 
       const messagesData = response.data.map((message: IChat) => {
         return makeIChatMessage(message);

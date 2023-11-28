@@ -13,6 +13,12 @@ import { getCookie } from '../common/cookie/cookie';
 import axios from 'axios';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
 
+interface ChatData {
+  name: string;
+  type: string;
+  password: string;
+}
+
 function ChatPage() {
   const { idx } = useParams();
 
@@ -21,6 +27,9 @@ function ChatPage() {
   const token = getCookie('token');
 
   const [userIdx, setUserIdx] = useState<number>(0);
+
+  const [chatData, setChatData] = useState<ChatData>();
+
   const [activeTab, setActiveTab] = useState('chat');
 
   const [friendsList, setFriendsList] = useState<Friends[]>([]);
@@ -49,8 +58,28 @@ function ChatPage() {
     }
   };
 
+  const fetchChatData = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/chats/data/${idx}`,
+      );
+      setChatData(makeChatData(response.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const makeChatData = (data: any) => {
+    return {
+      name: data.name,
+      type: data.type,
+      password: data.password,
+    };
+  };
+
   useEffect(() => {
     fetchUserIdx();
+    fetchChatData();
   }, []);
 
   useEffect(() => {
@@ -207,10 +236,9 @@ function ChatPage() {
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
-              {/*채팅방 이름 들어갈 곳*/}
+              {userIdx > 0} {chatData?.name}
             </div>
             <div className="bg-sky-200 mx-2 my-2 rounded-lg flex flex-col overflow-auto h-full">
-              {/*채팅 들어갈 곳*/}
               <MiniChatting />
             </div>
           </div>

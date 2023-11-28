@@ -22,7 +22,6 @@ export const FecthFriendList = async (idx: number) => {
   );
 
   const friendList = makeToFriends(response.data);
-  console.log('friendList in fetch', friendList);
 
   return friendList;
 };

@@ -4,7 +4,6 @@ export const FriendItem = ({
   onDoubleClick,
   onContextMenu,
 }) => {
-  console.log('friend', friend);
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -52,8 +51,7 @@ export const FriendContextMenu = ({
         >
           차단
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">노말 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">하드 챌린지</li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM 보내기</li>
       </ul>
     </div>
