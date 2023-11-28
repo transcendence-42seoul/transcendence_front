@@ -27,7 +27,7 @@ function App() {
         <Route path="/authentication" element={<AuthenticationPage />} />
         <Route path="/ban-list" element={<BanListPage />} />
         <Route path="/avatar-setting" element={<AvatarSetting />} />
-        <Route path="/chat/:idx" element={<ChatPage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </ChakraProvider>
   );

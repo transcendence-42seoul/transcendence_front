@@ -72,8 +72,6 @@ import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
-import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
-import axios from 'axios';
 
 function ChatItem({ chatRoom, onClick, onDoubleClick }) {
   return (
@@ -86,9 +84,8 @@ function ChatItem({ chatRoom, onClick, onDoubleClick }) {
       onDoubleClick={() => onDoubleClick(chatRoom)}
     >
       <span>{chatRoom.name}</span>
-      {/* <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span> */}
-      <span>{`${chatRoom.currentParticipant}/${chatRoom.limit}`}</span>
-      <span>{chatRoom.type === 'PRIVATE' ? 'Private' : 'Public'}</span>
+      <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span>
+      <span>{chatRoom.isPrivate ? 'Private' : 'Public'}</span>
     </div>
   );
 }
@@ -97,8 +94,8 @@ function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
   const [password, setPassword] = useState('');
 
   const handlePasswordSubmit = () => {
-    onSubmit(password, chatRoom);
-    onClose();
+    onSubmit(password, chatRoom); // 비밀번호와 채팅방 정보를 전달
+    onClose(); // 모달 닫기
   };
 
   return (
@@ -129,8 +126,22 @@ function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
 function MainPage() {
   const navigate = useNavigate();
 
-  const [chatRooms, setChatRooms] = useState([]);
-  const [chatRoomAdded, setChatRoomAdded] = useState(true);
+  const [chatRooms, setChatRooms] = useState([
+    {
+      name: '채팅방 1',
+      maxPeople: 10,
+      currentPeople: 3,
+      isPrivate: false,
+      isHighlighted: false,
+    },
+    {
+      name: '채팅방 2',
+      maxPeople: 5,
+      currentPeople: 5,
+      isPrivate: true,
+      isHighlighted: false,
+    },
+  ]);
   const [activeTab, setActiveTab] = useState('lobby');
 
   const [selectedChat, setSelectedChat] = useState(null);
@@ -154,9 +165,6 @@ function MainPage() {
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
 
-  const onChatRoomAdded = () => {
-    setChatRoomAdded(true);
-      
   const showNotificationButton = () => {
     setShowNotifications(!showNotifications);
   };
@@ -175,7 +183,7 @@ function MainPage() {
   const handleChatClick = (chatRoom) => {
     setChatRooms((prevChatRooms) =>
       prevChatRooms.map((room) =>
-        room.idx === chatRoom.idx
+        room.name === chatRoom.name
           ? { ...room, isHighlighted: !room.isHighlighted }
           : { ...room, isHighlighted: false },
       ),
@@ -186,30 +194,7 @@ function MainPage() {
     if (chatRoom.isPrivate) {
       setSelectedChat(chatRoom);
       onOpenPasswordModal();
-    } else {
-      chatSocketConnect();
-
-      // joinChat 이벤트 보내기
-      chatSocket.emit('joinChat', {
-        room_id: chatRoom.idx,
-        password: chatRoom.password,
-      });
-
-      console.log('chatRoom.idx', chatRoom.idx);
-
-      navigate(`/chat/${chatRoom.idx}`);
     }
-  };
-
-  const handleJoinPrivateChat = (chatRoom, password) => {
-    chatSocketConnect();
-
-    chatSocket.emit('joinChat', {
-      room_id: chatRoom.idx,
-      password: password,
-    });
-
-    navigate(`/chat/${chatRoom.idx}`);
   };
 
   const renderPasswordModal = () => {
@@ -224,7 +209,10 @@ function MainPage() {
           onClosePasswordModal();
           setSelectedChat(null);
         }}
-        onSubmit={(password) => handleJoinPrivateChat(selectedChat, password)}
+        onSubmit={(password) => {
+          console.log('Password for room', selectedChat.name, ':', password);
+          // 비밀번호 검증 처리
+        }}
         chatRoom={selectedChat}
       />
     );
@@ -318,26 +306,6 @@ function MainPage() {
   };
 
   useEffect(() => {
-    const fetchChatRooms = async () => {
-      try {
-        const response = await axios.get(
-          'http://localhost:3000/chats/private-public',
-        );
-        const chatRoomsData = response.data.map((chatRoom) => ({
-          ...chatRoom,
-          isHighlighted: false,
-        }));
-        setChatRooms(chatRoomsData);
-      } catch (error) {
-        console.error('채팅방 데이터를 가져오는데 실패했습니다:', error);
-      }
-    };
-
-    if (chatRoomAdded) {
-      fetchChatRooms();
-      setChatRoomAdded(false);
-    }
-
     const handleOutsideClick = (event) => {
       if (
         contextMenuRef.current &&
@@ -352,7 +320,7 @@ function MainPage() {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
+  }, [contextMenuRef, closeContextMenu]);
 
   const handleDeleteFriend = (friendId) => {
     setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
@@ -373,7 +341,6 @@ function MainPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton pageType={'main'} onChatState={onChatRoomAdded} />
         <div className="h-1/6 flex flex-row items-center align-middle justify-between">
           <CreateLadderModal />
           <Button
