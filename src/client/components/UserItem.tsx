@@ -9,7 +9,7 @@ export const UserItem = ({ user, onClick, onDoubleClick, onContextMenu }) => {
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
-      <span>{user.name}</span>
+      <span>{user.nickname}</span>
     </div>
   );
 };

@@ -19,6 +19,15 @@ interface ChatData {
   password: string;
 }
 
+interface IChatMember {
+  idx: number;
+  role: string;
+  user: {
+    nickname: string;
+  };
+  isHighlighted: boolean;
+}
+
 function ChatPage() {
   const { idx } = useParams();
 
@@ -34,10 +43,7 @@ function ChatPage() {
 
   const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
-  const [chatMemberList, setChatMemberList] = useState([
-    { idx: 1, name: '채팅 참여자 A', isHighlighted: false },
-    { idx: 2, name: '채팅 참여자 B', isHighlighted: false },
-  ]);
+  const [chatMemberList, setChatMemberList] = useState<IChatMember[]>([]);
 
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
@@ -200,11 +206,51 @@ function ChatPage() {
     };
   }, [navigate, contextMenuRef, closeContextMenu]);
 
+  const handleReceiveChatParticipants = (participant: IChatMember[]) => {
+    setChatMemberList(participant);
+  };
+
+  useEffect(() => {
+    const fetchChatMembers = async () => {
+      try {
+        // 데이터베이스에서 채팅 참여자 데이터를 가져오는 URL
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/chats/participants/${idx}`,
+        );
+        console.log(response.data);
+        const chatMembers = response.data.map((member) => ({
+          ...member,
+          isHighlighted: false,
+        }));
+        setChatMemberList(chatMembers);
+      } catch (error) {
+        console.error('채팅 참여자 데이터를 가져오는데 실패했습니다:', error);
+      }
+    };
+
+    fetchChatMembers();
+
+    // const onLeaveChat = () => {
+    //   fetchChatMembers();
+    // };
+
+    chatSocket.on('leaveChat', onClickChannelLeave);
+    chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
+
+    return () => {
+      chatSocket.off('leaveChat', onClickChannelLeave);
+      chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
+    };
+  }, [idx]);
+
   const onClickChannelLeave = (room_id) => {
     console.log('room_id:', room_id);
     chatSocket.emit('leaveChat', room_id);
     chatSocketLeave();
 
+    // setChatMemberList((prevChatMembers) =>
+    //   prevChatMembers.filter((chatMember) => chatMember.idx !== room_id),
+    // );
     navigate('/main');
   };
 
@@ -281,17 +327,20 @@ function ChatPage() {
             <div className="flex flex-col p-4 bg-blue-200 h-full overflow-auto">
               {activeTab === 'chat' && (
                 <div className="flex-grow">
-                  {chatMemberList.map((chatMember) => (
-                    <UserItem
-                      key={chatMember.idx}
-                      user={chatMember}
-                      onClick={() => handleChatMemberClick(chatMember)}
-                      onDoubleClick={() => handleUserDoubleClick(chatMember)}
-                      onContextMenu={(e) =>
-                        handleChatMemberRightClick(e, chatMember)
-                      }
-                    />
-                  ))}
+                  {chatMemberList.map((chatMember) => {
+                    console.log(chatMember);
+                    return (
+                      <UserItem
+                        key={chatMember.idx}
+                        user={chatMember.user}
+                        onClick={() => handleChatMemberClick(chatMember)}
+                        onDoubleClick={() => handleUserDoubleClick(chatMember)}
+                        onContextMenu={(e) =>
+                          handleChatMemberRightClick(e, chatMember)
+                        }
+                      />
+                    );
+                  })}
                 </div>
               )}
               {activeTab === 'friends' && (
