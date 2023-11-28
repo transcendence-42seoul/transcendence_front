@@ -3,8 +3,6 @@ import cookie from 'js-cookie';
 
 const token = cookie.get('token');
 
-console.log('token', token);
-
 export const gameSocket = ioClient.io(
   `${import.meta.env.VITE_SERVER_URL}/gameGateway`,
   {
