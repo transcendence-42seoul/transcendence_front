@@ -36,6 +36,7 @@ export const chatSocketConnect = () => {
 
 export const chatSocketLeave = () => {
   if (chatSocket.connected) {
+    console.log('disconnecting from chat server');
     chatSocket.disconnect();
   }
 };

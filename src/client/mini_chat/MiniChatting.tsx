@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ChatInput from './ChatInput';
 import { chatSocket, chatSocketConnect } from './chat.socket';
 import axios from 'axios';
