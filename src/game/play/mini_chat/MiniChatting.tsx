@@ -76,7 +76,7 @@ function MiniChatting() {
       <ul
         ref={chatListRef}
         key={uuidv4()}
-        className="overflow-y-scroll grow pr-2"
+        className="overflow-y-scroll pr-2 grow"
       >
         {chatList.map((chat: ChatDataType) => {
           return chat.isMe ? (

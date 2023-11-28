@@ -16,9 +16,13 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 
-function CreateChannelModal({ isOpen, onClose }) {
+function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
+  const navigate = useNavigate();
+
   const [channelType, setChannelType] = useState('public');
+  const [title, setTitle] = useState('');
   const [password, setPassword] = useState('');
   const [maxPeople, setMaxPeople] = useState('');
   const maxPeopleOptions = Array.from({ length: 9 }, (_, i) => i + 2);
@@ -33,7 +37,24 @@ function CreateChannelModal({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
+    onChatRoomAdded();
     onClose();
+    chatSocketConnect();
+
+    console.log(title, password, maxPeople);
+
+    chatSocket.emit(
+      'createChat',
+      { title, password, maxPeople },
+      (response) => {
+        if (response.status === 'success') {
+          console.log('Created chat room with chat_idx:', response.chat.idx);
+          navigate(`/chat/${response.chat.idx}`);
+        } else {
+          console.error('Failed to create chat room');
+        }
+      },
+    );
   };
 
   return (
@@ -43,7 +64,11 @@ function CreateChannelModal({ isOpen, onClose }) {
         <ModalHeader>채널 생성</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <Input placeholder="채널명" mb={4} />
+          <Input
+            placeholder="채널명"
+            mb={4}
+            onChange={(e) => setTitle(e.target.value)}
+          />
           <Select
             placeholder="최대 인원 선택"
             mb={4}
@@ -83,7 +108,7 @@ function CreateChannelModal({ isOpen, onClose }) {
   );
 }
 
-function UtilButton({ pageType }) {
+function UtilButton({ pageType, onChatState }) {
   const navigate = useNavigate();
 
   const [normalMode, setNormalMode] = useState(false);
@@ -103,10 +128,6 @@ function UtilButton({ pageType }) {
     setLadderMode(!ladderMode);
   };
 
-  const onClickChannelList = () => {
-    navigate('/main');
-  };
-
   const utilButtonData = [
     { label: '노말 경쟁전', onClick: normalModeButton },
     { label: '하드 경쟁전', onClick: ladderModeButton },
@@ -114,7 +135,7 @@ function UtilButton({ pageType }) {
       ? [{ label: '채널 생성', onClick: onOpenCreateChannel }]
       : []),
     ...(pageType === 'chat'
-      ? [{ label: '채널 목록', onClick: onClickChannelList }]
+      ? [{ label: '채널 나가기', onClick: onChatState }]
       : []),
   ];
 
@@ -140,6 +161,7 @@ function UtilButton({ pageType }) {
       <CreateChannelModal
         isOpen={isCreateChannelOpen}
         onClose={onCloseCreateChannel}
+        onChatRoomAdded={onChatState}
       />
     </div>
   );

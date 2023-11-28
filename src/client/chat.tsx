@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
 import logo from '../assets/logo.jpg';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
 import MiniChatting from './mini_chat/MiniChatting';
+import { chatSocket } from './mini_chat/chat.socket';
+import { chatSocketLeave } from './mini_chat/chat.socket';
 
 function ChatPage() {
+  const { idx } = useParams();
+
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('chat');
@@ -122,13 +126,20 @@ function ChatPage() {
         closeContextMenu();
       }
     };
-
     document.addEventListener('mousedown', handleOutsideClick);
 
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [contextMenuRef, closeContextMenu]);
+  }, [navigate, contextMenuRef, closeContextMenu]);
+
+  const onClickChannelLeave = (room_id) => {
+    console.log('room_id:', room_id);
+    chatSocket.emit('leaveChat', room_id);
+    chatSocketLeave();
+
+    navigate('/main');
+  };
 
   const handleDeleteFriend = (friendId) => {
     setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
@@ -151,7 +162,10 @@ function ChatPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton pageType={'chat'} />
+        <UtilButton
+          pageType={'chat'}
+          onChatState={() => onClickChannelLeave(idx)}
+        />
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
