@@ -4,6 +4,7 @@ export const FriendItem = ({
   onDoubleClick,
   onContextMenu,
 }) => {
+  console.log('friend', friend);
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
@@ -14,7 +15,7 @@ export const FriendItem = ({
       onDoubleClick={onDoubleClick}
       onContextMenu={(e) => onContextMenu(e, friend)}
     >
-      <span>{friend.name}</span>
+      <span>{friend.nickname}</span>
     </div>
   );
 };
@@ -37,7 +38,7 @@ export const FriendContextMenu = ({
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            onDelete(friend.id);
+            onDelete(friend.idx);
           }}
         >
           친구 삭제
@@ -46,7 +47,7 @@ export const FriendContextMenu = ({
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            onBlock(friend.id);
+            onBlock(friend.idx);
           }}
         >
           차단
