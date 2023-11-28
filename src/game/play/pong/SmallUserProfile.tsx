@@ -1,14 +1,5 @@
 import { Avatar } from '@chakra-ui/react';
-
-type UserRecordDataType = {
-  idx: number;
-  total_game: number;
-  total_win: number;
-  ladder_game: number;
-  ladder_win: number;
-  general_game: number;
-  general_win: number;
-};
+import { IRecord } from '../../ready/GameReadyPage';
 
 type UserAvatarDataType = {
   idx: number;
@@ -19,7 +10,7 @@ type UserAvatarDataType = {
 type SmallUserProfileProps = {
   mode: 'Ladder' | 'Challenge';
   avatarData: UserAvatarDataType;
-  recordData: UserRecordDataType;
+  recordData: IRecord;
 };
 
 function SmallUserProfile(props: SmallUserProfileProps) {

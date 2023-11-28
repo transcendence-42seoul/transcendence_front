@@ -1,6 +1,5 @@
 import { atom, selector } from 'recoil';
 
-
 // recoil 사용법 가이드
 export const ExampleAtom = atom({
   key: 'ExampleAtom', // 고유 키값
@@ -22,12 +21,3 @@ const totalValueSelector = selector({
 	const setValue = useSetRecoilState(ExampleAtom); // setState만 가져옴
 
 */
-
-
-export const ReadyAtom = atom({
-  key: 'ReadyAtom',
-  default: false,
-});
-
-const totalValueSelector = selector({
-

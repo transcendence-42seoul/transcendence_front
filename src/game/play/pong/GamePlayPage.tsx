@@ -4,14 +4,19 @@ import MiniChatting from '../mini_chat/MiniChatting';
 import PongGame from './PongGame';
 import { useRecoilValue } from 'recoil';
 import {
+  GameAtom,
   GameHostInfoSelector,
-  GameRoomIdSelector,
   GameguestInfoSelector,
 } from '../../../recoil/gameAtom';
-import { gameSocket, gameSocketConnect } from '../../socket/game.socket';
-import { useNavigate } from 'react-router';
+import { gameSocket } from '../../socket/game.socket';
+import ResultComponent from './ResultComponent';
 
-function GamePlayPage() {
+interface GamePlayPageProps {
+  myId: string;
+}
+
+function GamePlayPage(props: GamePlayPageProps) {
+  const game = useRecoilValue(GameAtom);
   const host = useRecoilValue(GameHostInfoSelector);
   const guest = useRecoilValue(GameguestInfoSelector);
 
@@ -27,60 +32,52 @@ function GamePlayPage() {
     imageData: guest.avatar.image_data.data,
   };
 
-  const [userASetScore, setserASetScore] = useState(0);
-  const [userBSetScore, setserBSetScore] = useState(0);
-
-  const roomId = useRecoilValue(GameRoomIdSelector);
-  const navigation = useNavigate();
+  const [gameEndState, setGameEndState] = useState(false);
+  const [winner, setWinner] = useState<'Host' | 'Guest'>('Host');
 
   useEffect(() => {
-    gameSocket.on('error', (error) => {
-      navigation('/');
-      console.error('Socket connection error:', error);
+    gameSocket.on('endGame', () => {
+      setGameEndState(true);
     });
-
-    gameSocket.on('disconnect', () => {
-      console.log('소켓이 연결이 끊겼습니다.');
-    });
-
-    gameSocketConnect();
-
     return () => {
-      gameSocket.off('error');
-      gameSocket.off('disconnect');
+      gameSocket.off('endGame');
     };
   }, []);
 
+  const mode = game.game_mode <= 2 ? 'Ladder' : 'Challenge';
+
   return (
-    <div className="flex flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
-      <h1 className="text-3xl h-[5%] font-bold mb-10">GamePlayPage</h1>
-      <div className="w-full h-[85%] flex justify-center">
+    <div className="flex bg-sky-100 flex-col items-center h-screen max-h-screen w-screen max-w-screen pt-12">
+      <h1 className="text-5xl h-[5%] font-bold mb-10">GAME PlAY</h1>
+      <div className="w-full flex h-[85%] justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
-          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-tl-md rounded-tr-md">
+          <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-md">
             <SmallUserProfile
-              mode="Ladder"
+              mode={mode}
               avatarData={userA_avatar}
               recordData={host.record}
             />
-            <div className="flex w-1/6 items-center">
-              <h1 className="text-5xl">{`${userASetScore}`}</h1>
-              <div className="flex flex-col items-center justify-center">
-                <h3 className="mx-12 whitespace-nowrap text-2xl font-bold">
-                  VS
-                </h3>
-              </div>
-              <h1 className="text-5xl">{`${userBSetScore}`}</h1>
-            </div>
             <SmallUserProfile
-              mode="Ladder"
+              mode={mode}
               avatarData={userB_avatar}
               recordData={guest.record}
             />
           </div>
           <div
-            className={`w-full aspect-[4/2.2] bg-yellow-300 rounded-bl-md rounded-br-md flex justify-center items-center`}
+            className={`w-ful h-[calc(100%-8rem)] bg-sky-100 rounded-bl-md rounded-br-md flex justify-center items-center`}
           >
-            <PongGame />
+            {!gameEndState ? (
+              <PongGame
+                player={props.myId === userA_avatar.name ? 'Host' : 'Guest'}
+                setGameEndState={setGameEndState}
+                setWinner={setWinner}
+              />
+            ) : (
+              <ResultComponent
+                player={props.myId === userA_avatar.name ? 'Host' : 'Guest'}
+                winner={winner}
+              />
+            )}
           </div>
         </div>
         <MiniChatting />
