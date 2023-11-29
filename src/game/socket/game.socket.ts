@@ -12,6 +12,9 @@ export const gameSocket = ioClient.io(
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     transports: ['websocket'],
+    auth: {
+      token,
+    },
     query: {
       token,
     },

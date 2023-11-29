@@ -1,6 +1,6 @@
 import './App.css';
 import { ChakraProvider } from '@chakra-ui/react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import WelcomePage from './client/WelcomePage';
 import LoginPage from './client/LoginPage';
 import MainPage from './client/MainPage';
@@ -12,8 +12,56 @@ import MyPage from './client/MyPage';
 import BanListPage from './client/BanListPage';
 import AvatarSetting from './client/AvatarSetting';
 import ChatPage from './client/chat';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { getCookie, removeCookie } from './common/cookie/cookie';
+import {
+  appSocketConnect,
+  appSocketDisconnect,
+} from './common/socket/app.socket';
+import axios from 'axios';
 
 function App() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const navigate = useNavigate();
+
+  const checkToken = async () => {
+    const token = getCookie('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error('token 올바르지 않습니다.');
+      removeCookie('token');
+      navigate('/login');
+      return;
+    }
+
+    if (currentPath === '/') {
+      navigate('/welcome');
+    }
+    if (currentPath === '/login' || currentPath === '/welcome') {
+      navigate('/main');
+    }
+    appSocketConnect();
+  };
+
+  useEffect(() => {
+    checkToken();
+    return () => {
+      appSocketDisconnect();
+    };
+  }, [currentPath]);
+
   return (
     <ChakraProvider>
       <Routes>

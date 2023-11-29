@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import GameReadyPage from './ready/GameReadyPage';
 import GamePlayPage from './play/pong/GamePlayPage';
 import { useRecoilState } from 'recoil';
@@ -19,7 +19,6 @@ export enum UserStatus {
 }
 
 const GamePage = () => {
-  // const { id } = useParams<{ id: string }>();
   const [userStatus, setUserStatus] = useState<UserStatus>(UserStatus.ONLINE);
   const [gameData, setGameData] = useRecoilState(GameAtom);
 
