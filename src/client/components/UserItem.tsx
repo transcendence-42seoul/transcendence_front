@@ -9,7 +9,7 @@ export const UserItem = ({ user, onClick, onDoubleClick, onContextMenu }) => {
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
-      <span>{user.name}</span>
+      <span>{user.nickname}</span>
     </div>
   );
 };
@@ -38,8 +38,7 @@ export const UserContextMenu = ({
         >
           차단
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">노말 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">하드 챌린지</li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
       </ul>
     </div>

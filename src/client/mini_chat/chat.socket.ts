@@ -17,8 +17,6 @@ export const chatSocket = ioClient.io(
 );
 
 export const chatSocketConnect = () => {
-  console.log('chatSocketConnect:', token);
-
   if (!chatSocket.connected) {
     chatSocket.io.opts.query = { token };
 

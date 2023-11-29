@@ -1,33 +1,90 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '../assets/logo.jpg';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  useDisclosure,
-  Input,
-} from '@chakra-ui/react';
+import { useDisclosure, Input } from '@chakra-ui/react';
 import ProfilePictureChangeModal from './components/ProfilePictureChange';
+import edit from '../assets/edit.svg';
+import check from '../assets/check.svg';
+import axios from 'axios';
+import { getCookie } from '../common/cookie/cookie';
 
-const userData = {
-  nickname: 'sanghan',
-  rank: 2147483647,
-  record: '100전 1승 99패',
-  winRate: 1, // 1% 승률로 가정
-  profileImage: logo, // 프로필 이미지 경로
+/* FetchUserData.tsx */
+interface User {
+  idx: number;
+  nickname: string;
+  avatar: {
+    image_data: Buffer;
+  };
+  record: {
+    total_game: number;
+    total_win: number;
+    total_lose: number;
+    win_rate: number;
+  };
+  ranking: {
+    score: number;
+  };
+}
+
+const makeUserDataFormat = (data: any): User => {
+  return {
+    idx: data.idx,
+    nickname: data.nickname,
+    avatar: {
+      image_data: data.avatar.image_data,
+    },
+    record: {
+      total_game: data.record.total_game,
+      total_win: data.record.total_win,
+      total_lose: data.record.total_game - data.record.total_win,
+      win_rate: (data.record.total_win / data.record.total_game) * 100,
+    },
+    ranking: {
+      score: data.ranking.score,
+    },
+  };
 };
 
+const convertToBase64Image = (imageBuffer: any) => {
+  const binary = imageBuffer.data.reduce(
+    (acc: any, byte: any) => acc + String.fromCharCode(byte),
+    '',
+  );
+  return `data:image/jpeg;base64,${window.btoa(binary)}`;
+};
+/* FetchUserData.tsx */
+
 function MyProfile() {
+  const token = getCookie('token');
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [activeTab, setActiveTab] = useState('all');
 
-  const [profileImage, setProfileImage] = useState(userData.profileImage);
+  const [profileImage, setProfileImage] = useState();
+
+  const [userData, setUserData] = useState<User>();
+
+  const [userIdx, setUserIdx] = useState<number>(0);
+
+  const [isEditingNickname, setIsEditingNickname] = useState(false);
+
+  const [newNickname, setNewNickname] = useState(userData?.nickname);
+
+  useEffect(() => {
+    fetchUserIdx();
+  }, []);
+
+  useEffect(() => {
+    if (userIdx > 0) {
+      fetchUserData();
+    }
+  }, [userIdx]);
+
+  useEffect(() => {
+    if (userIdx > 0 && userData?.avatar) {
+      setProfileImage(convertToBase64Image(userData.avatar.image_data));
+    }
+  }, [userIdx, userData]);
 
   const handleAvatarChange = (newAvatar) => {
     setProfileImage(newAvatar);
@@ -74,7 +131,68 @@ function MyProfile() {
   // 승률을 나타내는 원의 둘레 계산
   const radius = 45; // 반지름
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (userData.winRate / 100) * circumference;
+  const offset =
+    userData && userData.record
+      ? circumference - (userData.record.win_rate / 100) * circumference
+      : 0;
+
+  // update username
+  const handleUsernameUpdateClick = () => {
+    // 사용자 이름을 수정 모드로 전환
+    setIsEditingNickname(true);
+  };
+
+  const fetchUserIdx = async () => {
+    try {
+      const userData = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setUserIdx(userData.data.user_idx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_SERVER_URL}/users/idx/${userIdx}`,
+    );
+
+    setUserData(makeUserDataFormat(response.data));
+  };
+
+  const handleSaveUsername = () => {
+    fetch(`${import.meta.env.VITE_SERVER_URL}/users/${userIdx}/nickname`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ nickname: newNickname }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          // 요청이 성공한 경우에만 사용자 이름 변경 및 수정 모드 종료
+          setIsEditingNickname(false);
+          setUserData((prevUserData) => {
+            console.log('prevUserData:', prevUserData); // prevUserData 출력
+            return {
+              ...prevUserData,
+              nickname: newNickname,
+            };
+          });
+        } else {
+          console.error('요청이 실패했습니다.');
+        }
+      })
+      .catch((error) => {
+        console.error('에러 발생:', error);
+      });
+  };
 
   return (
     <div className="h-screen w-screen bg-gray-100">
@@ -83,11 +201,40 @@ function MyProfile() {
         <div className="flex flex-col p-8">
           <div className="flex flex-row justify-between items-center pt-8 pl-8 pr-8">
             {/* user */}
+
             <div className="flex flex-col">
-              <h2 className="text-2xl font-bold">{userData.nickname}</h2>
-              <p className="text-xl">랭킹: {userData.rank}등</p>
-              <p className="text-xl">전적: {userData.record}</p>
-              <p className="text-xl">승률: {userData.winRate}%</p>
+              <div className="flex flex-row">
+                {isEditingNickname ? (
+                  <Input
+                    className="text-2xl font-bold"
+                    value={newNickname}
+                    onChange={(e) => setNewNickname(e.target.value)}
+                    autoFocus
+                  />
+                ) : (
+                  <h2 className="text-2xl font-bold">{userData?.nickname}</h2>
+                )}
+                <button
+                  onClick={
+                    isEditingNickname
+                      ? handleSaveUsername
+                      : handleUsernameUpdateClick
+                  }
+                >
+                  {/* 수정 모드인 경우 '확인' 아이콘, 아닌 경우 '수정' 아이콘 */}
+                  <img
+                    className="object-scale-down h-12 w-12"
+                    src={isEditingNickname ? check : edit}
+                    alt={isEditingNickname ? '확인' : '수정'}
+                  />
+                </button>
+              </div>
+              <p className="text-xl">랭킹: {userData?.ranking.score}등</p>
+              <p className="text-xl">
+                전적: {userData?.record.total_game}전{' '}
+                {userData?.record.total_win}승 {userData?.record.total_lose}패
+              </p>
+              <p className="text-xl">승률: {userData?.record.win_rate}%</p>
             </div>
             {/* user */}
 
@@ -123,7 +270,7 @@ function MyProfile() {
                   className="text-lg font-semibold text-blue-800"
                   textAnchor="middle"
                 >
-                  {userData.winRate}%
+                  {userData?.record.win_rate}%
                 </text>
               </svg>
             </div>

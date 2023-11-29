@@ -14,7 +14,7 @@ export const FriendItem = ({
       onDoubleClick={onDoubleClick}
       onContextMenu={(e) => onContextMenu(e, friend)}
     >
-      <span>{friend.name}</span>
+      <span>{friend.nickname}</span>
     </div>
   );
 };
@@ -37,7 +37,7 @@ export const FriendContextMenu = ({
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            onDelete(friend.id);
+            onDelete(friend.idx);
           }}
         >
           친구 삭제
@@ -46,13 +46,12 @@ export const FriendContextMenu = ({
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            onBlock(friend.id);
+            onBlock(friend.idx);
           }}
         >
           차단
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">노말 챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">하드 챌린지</li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM 보내기</li>
       </ul>
     </div>

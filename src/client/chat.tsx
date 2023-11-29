@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
-import logo from '../assets/logo.jpg';
 import { useNavigate, useParams } from 'react-router';
 import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
@@ -9,31 +8,105 @@ import NotificationButton from './components/NotificationButton';
 import MiniChatting from './mini_chat/MiniChatting';
 import { chatSocket } from './mini_chat/chat.socket';
 import { chatSocketLeave } from './mini_chat/chat.socket';
+import { FetchUserData } from './components/FetchUserData';
+import { getCookie } from '../common/cookie/cookie';
+import axios from 'axios';
+import { FecthFriendList, Friends } from './components/FetchFriendList';
+
+interface ChatData {
+  name: string;
+  type: string;
+  password: string;
+}
+
+interface IChatMember {
+  idx: number;
+  role: string;
+  user: {
+    nickname: string;
+  };
+  isHighlighted: boolean;
+}
 
 function ChatPage() {
   const { idx } = useParams();
 
   const navigate = useNavigate();
 
+  const token = getCookie('token');
+
+  const [userIdx, setUserIdx] = useState<number>(0);
+
+  const [chatData, setChatData] = useState<ChatData>();
+
   const [activeTab, setActiveTab] = useState('chat');
 
-  const [friendsList, setFriendsList] = useState([
-    { id: 1, name: '친구 A', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-  ]);
+  const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
-  const [chatMemberList, setChatMemberList] = useState([
-    { id: 1, name: '채팅 참여자 A', isHighlighted: false },
-    { id: 2, name: '채팅 참여자 B', isHighlighted: false },
-  ]);
+  const [chatMemberList, setChatMemberList] = useState<IChatMember[]>([]);
 
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
 
+  const fetchUserIdx = async () => {
+    try {
+      const userData = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setUserIdx(userData.data.user_idx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchChatData = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/chats/data/${idx}`,
+      );
+      setChatData(makeChatData(response.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const makeChatData = (data: any) => {
+    return {
+      name: data.name,
+      type: data.type,
+      password: data.password,
+    };
+  };
+
+  useEffect(() => {
+    fetchUserIdx();
+    fetchChatData();
+  }, []);
+
+  useEffect(() => {
+    const fetchFriendList = async () => {
+      if (userIdx > 0) {
+        try {
+          const friendsData = await FecthFriendList(userIdx);
+          setFriendsList(friendsData);
+        } catch (error) {
+          console.error('Error fetching friends list:', error);
+        }
+      }
+    };
+
+    fetchFriendList();
+  }, [userIdx]);
+
   const handleFriendClick = (clickedFriend) => {
     setFriendsList(
       friendsList.map((friend) =>
-        friend.id === clickedFriend.id
+        friend.idx === clickedFriend.idx
           ? { ...friend, isHighlighted: !friend.isHighlighted }
           : { ...friend, isHighlighted: false },
       ),
@@ -43,7 +116,7 @@ function ChatPage() {
   const handleChatMemberClick = (clickChatMember) => {
     setChatMemberList(
       chatMemberList.map((chatMember) =>
-        chatMember.id === clickChatMember.id
+        chatMember.idx === clickChatMember.idx
           ? { ...chatMember, isHighlighted: !chatMember.isHighlighted }
           : { ...chatMember, isHighlighted: false },
       ),
@@ -55,7 +128,7 @@ function ChatPage() {
     const isAlreadyHighlighted = chatMember.isHighlighted;
     setChatMemberList(
       chatMemberList.map((item) =>
-        item.id === chatMember.id
+        item.idx === chatMember.idx
           ? { ...item, isHighlighted: !isAlreadyHighlighted }
           : { ...item, isHighlighted: false },
       ),
@@ -64,7 +137,7 @@ function ChatPage() {
     if (
       contextMenu &&
       contextMenu.type === 'chatMember' &&
-      contextMenu.user.id === chatMember.id
+      contextMenu.user.idx === chatMember.idx
     ) {
       closeContextMenu();
     } else {
@@ -93,7 +166,7 @@ function ChatPage() {
     const isAlreadyHighlighted = friend.isHighlighted;
     setFriendsList(
       friendsList.map((item) =>
-        item.id === friend.id
+        item.idx === friend.idx
           ? { ...item, isHighlighted: !isAlreadyHighlighted }
           : { ...item, isHighlighted: false },
       ),
@@ -101,7 +174,7 @@ function ChatPage() {
     if (
       contextMenu &&
       contextMenu.type === 'friend' &&
-      contextMenu.user.id === friend.id
+      contextMenu.user.idx === friend.idx
     ) {
       closeContextMenu();
     } else {
@@ -114,7 +187,7 @@ function ChatPage() {
   };
 
   const handleUserDoubleClick = (user) => {
-    navigate(`/profile/${user.id}`);
+    navigate(`/profile/${user.idx}`);
   };
 
   useEffect(() => {
@@ -133,25 +206,65 @@ function ChatPage() {
     };
   }, [navigate, contextMenuRef, closeContextMenu]);
 
+  const handleReceiveChatParticipants = (participant: IChatMember[]) => {
+    setChatMemberList(participant);
+  };
+
+  useEffect(() => {
+    const fetchChatMembers = async () => {
+      try {
+        // 데이터베이스에서 채팅 참여자 데이터를 가져오는 URL
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/chats/participants/${idx}`,
+        );
+        console.log(response.data);
+        const chatMembers = response.data.map((member) => ({
+          ...member,
+          isHighlighted: false,
+        }));
+        setChatMemberList(chatMembers);
+      } catch (error) {
+        console.error('채팅 참여자 데이터를 가져오는데 실패했습니다:', error);
+      }
+    };
+
+    fetchChatMembers();
+
+    // const onLeaveChat = () => {
+    //   fetchChatMembers();
+    // };
+
+    chatSocket.on('leaveChat', onClickChannelLeave);
+    chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
+
+    return () => {
+      chatSocket.off('leaveChat', onClickChannelLeave);
+      chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
+    };
+  }, [idx]);
+
   const onClickChannelLeave = (room_id) => {
     console.log('room_id:', room_id);
     chatSocket.emit('leaveChat', room_id);
     chatSocketLeave();
 
+    // setChatMemberList((prevChatMembers) =>
+    //   prevChatMembers.filter((chatMember) => chatMember.idx !== room_id),
+    // );
     navigate('/main');
   };
 
   const handleDeleteFriend = (friendId) => {
-    setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
+    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
   const handleBlockFriend = (friendId) => {
-    setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
+    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
   const handleBlockChatMember = (chatMemberId) => {
     setChatMemberList(
-      chatMemberList.filter((chatMember) => chatMember.id !== chatMemberId),
+      chatMemberList.filter((chatMember) => chatMember.idx !== chatMemberId),
     );
   };
 
@@ -169,10 +282,9 @@ function ChatPage() {
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
-              {/*채팅방 이름 들어갈 곳*/}
+              {userIdx > 0} {chatData?.name}
             </div>
             <div className="bg-sky-200 mx-2 my-2 rounded-lg flex flex-col overflow-auto h-full">
-              {/*채팅 들어갈 곳*/}
               <MiniChatting />
             </div>
           </div>
@@ -191,24 +303,7 @@ function ChatPage() {
             </button>
           </div>
         </div>
-        <div className="h-2/6 flex flex-row border-dashed border-4 border-sky-500 rounded-lg mx-2">
-          <div className="w-2/5 flex justify-center items-center">
-            <div className="w-full aspect-square mx-1 flex justify-center items-center">
-              <div className="rounded-full border-2 border-black w-full h-full aspect-square overflow-hidden">
-                <img
-                  className="object-cover w-full h-full"
-                  src={logo}
-                  alt="logo"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="w-3/5 flex flex-col justify-center items-center p-4 rounded-lg">
-            <h1 className="text-3xl font-bold text-gray-800 mb-1">sanghan</h1>
-            <h2 className="text-2xl text-gray-700 mb-1">1승 15패</h2>
-            <h3 className="text-xl text-gray-600">1295점</h3>
-          </div>
-        </div>
+        {userIdx > 0 && <FetchUserData idx={userIdx} />}
         <div className="h-3/6 flex flex-col border-2 border-sky-500 rounded-lg mx-2 my-2 min-h-0">
           <div className="h-full flex flex-col">
             <div className="flex border-b border-blue-200 overflow-auto">
@@ -232,24 +327,27 @@ function ChatPage() {
             <div className="flex flex-col p-4 bg-blue-200 h-full overflow-auto">
               {activeTab === 'chat' && (
                 <div className="flex-grow">
-                  {chatMemberList.map((chatMember) => (
-                    <UserItem
-                      key={chatMember.id}
-                      user={chatMember}
-                      onClick={() => handleChatMemberClick(chatMember)}
-                      onDoubleClick={() => handleUserDoubleClick(chatMember)}
-                      onContextMenu={(e) =>
-                        handleChatMemberRightClick(e, chatMember)
-                      }
-                    />
-                  ))}
+                  {chatMemberList.map((chatMember) => {
+                    console.log(chatMember);
+                    return (
+                      <UserItem
+                        key={chatMember.idx}
+                        user={chatMember.user}
+                        onClick={() => handleChatMemberClick(chatMember)}
+                        onDoubleClick={() => handleUserDoubleClick(chatMember)}
+                        onContextMenu={(e) =>
+                          handleChatMemberRightClick(e, chatMember)
+                        }
+                      />
+                    );
+                  })}
                 </div>
               )}
               {activeTab === 'friends' && (
                 <div className="flex-grow">
                   {friendsList.map((friend) => (
                     <FriendItem
-                      key={friend.id}
+                      key={friend.idx}
                       friend={friend}
                       onClick={() => handleFriendClick(friend)}
                       onDoubleClick={() => handleUserDoubleClick(friend)}
@@ -265,15 +363,17 @@ function ChatPage() {
                     <UserContextMenu
                       user={contextMenu.user}
                       position={contextMenu.position}
-                      onBlock={() => handleBlockChatMember(contextMenu.user.id)}
+                      onBlock={() =>
+                        handleBlockChatMember(contextMenu.user.idx)
+                      }
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ) : (
                     <FriendContextMenu
                       friend={contextMenu.user}
                       position={contextMenu.position}
-                      onDelete={() => handleDeleteFriend(contextMenu.user.id)}
-                      onBlock={() => handleBlockFriend(contextMenu.user.id)}
+                      onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
+                      onBlock={() => handleBlockFriend(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ))}

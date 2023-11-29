@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
-import logo from '../assets/logo.jpg';
 import { useNavigate } from 'react-router';
 import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
@@ -20,6 +19,9 @@ import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
 import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
 import axios from 'axios';
+import { FetchUserData } from './components/FetchUserData';
+import { getCookie } from '../common/cookie/cookie';
+import { FecthFriendList, Friends } from './components/FetchFriendList';
 
 function ChatItem({ chatRoom, onClick, onDoubleClick }) {
   return (
@@ -75,6 +77,9 @@ function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
 function MainPage() {
   const navigate = useNavigate();
 
+  const token = getCookie('token');
+
+  const [userIdx, setUserIdx] = useState<number>(0);
   const [chatRooms, setChatRooms] = useState([]);
   const [chatRoomAdded, setChatRoomAdded] = useState(true);
   const [activeTab, setActiveTab] = useState('lobby');
@@ -87,18 +92,50 @@ function MainPage() {
     onClose: onClosePasswordModal,
   } = useDisclosure();
 
-  const [friendsList, setFriendsList] = useState([
-    { id: 1, name: '친구 A', isHighlighted: false },
-    { id: 2, name: '친구 B', isHighlighted: false },
-  ]);
+  const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
   const [onlineList, setOnlineList] = useState([
-    { id: 1, name: '온라인 A', isHighlighted: false },
-    { id: 2, name: '온라인 B', isHighlighted: false },
+    { idx: 1, name: '온라인 A', isHighlighted: false },
+    { idx: 2, name: '온라인 B', isHighlighted: false },
   ]);
 
   const [contextMenu, setContextMenu] = useState(null);
   const contextMenuRef = useRef(null);
+
+  const fetchUserIdx = async () => {
+    try {
+      const userData = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setUserIdx(userData.data.user_idx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserIdx();
+  }, []);
+
+  useEffect(() => {
+    const fetchFriendList = async () => {
+      if (userIdx > 0) {
+        try {
+          const friendsData = await FecthFriendList(userIdx);
+          setFriendsList(friendsData);
+        } catch (error) {
+          console.error('Error fetching friends list:', error);
+        }
+      }
+    };
+
+    fetchFriendList();
+  }, [userIdx]);
 
   const onChatRoomAdded = () => {
     setChatRoomAdded(true);
@@ -165,7 +202,7 @@ function MainPage() {
   const handleFriendClick = (clickedFriend) => {
     setFriendsList(
       friendsList.map((friend) =>
-        friend.id === clickedFriend.id
+        friend.idx === clickedFriend.idx
           ? { ...friend, isHighlighted: !friend.isHighlighted }
           : { ...friend, isHighlighted: false },
       ),
@@ -175,7 +212,7 @@ function MainPage() {
   const handleOnlineClick = (clickedOnline) => {
     setOnlineList(
       onlineList.map((online) =>
-        online.id === clickedOnline.id
+        online.idx === clickedOnline.idx
           ? { ...online, isHighlighted: !online.isHighlighted }
           : { ...online, isHighlighted: false },
       ),
@@ -187,7 +224,7 @@ function MainPage() {
     const isAlreadyHighlighted = online.isHighlighted;
     setOnlineList(
       onlineList.map((item) =>
-        item.id === online.id
+        item.idx === online.idx
           ? { ...item, isHighlighted: !isAlreadyHighlighted }
           : { ...item, isHighlighted: false },
       ),
@@ -196,7 +233,7 @@ function MainPage() {
     if (
       contextMenu &&
       contextMenu.type === 'online' &&
-      contextMenu.user.id === online.id
+      contextMenu.user.idx === online.idx
     ) {
       closeContextMenu();
     } else {
@@ -220,12 +257,12 @@ function MainPage() {
     }
   };
 
-  const handleFriendRightClick = (e, friend) => {
+  const handleFriendRightClick = (e, friend: Friends) => {
     e.preventDefault();
     const isAlreadyHighlighted = friend.isHighlighted;
     setFriendsList(
       friendsList.map((item) =>
-        item.id === friend.id
+        item.idx === friend.idx
           ? { ...item, isHighlighted: !isAlreadyHighlighted }
           : { ...item, isHighlighted: false },
       ),
@@ -233,7 +270,7 @@ function MainPage() {
     if (
       contextMenu &&
       contextMenu.type === 'friend' &&
-      contextMenu.user.id === friend.id
+      contextMenu.user.idx === friend.idx
     ) {
       closeContextMenu();
     } else {
@@ -246,7 +283,7 @@ function MainPage() {
   };
 
   const handleUserDoubleClick = (user) => {
-    navigate(`/profile/${user.id}`);
+    navigate(`/profile/${user.idx}`);
   };
 
   useEffect(() => {
@@ -287,15 +324,15 @@ function MainPage() {
   }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
 
   const handleDeleteFriend = (friendId) => {
-    setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
+    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
   const handleBlockFriend = (friendId) => {
-    setFriendsList(friendsList.filter((friend) => friend.id !== friendId));
+    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
   const handleBlockOnline = (onlineId) => {
-    setOnlineList(onlineList.filter((online) => online.id !== onlineId));
+    setOnlineList(onlineList.filter((online) => online.idx !== onlineId));
   };
 
   const handleSettingsClick = () => {
@@ -340,24 +377,7 @@ function MainPage() {
             </button>
           </div>
         </div>
-        <div className="h-2/6 flex flex-row border-dashed border-4 border-sky-500 rounded-lg mx-2">
-          <div className="w-2/5 flex justify-center items-center">
-            <div className="w-full aspect-square mx-1 flex justify-center items-center">
-              <div className="rounded-full border-2 border-black w-full h-full aspect-square overflow-hidden">
-                <img
-                  className="object-cover w-full h-full"
-                  src={logo}
-                  alt="logo"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="w-3/5 flex flex-col justify-center items-center p-4 rounded-lg">
-            <h1 className="text-3xl font-bold text-gray-800 mb-1">sanghan</h1>
-            <h2 className="text-2xl text-gray-700 mb-1">1승 15패</h2>
-            <h3 className="text-xl text-gray-600">1295점</h3>
-          </div>
-        </div>
+        {userIdx > 0 && <FetchUserData idx={userIdx} />}
         <div className="h-3/6 flex flex-col border-2 border-sky-500 rounded-lg mx-2 my-2 min-h-0">
           <div className="h-full flex flex-col">
             <div className="flex border-b border-blue-200 overflow-auto">
@@ -383,7 +403,7 @@ function MainPage() {
                 <div className="flex-grow">
                   {onlineList.map((online) => (
                     <UserItem
-                      key={online.id}
+                      key={online.idx}
                       user={online}
                       onClick={() => handleOnlineClick(online)}
                       onDoubleClick={() => handleUserDoubleClick(online)}
@@ -396,7 +416,7 @@ function MainPage() {
                 <div className="flex-grow">
                   {friendsList.map((friend) => (
                     <FriendItem
-                      key={friend.id}
+                      key={friend.idx}
                       friend={friend}
                       onClick={() => handleFriendClick(friend)}
                       onDoubleClick={() => handleUserDoubleClick(friend)}
@@ -412,15 +432,15 @@ function MainPage() {
                     <UserContextMenu
                       user={contextMenu.user}
                       position={contextMenu.position}
-                      onBlock={() => handleBlockOnline(contextMenu.user.id)}
+                      onBlock={() => handleBlockOnline(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ) : (
                     <FriendContextMenu
                       friend={contextMenu.user}
                       position={contextMenu.position}
-                      onDelete={() => handleDeleteFriend(contextMenu.user.id)}
-                      onBlock={() => handleBlockFriend(contextMenu.user.id)}
+                      onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
+                      onBlock={() => handleBlockFriend(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ))}

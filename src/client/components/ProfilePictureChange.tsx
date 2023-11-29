@@ -9,10 +9,34 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getCookie } from '../../common/cookie/cookie';
+import axios from 'axios';
 
 function ProfilePictureChangeModal({ isOpen, onClose, onAvatarChange }) {
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const token = getCookie('token');
+  const [userIdx, setUserIdx] = useState();
+
+  useEffect(() => {
+    fetchUserIdx();
+  }, []);
+
+  const fetchUserIdx = async () => {
+    try {
+      const userData = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setUserIdx(userData.data.user_idx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handlePictureSubmit = () => {
     if (inputFileRef.current?.files?.[0]) {
@@ -21,6 +45,31 @@ function ProfilePictureChangeModal({ isOpen, onClose, onAvatarChange }) {
         onAvatarChange(e.target.result as string);
       };
       fileReader.readAsDataURL(inputFileRef.current.files[0]);
+
+      const file = inputFileRef.current.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      // 백엔드로 이미지 업로드 요청 보내기
+      fetch(`${import.meta.env.VITE_SERVER_URL}/avatars/${userIdx}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('이미지 업로드 결과:', data);
+
+          if (data.success) {
+            onAvatarChange(data.imageUrl);
+            onClose();
+          }
+        })
+        .catch((error) => {
+          console.error('이미지 업로드 중 오류:', error);
+        });
     }
   };
 
