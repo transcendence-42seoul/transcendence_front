@@ -14,6 +14,8 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
+import { appSocket } from '../common/socket/app.socket';
+import Cookies from 'js-cookie';
 
 function LogoutConfirmationModal({ isOpen, onClose, onLogoutConfirm }) {
   return (
@@ -91,11 +93,15 @@ function SettingPage() {
   };
 
   const handleLogoutConfirm = () => {
+    appSocket.emit('logout');
+    Cookies.remove('token');
     navigate('/login');
     onCloseLogoutModal();
   };
 
   const handleWithdrawalConfirm = () => {
+    appSocket.emit('withdrawal');
+    Cookies.remove('token');
     navigate('/login');
     onCloseWithdrawalModal();
   };

@@ -12,6 +12,9 @@ export const chatSocket = ioClient.io(
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     transports: ['websocket'],
+    auth: {
+      token,
+    },
     // path: '/chats',
   },
 );
