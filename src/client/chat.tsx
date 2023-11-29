@@ -19,13 +19,20 @@ interface ChatData {
   password: string;
 }
 
-interface IChatMember {
+export interface IChatMember {
   idx: number;
   role: string;
   user: {
+    idx: number;
     nickname: string;
   };
   isHighlighted: boolean;
+}
+
+interface IContextMenu {
+  type: 'friend' | 'chatMember';
+  user: Friends | IChatMember;
+  position: { x: number; y: number };
 }
 
 function ChatPage() {
@@ -41,11 +48,11 @@ function ChatPage() {
 
   const [activeTab, setActiveTab] = useState('chat');
 
-  const [friendsList, setFriendsList] = useState<Friends[]>([]);
+  const [friendsList, setFriendsList] = useState<Friends[]>([]); // Friends가 아니라 IUser가 아닌가 싶다융.
 
   const [chatMemberList, setChatMemberList] = useState<IChatMember[]>([]);
 
-  const [contextMenu, setContextMenu] = useState(null);
+  const [contextMenu, setContextMenu] = useState<IContextMenu | null>(null);
   const contextMenuRef = useRef(null);
 
   const fetchUserIdx = async () => {
@@ -93,6 +100,7 @@ function ChatPage() {
       if (userIdx > 0) {
         try {
           const friendsData = await FecthFriendList(userIdx);
+          console.log('friendsData = ', friendsData);
           setFriendsList(friendsData);
         } catch (error) {
           console.error('Error fetching friends list:', error);
@@ -103,7 +111,7 @@ function ChatPage() {
     fetchFriendList();
   }, [userIdx]);
 
-  const handleFriendClick = (clickedFriend) => {
+  const handleFriendClick = (clickedFriend: Friends) => {
     setFriendsList(
       friendsList.map((friend) =>
         friend.idx === clickedFriend.idx
@@ -113,7 +121,8 @@ function ChatPage() {
     );
   };
 
-  const handleChatMemberClick = (clickChatMember) => {
+  const handleChatMemberClick = (clickChatMember: IChatMember) => {
+    console.log('chatMemberList = ', clickChatMember);
     setChatMemberList(
       chatMemberList.map((chatMember) =>
         chatMember.idx === clickChatMember.idx
@@ -123,7 +132,10 @@ function ChatPage() {
     );
   };
 
-  const handleChatMemberRightClick = (e, chatMember) => {
+  const handleChatMemberRightClick = (
+    e: React.MouseEvent<Element, MouseEvent>,
+    chatMember: IChatMember,
+  ) => {
     e.preventDefault();
     const isAlreadyHighlighted = chatMember.isHighlighted;
     setChatMemberList(
@@ -161,7 +173,7 @@ function ChatPage() {
     }
   };
 
-  const handleFriendRightClick = (e, friend) => {
+  const handleFriendRightClick = (e: MouseEvent, friend: Friends) => {
     e.preventDefault();
     const isAlreadyHighlighted = friend.isHighlighted;
     setFriendsList(
@@ -186,15 +198,16 @@ function ChatPage() {
     }
   };
 
-  const handleUserDoubleClick = (user) => {
-    navigate(`/profile/${user.idx}`);
+  const handleUserDoubleClick = (userIdx: number) => {
+    navigate(`/profile/${userIdx}`);
   };
 
   useEffect(() => {
-    const handleOutsideClick = (event) => {
+    const handleOutsideClick = (event: MouseEvent) => {
       if (
         contextMenuRef.current &&
-        !contextMenuRef.current.contains(event.target)
+        event.target instanceof Node &&
+        !(contextMenuRef.current as HTMLDivElement).contains(event.target)
       ) {
         closeContextMenu();
       }
@@ -218,10 +231,12 @@ function ChatPage() {
           `${import.meta.env.VITE_SERVER_URL}/chats/participants/${idx}`,
         );
         console.log(response.data);
-        const chatMembers = response.data.map((member) => ({
-          ...member,
-          isHighlighted: false,
-        }));
+        const chatMembers = response.data.map((member: IChatMember) => {
+          return {
+            ...member,
+            isHighlighted: false,
+          };
+        });
         setChatMemberList(chatMembers);
       } catch (error) {
         console.error('채팅 참여자 데이터를 가져오는데 실패했습니다:', error);
@@ -243,26 +258,24 @@ function ChatPage() {
     };
   }, [idx]);
 
-  const onClickChannelLeave = (room_id) => {
-    console.log('room_id:', room_id);
+  const onClickChannelLeave = (room_id: string | undefined) => {
     chatSocket.emit('leaveChat', room_id);
     chatSocketLeave();
-
     // setChatMemberList((prevChatMembers) =>
     //   prevChatMembers.filter((chatMember) => chatMember.idx !== room_id),
     // );
     navigate('/main');
   };
 
-  const handleDeleteFriend = (friendId) => {
+  const handleDeleteFriend = (friendId: number) => {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
-  const handleBlockFriend = (friendId) => {
+  const handleBlockFriend = (friendId: number) => {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
-  const handleBlockChatMember = (chatMemberId) => {
+  const handleBlockChatMember = (chatMemberId: number) => {
     setChatMemberList(
       chatMemberList.filter((chatMember) => chatMember.idx !== chatMemberId),
     );
@@ -327,14 +340,16 @@ function ChatPage() {
             <div className="flex flex-col p-4 bg-blue-200 h-full overflow-auto">
               {activeTab === 'chat' && (
                 <div className="flex-grow">
-                  {chatMemberList.map((chatMember) => {
+                  {chatMemberList.map((chatMember: IChatMember) => {
                     console.log(chatMember);
                     return (
                       <UserItem
                         key={chatMember.idx}
-                        user={chatMember.user}
+                        user={chatMember}
                         onClick={() => handleChatMemberClick(chatMember)}
-                        onDoubleClick={() => handleUserDoubleClick(chatMember)}
+                        onDoubleClick={() =>
+                          handleUserDoubleClick(chatMember.user.idx)
+                        }
                         onContextMenu={(e) =>
                           handleChatMemberRightClick(e, chatMember)
                         }
@@ -350,18 +365,19 @@ function ChatPage() {
                       key={friend.idx}
                       friend={friend}
                       onClick={() => handleFriendClick(friend)}
-                      onDoubleClick={() => handleUserDoubleClick(friend)}
-                      onContextMenu={(e) => handleFriendRightClick(e, friend)}
+                      onDoubleClick={() => handleUserDoubleClick(friend.idx)}
+                      onContextMenu={(e: MouseEvent) =>
+                        handleFriendRightClick(e, friend)
+                      }
                     />
                   ))}
                 </div>
               )}
-
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'chatMember' ? (
                     <UserContextMenu
-                      user={contextMenu.user}
+                      userIdx={contextMenu.user.idx}
                       position={contextMenu.position}
                       onBlock={() =>
                         handleBlockChatMember(contextMenu.user.idx)

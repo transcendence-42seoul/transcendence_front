@@ -20,8 +20,7 @@ import {
   gameSocketConnect,
   gameSocketDisconnect,
 } from '../../../game/socket/game.socket';
-import axios from 'axios';
-import { getCookie, removeCookie } from '../../../common/cookie/cookie';
+import { getCookie } from '../../../common/cookie/cookie';
 import { useNavigate } from 'react-router';
 
 // import { Cookies } from 'react-cookie';
@@ -59,16 +58,18 @@ export const CreateLadderModal = () => {
   };
 
   const {
-    isOpen: isCreateRadderOpen,
-    onOpen: onOpenCreateRadder,
-    onClose: onCloseCreateRadder,
+    isOpen: isCreateLadderOpen,
+    onOpen: onOpenCreateLadder,
+    onClose: onCloseCreateLadder,
   } = useDisclosure();
 
   const handleModalClose = () => {
     setSubmitState(false);
-    onCloseCreateRadder();
+    onCloseCreateLadder();
     setDifficultyLevel('normal');
     gameSocketDisconnect();
+    gameSocket.off('createGameSuccess');
+    gameSocket.off('joinLadderQueue');
     gameSocket.off('error');
   };
 
@@ -84,11 +85,11 @@ export const CreateLadderModal = () => {
         variant="outline"
         width={'full'}
         mx={2}
-        onClick={onOpenCreateRadder}
+        onClick={onOpenCreateLadder}
       >
         경쟁전
       </Button>
-      <Modal isOpen={isCreateRadderOpen} onClose={handleModalClose} isCentered>
+      <Modal isOpen={isCreateLadderOpen} onClose={handleModalClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>경쟁전 신청</ModalHeader>
