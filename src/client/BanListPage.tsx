@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  Flex,
-  Image,
-  useDisclosure,
-  Text,
-} from '@chakra-ui/react';
+import { useState } from 'react';
+import { Button, Flex, Image, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.jpg';
 
-function BannedUser({ ban, onClick, onDoubleClick, handleUnban }) {
+interface BannedUser {
+  idx: number;
+  name: string;
+  avatar: string;
+  total_game: number;
+  total_win: number;
+  isHighlighted: boolean;
+}
+
+interface BannedUserProps {
+  ban: BannedUser;
+  onClick: (bannedUser: any) => void;
+  onDoubleClick: (bannedUser: any) => void;
+  handleUnban: (userId: number) => void;
+}
+
+export const BannedUser = (props: BannedUserProps) => {
+  const { ban, onClick, onDoubleClick, handleUnban } = props;
   const total_lose = ban.total_game - ban.total_win;
 
   return (
     <Flex
-      key={ban.id}
+      key={ban.idx}
       alignItems="center"
       justifyContent="space-between"
       p="4"
@@ -51,21 +61,21 @@ function BannedUser({ ban, onClick, onDoubleClick, handleUnban }) {
         fontSize="xl"
         onClick={(e) => {
           e.stopPropagation();
-          handleUnban(ban.id);
+          handleUnban(ban.idx);
         }}
       >
         차단 해제
       </Button>
     </Flex>
   );
-}
+};
 
 function BanListPage() {
   const navigate = useNavigate();
 
-  const initialBannedUsers = [
+  const initialBannedUsers: BannedUser[] = [
     {
-      id: 1,
+      idx: 1,
       name: 'user123',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -73,7 +83,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 2,
+      idx: 2,
       name: 'exampleUser',
       avatar: '../assets/logo.jpg',
       total_game: 8,
@@ -81,7 +91,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -89,7 +99,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -97,7 +107,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -105,7 +115,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -113,7 +123,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -121,7 +131,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -129,7 +139,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -137,7 +147,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -145,7 +155,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -153,7 +163,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -161,7 +171,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -169,7 +179,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -177,7 +187,7 @@ function BanListPage() {
       isHighlighted: false,
     },
     {
-      id: 3,
+      idx: 3,
       name: 'testAccount',
       avatar: '../assets/logo.jpg',
       total_game: 12,
@@ -186,13 +196,14 @@ function BanListPage() {
     },
   ];
 
-  const [bannedUsers, setBannedUsers] = useState(initialBannedUsers);
+  const [bannedUsers, setBannedUsers] =
+    useState<BannedUser[]>(initialBannedUsers);
 
-  const handleUnban = (userId) => {
-    setBannedUsers(bannedUsers.filter((user) => user.id !== userId));
+  const handleUnban = (userIdx: number) => {
+    setBannedUsers(bannedUsers.filter((user) => user.idx !== userIdx));
   };
 
-  const handleBanUserClick = (bannedUser) => {
+  const handleBanUserClick = (bannedUser: BannedUser) => {
     setBannedUsers((prevBannedUsers) =>
       prevBannedUsers.map((ban) =>
         ban.name == bannedUser.name
@@ -202,8 +213,8 @@ function BanListPage() {
     );
   };
 
-  const handleUserDoubleClick = (bannedUser) => {
-    navigate(`/profile/${bannedUser.id}`);
+  const handleUserDoubleClick = (bannedUser: BannedUser) => {
+    navigate(`/profile/${bannedUser.idx}`);
   };
 
   return (
@@ -215,7 +226,7 @@ function BanListPage() {
         {bannedUsers.length > 0 ? (
           bannedUsers.map((user) => (
             <BannedUser
-              key={user.id}
+              key={user.idx}
               ban={user}
               onClick={handleBanUserClick}
               onDoubleClick={handleUserDoubleClick} // Pass the new function as a prop
