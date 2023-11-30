@@ -20,12 +20,15 @@ import {
   appSocketDisconnect,
 } from './common/socket/app.socket';
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { UserIdAtom } from './recoil/userAtom';
+import ModalLayout from './client/modal/ModalLayout/ModalLayout';
 
 function App() {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
-
+  const [userId, setUserId] = useRecoilState(UserIdAtom);
   const checkToken = async () => {
     const token = getCookie('token');
     if (!token) {
@@ -39,6 +42,7 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       });
+      setUserId(res.data.id);
     } catch (error) {
       console.error('token 올바르지 않습니다.');
       removeCookie('token');
@@ -65,17 +69,66 @@ function App() {
   return (
     <ChakraProvider>
       <Routes>
-        <Route path="/game/:id" element={<GamePage />} />
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/main" element={<MainPage />} />
-        <Route path="/setting" element={<SettingPage />} />
-        <Route path="/user" element={<UserPage />} />
-        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/game/:id" element={<GamePage />} />
+        <Route
+          path="/main"
+          element={
+            <ModalLayout>
+              <MainPage />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/setting"
+          element={
+            <ModalLayout>
+              <SettingPage />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/user"
+          element={
+            <ModalLayout>
+              <UserPage />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/mypage"
+          element={
+            <ModalLayout>
+              <MyPage />
+            </ModalLayout>
+          }
+        />
         <Route path="/authentication" element={<AuthenticationPage />} />
-        <Route path="/ban-list" element={<BanListPage />} />
-        <Route path="/avatar-setting" element={<AvatarSetting />} />
-        <Route path="/chat/:idx" element={<ChatPage />} />
+        <Route
+          path="/ban-list"
+          element={
+            <ModalLayout>
+              <BanListPage />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/avatar-setting"
+          element={
+            <ModalLayout>
+              <AvatarSetting />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/chat/:idx"
+          element={
+            <ModalLayout>
+              <ChatPage />
+            </ModalLayout>
+          }
+        />
       </Routes>
     </ChakraProvider>
   );
