@@ -12,6 +12,7 @@ import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import axios from 'axios';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
+import { ChatParticipantContextMenu } from './components/ChatParticipantItem';
 
 interface ChatData {
   name: string;
@@ -76,6 +77,7 @@ function ChatPage() {
       const response = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/chats/data/${idx}`,
       );
+      console.log(response.data);
       setChatData(makeChatData(response.data));
     } catch (error) {
       console.error(error);
@@ -88,6 +90,14 @@ function ChatPage() {
       type: data.type,
       password: data.password,
     };
+  };
+
+  const isCurrentUserRoleUser = () => {
+    const currentUserParticipant = chatMemberList.find(
+      (participant) => participant.user.idx === userIdx,
+    );
+
+    return currentUserParticipant && currentUserParticipant.role === 'USER';
   };
 
   useEffect(() => {
@@ -376,14 +386,25 @@ function ChatPage() {
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'chatMember' ? (
-                    <UserContextMenu
-                      userIdx={contextMenu.user.idx}
-                      position={contextMenu.position}
-                      onBlock={() =>
-                        handleBlockChatMember(contextMenu.user.idx)
-                      }
-                      closeContextMenu={() => closeContextMenu()}
-                    />
+                    isCurrentUserRoleUser() ? (
+                      <UserContextMenu
+                        userIdx={contextMenu.user.idx}
+                        position={contextMenu.position}
+                        onBlock={() =>
+                          handleBlockChatMember(contextMenu.user.idx)
+                        }
+                        closeContextMenu={() => closeContextMenu()}
+                      />
+                    ) : (
+                      <ChatParticipantContextMenu
+                        userIdx={contextMenu.user.idx}
+                        position={contextMenu.position}
+                        onBlock={() =>
+                          handleBlockChatMember(contextMenu.user.idx)
+                        }
+                        closeContextMenu={() => closeContextMenu()}
+                      />
+                    )
                   ) : (
                     <FriendContextMenu
                       friend={contextMenu.user}
