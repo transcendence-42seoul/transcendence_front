@@ -1,3 +1,6 @@
+import { useRecoilValue } from 'recoil';
+import { ChallengModalAtom } from '../../recoil/challengemodalAtom';
+
 interface UserItemProps {
   userNickname: string;
   userHighlighted: boolean;
@@ -39,6 +42,9 @@ export interface UserContextMenuProps {
 
 export const UserContextMenu = (props: UserContextMenuProps) => {
   const { userIdx, position, onBlock, closeContextMenu } = props;
+
+  const modalState = useRecoilValue(ChallengModalAtom);
+  console.log('modalState', modalState);
   return (
     <div
       className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
@@ -57,8 +63,15 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
         >
           차단
         </li>
-        {/* <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li> */}
-        {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            modalState.onOpen();
+          }}
+        >
+          챌린지
+        </li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
       </ul>
     </div>

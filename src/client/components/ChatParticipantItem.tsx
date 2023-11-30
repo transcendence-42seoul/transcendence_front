@@ -1,5 +1,7 @@
+import { useRecoilValue } from 'recoil';
 import { UserItemProps } from './UserItem';
 import { UserContextMenuProps } from './UserItem';
+import { ChallengModalAtom } from '../../recoil/challengemodalAtom';
 
 export const ChatParticipantItem = (props: UserItemProps) => {
   const { user, onClick, onDoubleClick, onContextMenu } = props;
@@ -22,6 +24,9 @@ export const ChatParticipantItem = (props: UserItemProps) => {
 
 export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
   const { userIdx, position, onBlock, closeContextMenu } = props;
+  const modalState = useRecoilValue(ChallengModalAtom);
+
+  console.log('modalState', modalState);
   return (
     <div
       className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
@@ -30,7 +35,14 @@ export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
     >
       {/* 메뉴 내용 */}
       <ul className="divide-y divide-gray-100">
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">친구신청</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+          }}
+        >
+          친구신청
+        </li>
         <li
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
@@ -40,7 +52,16 @@ export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
         >
           차단
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            modalState.onOpen();
+            console.log('챌린지');
+          }}
+        >
+          챌린지
+        </li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">강퇴하기</li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">밴하기</li>

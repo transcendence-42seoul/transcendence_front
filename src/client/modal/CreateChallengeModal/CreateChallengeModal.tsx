@@ -23,6 +23,8 @@ import {
 import { useNavigate } from 'react-router';
 import { appSocket } from '../../../common/socket/app.socket';
 import { TUserStatus } from '../../../common/avatar/SmallAvatar';
+import { useRecoilState } from 'recoil';
+import { ChallengModalAtom } from '../../../recoil/challengemodalAtom';
 
 type difficultyLevelType = 'normal' | 'hard';
 
@@ -41,6 +43,8 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
   };
 
   const [submitState, setSubmitState] = useState<boolean>(false);
+
+  const [_, setModalState] = useRecoilState(ChallengModalAtom);
 
   const handleSubmit = () => {
     // event.stopPropagation();
@@ -92,6 +96,11 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
   };
 
   useEffect(() => {
+    seModalState({
+      itsOpen: isCreateChallengeOpen,
+      onOpen: onOpenCreateChallenge,
+      onClose: onCloseCreateChallenge,
+    });
     gameSocketConnect();
     return () => {
       console.log('unmount');
