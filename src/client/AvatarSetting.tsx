@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Image, Button, useDisclosure, Input } from '@chakra-ui/react';
 import ProfilePictureChangeModal from './components/ProfilePictureChange';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
+import { getCookie } from '../common/cookie/cookie';
 
 const defaultAvatar = 'src/assets/logo.jpg'; // 기본 프로필 이미지 경로
 
 function AvatarSetting() {
+  const token = getCookie('token');
+  const [userIdx, setUserIdx] = useState<number>(0);
+
   const navigate = useNavigate();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -16,18 +20,63 @@ function AvatarSetting() {
   const [isNicknameAvailable, setIsNicknameAvailable] =
     useState<boolean>(false);
 
+  useEffect(() => {
+    fetchUserIdx();
+  }, []);
+
+  const fetchUserIdx = async () => {
+    try {
+      const userData = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setUserIdx(userData.data.user_idx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleCustomAvatarChange = (newAvatar: string) => {
     setCustomAvatar(newAvatar);
     onClose();
   };
 
+  const updateNickname = () => {
+    try {
+      console.log('nickname:', nickname);
+
+      axios.patch(
+        `${import.meta.env.VITE_SERVER_URL}/users/${userIdx}/nickname`,
+        { nickname: nickname },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleCompleteProfileSetup = () => {
+    updateNickname();
     navigate('/main');
   };
 
   const handleCheckNickname = () => {
     try {
       console.log('nickname:', nickname);
+
+      if (nickname.trim() === '') {
+        alert('닉네임을 입력해주세요.');
+        return;
+      }
+
       axios
         .get(
           `${import.meta.env.VITE_SERVER_URL}/users/check-nickname/${nickname}`,

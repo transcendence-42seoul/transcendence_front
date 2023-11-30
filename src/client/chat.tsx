@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
+import password from '../assets/password.svg';
 import { useNavigate, useParams } from 'react-router';
 import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
@@ -12,6 +13,9 @@ import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import axios from 'axios';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
+import { ChatParticipantContextMenu } from './components/ChatParticipantItem';
+import UpdateChatStateModal from './components/UpdateChatState';
+import { useDisclosure } from '@chakra-ui/react';
 
 interface ChatData {
   name: string;
@@ -39,6 +43,12 @@ function ChatPage() {
   const { idx } = useParams();
 
   const navigate = useNavigate();
+
+  const {
+    isOpen: isUpdateChatStateOpen,
+    onOpen: onOpenUpdateChatState,
+    onClose: onCloseUpdateChatState,
+  } = useDisclosure();
 
   const token = getCookie('token');
 
@@ -76,6 +86,7 @@ function ChatPage() {
       const response = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/chats/data/${idx}`,
       );
+      console.log(response.data);
       setChatData(makeChatData(response.data));
     } catch (error) {
       console.error(error);
@@ -88,6 +99,22 @@ function ChatPage() {
       type: data.type,
       password: data.password,
     };
+  };
+
+  const isCurrentUserRoleUser = () => {
+    const currentUserParticipant = chatMemberList.find(
+      (participant) => participant.user.idx === userIdx,
+    );
+
+    return currentUserParticipant && currentUserParticipant.role === 'USER';
+  };
+
+  const isCurrentUserRoleOwner = () => {
+    const currentUserParticipant = chatMemberList.find(
+      (participant) => participant.user.idx === userIdx,
+    );
+
+    return currentUserParticipant && currentUserParticipant.role === 'OWNER';
   };
 
   useEffect(() => {
@@ -173,7 +200,7 @@ function ChatPage() {
     }
   };
 
-  const handleFriendRightClick = (e: MouseEvent, friend: Friends) => {
+  const handleFriendRightClick = (e: React.MouseEvent, friend: Friends) => {
     e.preventDefault();
     const isAlreadyHighlighted = friend.isHighlighted;
     setFriendsList(
@@ -296,6 +323,27 @@ function ChatPage() {
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
               {userIdx > 0} {chatData?.name}
+              {/* Check if the current user role is admin */}
+              {isCurrentUserRoleOwner() ? (
+                <div
+                  className="w-12 h-12 rounded-full"
+                  onClick={onOpenUpdateChatState}
+                >
+                  <img
+                    className="flex-item-logo"
+                    src={password}
+                    alt="password"
+                    style={{ width: '100px', height: 'auto' }}
+                  />
+                </div>
+              ) : null}
+              <UpdateChatStateModal
+                isOpen={isUpdateChatStateOpen}
+                onOpen={onOpenUpdateChatState}
+                onClose={onCloseUpdateChatState}
+                chatIdx={idx}
+                type={chatData?.type}
+              />
             </div>
             <div className="bg-sky-200 mx-2 my-2 rounded-lg flex flex-col overflow-auto h-full">
               <MiniChatting />
@@ -341,11 +389,11 @@ function ChatPage() {
               {activeTab === 'chat' && (
                 <div className="flex-grow">
                   {chatMemberList.map((chatMember: IChatMember) => {
-                    console.log(chatMember);
                     return (
                       <UserItem
                         key={chatMember.idx}
-                        user={chatMember}
+                        userNickname={chatMember.user.nickname}
+                        userHighlighted={chatMember.isHighlighted}
                         onClick={() => handleChatMemberClick(chatMember)}
                         onDoubleClick={() =>
                           handleUserDoubleClick(chatMember.user.idx)
@@ -366,7 +414,7 @@ function ChatPage() {
                       friend={friend}
                       onClick={() => handleFriendClick(friend)}
                       onDoubleClick={() => handleUserDoubleClick(friend.idx)}
-                      onContextMenu={(e: MouseEvent) =>
+                      onContextMenu={(e: React.MouseEvent) =>
                         handleFriendRightClick(e, friend)
                       }
                     />
@@ -376,17 +424,28 @@ function ChatPage() {
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'chatMember' ? (
-                    <UserContextMenu
-                      userIdx={contextMenu.user.idx}
-                      position={contextMenu.position}
-                      onBlock={() =>
-                        handleBlockChatMember(contextMenu.user.idx)
-                      }
-                      closeContextMenu={() => closeContextMenu()}
-                    />
+                    isCurrentUserRoleUser() ? (
+                      <UserContextMenu
+                        userIdx={contextMenu.user.idx}
+                        position={contextMenu.position}
+                        onBlock={() =>
+                          handleBlockChatMember(contextMenu.user.idx)
+                        }
+                        closeContextMenu={() => closeContextMenu()}
+                      />
+                    ) : (
+                      <ChatParticipantContextMenu
+                        userIdx={contextMenu.user.idx}
+                        position={contextMenu.position}
+                        onBlock={() =>
+                          handleBlockChatMember(contextMenu.user.idx)
+                        }
+                        closeContextMenu={() => closeContextMenu()}
+                      />
+                    )
                   ) : (
                     <FriendContextMenu
-                      friend={contextMenu.user}
+                      friendIdx={contextMenu.user.idx}
                       position={contextMenu.position}
                       onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
                       onBlock={() => handleBlockFriend(contextMenu.user.idx)}
