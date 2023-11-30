@@ -1,6 +1,5 @@
 import { Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useParams } from 'react-router';
 
 type ChatInputProps = {
   handleSubmit: Function;
@@ -18,8 +17,6 @@ function ChatInput(props: ChatInputProps) {
   //   props.handleSubmit(props.room_id, chat);
   //   setChat('');
   // };
-
-  const { idx } = useParams();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     console.log('chatinput handleSubmit');

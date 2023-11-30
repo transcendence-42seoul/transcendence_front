@@ -1,17 +1,22 @@
-export const FriendItem = ({
-  friend,
-  onClick,
-  onDoubleClick,
-  onContextMenu,
-}) => {
+import { Friends } from './FetchFriendList';
+
+interface FriendItemProps {
+  friend: Friends;
+  onClick: (friend: Friends) => void;
+  onDoubleClick: (friend: Friends) => void;
+  onContextMenu: (e: React.MouseEvent, friend: Friends) => void;
+}
+
+export const FriendItem = (props: FriendItemProps) => {
+  const { friend, onClick, onDoubleClick, onContextMenu } = props;
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
 			border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
         friend.isHighlighted ? 'bg-blue-100' : 'bg-white'
       }`}
-      onClick={onClick}
-      onDoubleClick={onDoubleClick}
+      onClick={() => onClick(friend)}
+      onDoubleClick={() => onDoubleClick(friend)}
       onContextMenu={(e) => onContextMenu(e, friend)}
     >
       <span>{friend.nickname}</span>
@@ -19,13 +24,16 @@ export const FriendItem = ({
   );
 };
 
-export const FriendContextMenu = ({
-  friend,
-  position,
-  onDelete,
-  onBlock,
-  closeContextMenu,
-}) => {
+interface FriendContextMenuProps {
+  friendIdx: number;
+  position: { x: number; y: number };
+  onDelete: (idx: number) => void;
+  onBlock: (idx: number) => void;
+  closeContextMenu: () => void;
+}
+
+export const FriendContextMenu = (props: FriendContextMenuProps) => {
+  const { friendIdx, position, onDelete, onBlock, closeContextMenu } = props;
   return (
     <div
       className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
@@ -37,7 +45,7 @@ export const FriendContextMenu = ({
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            onDelete(friend.idx);
+            onDelete(friendIdx);
           }}
         >
           친구 삭제
@@ -46,7 +54,7 @@ export const FriendContextMenu = ({
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            onBlock(friend.idx);
+            onBlock(friendIdx);
           }}
         >
           차단

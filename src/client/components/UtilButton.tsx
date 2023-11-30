@@ -19,7 +19,20 @@ import { useNavigate } from 'react-router';
 import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 import { CreateLadderModal } from '../modal/CreateLadderModal/CreateLadderModal';
 
-function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
+interface CreateChannelModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onChatRoomAdded: () => void;
+}
+
+interface CreateChatResponse {
+  status: string;
+  chatIdx: number;
+}
+
+export const CreateChannelModal = (props: CreateChannelModalProps) => {
+  const { isOpen, onClose, onChatRoomAdded } = props;
+
   const navigate = useNavigate();
 
   const [channelType, setChannelType] = useState('public');
@@ -30,9 +43,9 @@ function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
 
   const isPrivate = channelType === 'private';
 
-  const handleTypeChange = (value) => {
-    setChannelType(value);
-    if (value === 'public') {
+  const handleTypeChange = (type: string) => {
+    setChannelType(type);
+    if (type === 'PUBLIC') {
       setPassword('');
     }
   };
@@ -42,15 +55,14 @@ function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
     onClose();
     chatSocketConnect();
 
-    console.log(title, password, maxPeople);
-
     chatSocket.emit(
       'createChat',
       { title, password, maxPeople },
-      (response) => {
+      (response: CreateChatResponse) => {
+        console.log('response', response);
         if (response.status === 'success') {
-          console.log('Created chat room with chat_idx:', response.chat.idx);
-          navigate(`/chat/${response.chat.idx}`);
+          console.log('Created chat room with chat_idx:', response.chatIdx);
+          navigate(`/chat/${response.chatIdx}`);
         } else {
           console.error('Failed to create chat room');
         }
@@ -107,27 +119,26 @@ function CreateChannelModal({ isOpen, onClose, onChatRoomAdded }) {
       </ModalContent>
     </Modal>
   );
+};
+
+interface UtilButtonProps {
+  pageType: string;
+  onChatState: () => void;
 }
 
-function UtilButton({ pageType, onChatState }) {
-  const navigate = useNavigate();
+interface UtilButton {
+  label: string;
+  onClick: () => void;
+}
 
-  const [normalMode, setNormalMode] = useState(false);
-  const [ladderMode, setLadderMode] = useState(false);
+export const UtilButton = (props: UtilButtonProps) => {
+  const { pageType, onChatState } = props;
 
   const {
     isOpen: isCreateChannelOpen,
     onOpen: onOpenCreateChannel,
     onClose: onCloseCreateChannel,
   } = useDisclosure();
-
-  const normalModeButton = () => {
-    setNormalMode(!normalMode);
-  };
-
-  const ladderModeButton = () => {
-    setLadderMode(!ladderMode);
-  };
 
   const utilButtonData = [
     ...(pageType === 'main'
@@ -138,7 +149,9 @@ function UtilButton({ pageType, onChatState }) {
       : []),
   ];
 
-  const UtilButton = ({ label, onClick }) => {
+  const UtilButton = (props: UtilButton) => {
+    const { label, onClick } = props;
+
     return (
       <Button
         colorScheme="teal"
@@ -166,6 +179,6 @@ function UtilButton({ pageType, onChatState }) {
       />
     </div>
   );
-}
+};
 
 export default UtilButton;

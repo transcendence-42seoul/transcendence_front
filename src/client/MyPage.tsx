@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import logo from '../assets/logo.jpg';
+import { useEffect, useState } from 'react';
 import { useDisclosure, Input } from '@chakra-ui/react';
 import ProfilePictureChangeModal from './components/ProfilePictureChange';
 import edit from '../assets/edit.svg';

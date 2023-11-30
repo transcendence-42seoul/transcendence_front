@@ -173,7 +173,7 @@ function ChatPage() {
     }
   };
 
-  const handleFriendRightClick = (e: MouseEvent, friend: Friends) => {
+  const handleFriendRightClick = (e: React.MouseEvent, friend: Friends) => {
     e.preventDefault();
     const isAlreadyHighlighted = friend.isHighlighted;
     setFriendsList(
@@ -341,11 +341,11 @@ function ChatPage() {
               {activeTab === 'chat' && (
                 <div className="flex-grow">
                   {chatMemberList.map((chatMember: IChatMember) => {
-                    console.log(chatMember);
                     return (
                       <UserItem
                         key={chatMember.idx}
-                        user={chatMember}
+                        userNickname={chatMember.user.nickname}
+                        userHighlighted={chatMember.isHighlighted}
                         onClick={() => handleChatMemberClick(chatMember)}
                         onDoubleClick={() =>
                           handleUserDoubleClick(chatMember.user.idx)
@@ -366,7 +366,7 @@ function ChatPage() {
                       friend={friend}
                       onClick={() => handleFriendClick(friend)}
                       onDoubleClick={() => handleUserDoubleClick(friend.idx)}
-                      onContextMenu={(e: MouseEvent) =>
+                      onContextMenu={(e: React.MouseEvent) =>
                         handleFriendRightClick(e, friend)
                       }
                     />
@@ -386,7 +386,7 @@ function ChatPage() {
                     />
                   ) : (
                     <FriendContextMenu
-                      friend={contextMenu.user}
+                      friendIdx={contextMenu.user.idx}
                       position={contextMenu.position}
                       onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
                       onBlock={() => handleBlockFriend(contextMenu.user.idx)}
