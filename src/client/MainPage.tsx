@@ -1,15 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import setting from '../assets/setting.svg';
 import { useNavigate } from 'react-router';
@@ -22,56 +11,12 @@ import axios from 'axios';
 import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
+import { ChatItem, IChatRoom, PasswordModal } from './components/ChatItem';
 
-function ChatItem({ chatRoom, onClick, onDoubleClick }) {
-  return (
-    <div
-      className={`flex justify-between items-center p-4 my-2 mx-2
-		border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-      chatRoom.isHighlighted ? 'bg-blue-100' : 'bg-white'
-    }`}
-      onClick={() => onClick(chatRoom)}
-      onDoubleClick={() => onDoubleClick(chatRoom)}
-    >
-      <span>{chatRoom.name}</span>
-      {/* <span>{`${chatRoom.currentPeople}/${chatRoom.maxPeople}`}</span> */}
-      <span>{`${chatRoom.currentParticipant}/${chatRoom.limit}`}</span>
-      <span>{chatRoom.type === 'PRIVATE' ? 'Private' : 'Public'}</span>
-    </div>
-  );
-}
-
-function PasswordModal({ isOpen, onClose, onSubmit, chatRoom }) {
-  const [password, setPassword] = useState('');
-
-  const handlePasswordSubmit = () => {
-    onSubmit(password, chatRoom);
-    onClose();
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{chatRoom.name} - Enter Password</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handlePasswordSubmit}>
-            Submit
-          </Button>
-          <Button onClick={onClose}>Cancel</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
+interface IContextMenu {
+  type: 'online' | 'friend';
+  user: IOnlineItem | Friends;
+  position: { x: number; y: number };
 }
 
 function MainPage() {
@@ -80,11 +25,11 @@ function MainPage() {
   const token = getCookie('token');
 
   const [userIdx, setUserIdx] = useState<number>(0);
-  const [chatRooms, setChatRooms] = useState([]);
+  const [chatRooms, setChatRooms] = useState<IChatRoom[]>([]);
   const [chatRoomAdded, setChatRoomAdded] = useState(true);
   const [activeTab, setActiveTab] = useState('lobby');
 
-  const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedChat, setSelectedChat] = useState<IChatRoom | null>(null);
 
   const {
     isOpen: isPasswordModalOpen,
@@ -94,12 +39,12 @@ function MainPage() {
 
   const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
-  const [onlineList, setOnlineList] = useState([
-    { idx: 1, name: '온라인 A', isHighlighted: false },
-    { idx: 2, name: '온라인 B', isHighlighted: false },
+  const [onlineList, setOnlineList] = useState<IOnlineItem[]>([
+    { idx: 1, nickname: '온라인 A', isHighlighted: false },
+    { idx: 2, nickname: '온라인 B', isHighlighted: false },
   ]);
 
-  const [contextMenu, setContextMenu] = useState(null);
+  const [contextMenu, setContextMenu] = useState<IContextMenu | null>(null);
   const contextMenuRef = useRef(null);
 
   const fetchUserIdx = async () => {
@@ -141,9 +86,9 @@ function MainPage() {
     setChatRoomAdded(true);
   };
 
-  const handleChatClick = (chatRoom) => {
-    setChatRooms((prevChatRooms) =>
-      prevChatRooms.map((room) =>
+  const handleChatClick = (chatRoom: IChatRoom) => {
+    setChatRooms((prevChatRooms: IChatRoom[]) =>
+      prevChatRooms.map((room: IChatRoom) =>
         room.idx === chatRoom.idx
           ? { ...room, isHighlighted: !room.isHighlighted }
           : { ...room, isHighlighted: false },
@@ -151,8 +96,8 @@ function MainPage() {
     );
   };
 
-  const handleChatDoubleClick = (chatRoom) => {
-    if (chatRoom.isPrivate) {
+  const handleChatDoubleClick = (chatRoom: IChatRoom) => {
+    if (chatRoom.type === 'PRIVATE') {
       setSelectedChat(chatRoom);
       onOpenPasswordModal();
     } else {
@@ -170,7 +115,7 @@ function MainPage() {
     }
   };
 
-  const handleJoinPrivateChat = (chatRoom, password) => {
+  const handleJoinPrivateChat = (chatRoom: IChatRoom, password: string) => {
     chatSocketConnect();
 
     chatSocket.emit('joinChat', {
@@ -199,7 +144,7 @@ function MainPage() {
     );
   };
 
-  const handleFriendClick = (clickedFriend) => {
+  const handleFriendClick = (clickedFriend: Friends) => {
     setFriendsList(
       friendsList.map((friend) =>
         friend.idx === clickedFriend.idx
@@ -209,7 +154,7 @@ function MainPage() {
     );
   };
 
-  const handleOnlineClick = (clickedOnline) => {
+  const handleOnlineClick = (clickedOnline: IOnlineItem) => {
     setOnlineList(
       onlineList.map((online) =>
         online.idx === clickedOnline.idx
@@ -219,7 +164,10 @@ function MainPage() {
     );
   };
 
-  const handleOnlineRightClick = (e, online) => {
+  const handleOnlineRightClick = (
+    e: React.MouseEvent<Element, MouseEvent>,
+    online: IOnlineItem,
+  ) => {
     e.preventDefault();
     const isAlreadyHighlighted = online.isHighlighted;
     setOnlineList(
@@ -257,7 +205,7 @@ function MainPage() {
     }
   };
 
-  const handleFriendRightClick = (e, friend: Friends) => {
+  const handleFriendRightClick = (e: React.MouseEvent, friend: Friends) => {
     e.preventDefault();
     const isAlreadyHighlighted = friend.isHighlighted;
     setFriendsList(
@@ -282,7 +230,7 @@ function MainPage() {
     }
   };
 
-  const handleUserDoubleClick = (user) => {
+  const handleUserDoubleClick = (user: IOnlineItem | Friends) => {
     navigate(`/profile/${user.idx}`);
   };
 
@@ -292,7 +240,7 @@ function MainPage() {
         const response = await axios.get(
           'http://localhost:3000/chats/private-public',
         );
-        const chatRoomsData = response.data.map((chatRoom) => ({
+        const chatRoomsData = response.data.map((chatRoom: IChatRoom) => ({
           ...chatRoom,
           isHighlighted: false,
         }));
@@ -307,10 +255,11 @@ function MainPage() {
       setChatRoomAdded(false);
     }
 
-    const handleOutsideClick = (event) => {
+    const handleOutsideClick = (event: MouseEvent) => {
       if (
         contextMenuRef.current &&
-        !contextMenuRef.current.contains(event.target)
+        event.target instanceof Node &&
+        !(contextMenuRef.current as HTMLDivElement).contains(event.target)
       ) {
         closeContextMenu();
       }
@@ -323,16 +272,16 @@ function MainPage() {
     };
   }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
 
-  const handleDeleteFriend = (friendId) => {
-    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
+  const handleDeleteFriend = (friendIdx: number) => {
+    setFriendsList(friendsList.filter((friend) => friend.idx !== friendIdx));
   };
 
-  const handleBlockFriend = (friendId) => {
-    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
+  const handleBlockFriend = (friendIdx: number) => {
+    setFriendsList(friendsList.filter((friend) => friend.idx !== friendIdx));
   };
 
-  const handleBlockOnline = (onlineId) => {
-    setOnlineList(onlineList.filter((online) => online.idx !== onlineId));
+  const handleBlockOnline = (onlineIdx: number) => {
+    setOnlineList(onlineList.filter((online) => online.idx !== onlineIdx));
   };
 
   const handleSettingsClick = () => {
@@ -404,7 +353,8 @@ function MainPage() {
                   {onlineList.map((online) => (
                     <UserItem
                       key={online.idx}
-                      user={online}
+                      userNickname={online.nickname}
+                      userHighlighted={online.isHighlighted}
                       onClick={() => handleOnlineClick(online)}
                       onDoubleClick={() => handleUserDoubleClick(online)}
                       onContextMenu={(e) => handleOnlineRightClick(e, online)}
@@ -420,7 +370,9 @@ function MainPage() {
                       friend={friend}
                       onClick={() => handleFriendClick(friend)}
                       onDoubleClick={() => handleUserDoubleClick(friend)}
-                      onContextMenu={(e) => handleFriendRightClick(e, friend)}
+                      onContextMenu={(e: React.MouseEvent) =>
+                        handleFriendRightClick(e, friend)
+                      }
                     />
                   ))}
                 </div>
@@ -430,14 +382,14 @@ function MainPage() {
                 {contextMenu &&
                   (contextMenu.type === 'online' ? (
                     <UserContextMenu
-                      user={contextMenu.user}
+                      userIdx={contextMenu.user.idx}
                       position={contextMenu.position}
                       onBlock={() => handleBlockOnline(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ) : (
                     <FriendContextMenu
-                      friend={contextMenu.user}
+                      friendIdx={contextMenu.user.idx}
                       position={contextMenu.position}
                       onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
                       onBlock={() => handleBlockFriend(contextMenu.user.idx)}

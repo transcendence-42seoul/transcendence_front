@@ -1,9 +1,6 @@
-import { IChatMember } from '../chat';
-import { CreateChallengeModal } from '../modal/CreateChallengeModal/CreateChallengeModal';
-
 interface UserItemProps {
-  // online member type 추가
-  user: IChatMember;
+  userNickname: string;
+  userHighlighted: boolean;
   onClick: () => void;
   onDoubleClick: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
@@ -11,19 +8,24 @@ interface UserItemProps {
 
 export const UserItem = (props: UserItemProps) => {
   // 온라인유저 + 채팅유저
-  const { user, onClick, onDoubleClick, onContextMenu } = props;
-  console.log('user', user);
+  const {
+    userNickname,
+    userHighlighted,
+    onClick,
+    onDoubleClick,
+    onContextMenu,
+  } = props;
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
 			  border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-          user.isHighlighted ? 'bg-blue-100' : 'bg-white'
+          userHighlighted ? 'bg-blue-100' : 'bg-white'
         } cursor-pointer`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
-      {/* <span>{user.user.nickname}</span> */}
+      <span>{userNickname}</span>
     </div>
   );
 };
@@ -56,7 +58,7 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
           차단
         </li>
         {/* <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li> */}
-        <CreateChallengeModal requestedIdx={userIdx} />
+        {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
       </ul>
     </div>

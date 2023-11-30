@@ -13,7 +13,17 @@ import { useEffect, useRef, useState } from 'react';
 import { getCookie } from '../../common/cookie/cookie';
 import axios from 'axios';
 
-function ProfilePictureChangeModal({ isOpen, onClose, onAvatarChange }) {
+interface ProfilePictureChangeModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAvatarChange: (imageUrl: string) => void;
+}
+
+export const ProfilePictureChangeModal = (
+  props: ProfilePictureChangeModalProps,
+) => {
+  const { isOpen, onClose, onAvatarChange } = props;
+
   const inputFileRef = useRef<HTMLInputElement>(null);
   const token = getCookie('token');
   const [userIdx, setUserIdx] = useState();
@@ -41,8 +51,9 @@ function ProfilePictureChangeModal({ isOpen, onClose, onAvatarChange }) {
   const handlePictureSubmit = () => {
     if (inputFileRef.current?.files?.[0]) {
       const fileReader = new FileReader();
-      fileReader.onload = (e) => {
-        onAvatarChange(e.target.result as string);
+      fileReader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e !== null && e.target !== null)
+          onAvatarChange(e.target.result as string);
       };
       fileReader.readAsDataURL(inputFileRef.current.files[0]);
 
@@ -93,6 +104,6 @@ function ProfilePictureChangeModal({ isOpen, onClose, onAvatarChange }) {
       </ModalContent>
     </Modal>
   );
-}
+};
 
 export default ProfilePictureChangeModal;

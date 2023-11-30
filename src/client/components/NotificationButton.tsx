@@ -2,47 +2,65 @@ import { useState } from 'react';
 import bell from '../../assets/bell.svg';
 import { Button } from '@chakra-ui/react';
 
+interface ButtonData {
+  label: string;
+  color: string;
+  onClick: (e: React.MouseEvent) => void;
+}
+
+interface INotification {
+  idx: number;
+  sender_idx: number;
+  type: string;
+  message: string;
+  status: string;
+}
+
 function NotificationButton() {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([
+  const [notifications, setNotifications] = useState<INotification[]>([
     {
-      id: 1,
+      idx: 1,
+      sender_idx: 1,
       type: 'friend_request',
       message: 'seokchoi가 친구 요청을 했습니다.',
       status: 'unread',
     },
     {
-      id: 2,
+      idx: 2,
+      sender_idx: 2,
       type: 'game_request',
       message: 'jungchoi이 게임 요청을 했습니다.',
       status: 'unread',
     },
     {
-      id: 3,
+      idx: 3,
+      sender_idx: 3,
       type: 'message',
       message: 'doykim이 메시지를 보냈습니다.',
       status: 'unread',
     },
     {
-      id: 4,
+      idx: 4,
+      sender_idx: 4,
       type: 'game_request',
       message: 'soopark이 게임 요청을 했습니다.',
       status: 'unread',
     },
   ]);
 
-  const handleNotificationResponse = (e, id) => {
+  const handleNotificationResponse = (e: React.MouseEvent, idx: number) => {
     e.stopPropagation();
-    removeNotification(id);
+    removeNotification(idx);
   };
 
-  const removeNotification = (id) => {
+  const removeNotification = (idx: number) => {
     setNotifications(
-      notifications.filter((notification) => notification.id !== id),
+      notifications.filter((notification) => notification.idx !== idx),
     );
   };
 
-  const getNotificationButtons = (notification) => {
+  const getNotificationButtons = (notification: INotification) => {
     if (
       notification.type === 'friend_request' ||
       notification.type === 'game_request'
@@ -51,12 +69,14 @@ function NotificationButton() {
         {
           label: 'Accept',
           color: 'green',
-          onClick: (e) => handleNotificationResponse(e, notification.id),
+          onClick: (e: React.MouseEvent) =>
+            handleNotificationResponse(e, notification.idx),
         },
         {
           label: 'Decline',
           color: 'red',
-          onClick: (e) => handleNotificationResponse(e, notification.id),
+          onClick: (e: React.MouseEvent) =>
+            handleNotificationResponse(e, notification.idx),
         },
       ];
     } else {
@@ -64,13 +84,16 @@ function NotificationButton() {
         {
           label: 'Close',
           color: 'gray',
-          onClick: (e) => handleNotificationResponse(e, notification.id),
+          onClick: (e: React.MouseEvent) =>
+            handleNotificationResponse(e, notification.idx),
         },
       ];
     }
   };
 
-  const NotificationButton = ({ label, color, onClick }) => {
+  const NotificationButton = (props: ButtonData) => {
+    const { label, color, onClick } = props;
+
     return (
       <Button size="sm" colorScheme={color} onClick={onClick}>
         {label}
@@ -93,7 +116,7 @@ function NotificationButton() {
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div
-                  key={notification.id}
+                  key={notification.idx}
                   className="flex flex-col justify-between items-start p-3 border-b"
                 >
                   <span className="text-sm mb-2">{notification.message}</span>
