@@ -1,43 +1,26 @@
-interface UserItemProps {
-  userNickname: string;
-  userHighlighted: boolean;
-  onClick: () => void;
-  onDoubleClick: () => void;
-  onContextMenu: (e: React.MouseEvent) => void;
-}
+import { UserItemProps } from './UserItem';
+import { UserContextMenuProps } from './UserItem';
 
-export const UserItem = (props: UserItemProps) => {
-  // 온라인유저 + 채팅유저
-  const {
-    userNickname,
-    userHighlighted,
-    onClick,
-    onDoubleClick,
-    onContextMenu,
-  } = props;
+export const ChatParticipantItem = (props: UserItemProps) => {
+  const { user, onClick, onDoubleClick, onContextMenu } = props;
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
-			  border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-          userHighlighted ? 'bg-blue-100' : 'bg-white'
+				border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
+          user.isHighlighted ? 'bg-blue-100' : 'bg-white'
         } cursor-pointer`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
-      <span>{userNickname}</span>
+      {/* 수정 해야함 */}
+      <span>{user.user.nickname}</span>
+      {/*  */}
     </div>
   );
 };
 
-export interface UserContextMenuProps {
-  userIdx: number;
-  position: { x: number; y: number };
-  onBlock: (id: number) => void;
-  closeContextMenu: () => void;
-}
-
-export const UserContextMenu = (props: UserContextMenuProps) => {
+export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
   const { userIdx, position, onBlock, closeContextMenu } = props;
   return (
     <div
@@ -57,9 +40,11 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
         >
           차단
         </li>
-        {/* <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li> */}
-        {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">강퇴하기</li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">밴하기</li>
+        <li className="p-2 hover:bg-gray-100 cursor-pointer">채팅금지</li>
       </ul>
     </div>
   );
