@@ -103,11 +103,11 @@ function MainPage() {
     } else {
       chatSocketConnect();
 
-      // joinChat 이벤트 보내기
-      chatSocket.emit('joinChat', {
-        room_id: chatRoom.idx,
-        password: chatRoom.password,
-      });
+      //   joinChat 이벤트 보내기
+      //   chatSocket.emit('joinChat', {
+      //     room_id: chatRoom.idx,
+      //     password: chatRoom.password,
+      //   });
 
       console.log('chatRoom.idx', chatRoom.idx);
 
@@ -118,10 +118,10 @@ function MainPage() {
   const handleJoinPrivateChat = (chatRoom: IChatRoom, password: string) => {
     chatSocketConnect();
 
-    chatSocket.emit('joinChat', {
-      room_id: chatRoom.idx,
-      password: password,
-    });
+    // chatSocket.emit('joinChat', {
+    //   room_id: chatRoom.idx,
+    //   password: password,
+    // });
 
     navigate(`/chat/${chatRoom.idx}`);
   };

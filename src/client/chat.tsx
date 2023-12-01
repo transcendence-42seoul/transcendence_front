@@ -16,7 +16,6 @@ import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatParticipantContextMenu } from './components/ChatParticipantItem';
 import UpdateChatStateModal from './components/UpdateChatState';
 import { useDisclosure } from '@chakra-ui/react';
-import { IChatRoom } from './components/ChatItem';
 
 interface ChatData {
   name: string;
@@ -277,12 +276,17 @@ function ChatPage() {
     //   fetchChatMembers();
     // };
 
+    chatSocket.emit('joinChat', {
+      room_id: idx,
+    });
+
     chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
 
     return () => {
       chatSocket.off('leaveChat', onClickChannelLeave);
       chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
+      chatSocketLeave();
     };
   }, [idx]);
 
