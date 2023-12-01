@@ -42,10 +42,6 @@ export const DmNavigation = () => {
 
       const dmData = makeDmData(response.data);
 
-      chatSocket.emit('joinChat', {
-        room_id: dmData.idx,
-      });
-
       if (dmData && dmData.idx) {
         navigate(`/dm/${dmData.idx}`);
       }
