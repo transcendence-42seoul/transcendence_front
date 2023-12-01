@@ -232,7 +232,7 @@ function MainPage() {
   };
 
   const handleUserDoubleClick = (user: IOnlineItem | Friends) => {
-    navigate(`/profile/${user.idx}`);
+    navigate(`/userpage/${user.idx}`);
   };
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { DmNavigation } from './DmNavigation';
 import { Friends } from './FetchFriendList';
 
 interface FriendItemProps {
@@ -26,6 +27,7 @@ export const FriendItem = (props: FriendItemProps) => {
 
 interface FriendContextMenuProps {
   friendIdx: number;
+  currentDmUserIdx?: number;
   position: { x: number; y: number };
   onDelete: (idx: number) => void;
   onBlock: (idx: number) => void;
@@ -33,7 +35,20 @@ interface FriendContextMenuProps {
 }
 
 export const FriendContextMenu = (props: FriendContextMenuProps) => {
-  const { friendIdx, position, onDelete, onBlock, closeContextMenu } = props;
+  const {
+    friendIdx,
+    currentDmUserIdx,
+    position,
+    onDelete,
+    onBlock,
+    closeContextMenu,
+  } = props;
+
+  const navigateToDm = DmNavigation();
+
+  const showDmOption =
+    typeof currentDmUserIdx === 'undefined' || currentDmUserIdx !== friendIdx;
+
   return (
     <div
       className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
@@ -60,7 +75,14 @@ export const FriendContextMenu = (props: FriendContextMenuProps) => {
           차단
         </li>
         <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">DM 보내기</li>
+        {showDmOption && (
+          <li
+            className="p-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => navigateToDm(friendIdx)}
+          >
+            DM보내기
+          </li>
+        )}
       </ul>
     </div>
   );

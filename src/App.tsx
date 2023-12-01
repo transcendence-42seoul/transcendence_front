@@ -23,6 +23,7 @@ import axios from 'axios';
 import { useRecoilState } from 'recoil';
 import { UserIdAtom } from './recoil/userAtom';
 import ModalLayout from './client/modal/ModalLayout/ModalLayout';
+import DmPage from './client/DmChat';
 
 function App() {
   const location = useLocation();
@@ -72,63 +73,15 @@ function App() {
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/game/:id" element={<GamePage />} />
-        <Route
-          path="/main"
-          element={
-            <ModalLayout>
-              <MainPage />
-            </ModalLayout>
-          }
-        />
-        <Route
-          path="/setting"
-          element={
-            <ModalLayout>
-              <SettingPage />
-            </ModalLayout>
-          }
-        />
-        <Route
-          path="/user"
-          element={
-            <ModalLayout>
-              <UserPage />
-            </ModalLayout>
-          }
-        />
-        <Route
-          path="/mypage"
-          element={
-            <ModalLayout>
-              <MyPage />
-            </ModalLayout>
-          }
-        />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/setting" element={<SettingPage />} />
+        <Route path="/userpage/:idx" element={<UserPage />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route path="/authentication" element={<AuthenticationPage />} />
-        <Route
-          path="/ban-list"
-          element={
-            <ModalLayout>
-              <BanListPage />
-            </ModalLayout>
-          }
-        />
-        <Route
-          path="/avatar-setting"
-          element={
-            <ModalLayout>
-              <AvatarSetting />
-            </ModalLayout>
-          }
-        />
-        <Route
-          path="/chat/:idx"
-          element={
-            <ModalLayout>
-              <ChatPage />
-            </ModalLayout>
-          }
-        />
+        <Route path="/ban-list" element={<BanListPage />} />
+        <Route path="/avatar-setting" element={<AvatarSetting />} />
+        <Route path="/chat/:idx" element={<ChatPage />} />
+        <Route path="/dm/:idx" element={<DmPage />} />
       </Routes>
     </ChakraProvider>
   );
