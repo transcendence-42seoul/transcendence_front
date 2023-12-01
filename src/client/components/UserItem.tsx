@@ -1,4 +1,6 @@
-interface UserItemProps {
+import { DmNavigation } from './DmNavigation';
+
+export interface UserItemProps {
   userNickname: string;
   userHighlighted: boolean;
   onClick: () => void;
@@ -7,7 +9,6 @@ interface UserItemProps {
 }
 
 export const UserItem = (props: UserItemProps) => {
-  // 온라인유저 + 채팅유저
   const {
     userNickname,
     userHighlighted,
@@ -32,13 +33,21 @@ export const UserItem = (props: UserItemProps) => {
 
 export interface UserContextMenuProps {
   userIdx: number;
+  currentDmUserIdx?: number;
   position: { x: number; y: number };
   onBlock: (id: number) => void;
   closeContextMenu: () => void;
 }
 
 export const UserContextMenu = (props: UserContextMenuProps) => {
-  const { userIdx, position, onBlock, closeContextMenu } = props;
+  const { userIdx, currentDmUserIdx, position, onBlock, closeContextMenu } =
+    props;
+
+  const getDm = DmNavigation();
+
+  const showDmOption =
+    typeof currentDmUserIdx === 'undefined' || currentDmUserIdx !== userIdx;
+
   return (
     <div
       className="absolute z-50 w-40 bg-white shadow-lg rounded-md"
@@ -59,7 +68,14 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
         </li>
         {/* <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li> */}
         {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
+        {showDmOption && (
+          <li
+            className="p-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => getDm(userIdx)}
+          >
+            DM보내기
+          </li>
+        )}
       </ul>
     </div>
   );

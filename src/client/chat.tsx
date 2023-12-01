@@ -16,6 +16,7 @@ import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatParticipantContextMenu } from './components/ChatParticipantItem';
 import UpdateChatStateModal from './components/UpdateChatState';
 import { useDisclosure } from '@chakra-ui/react';
+import { IChatRoom } from './components/ChatItem';
 
 interface ChatData {
   name: string;
@@ -58,7 +59,7 @@ function ChatPage() {
 
   const [activeTab, setActiveTab] = useState('chat');
 
-  const [friendsList, setFriendsList] = useState<Friends[]>([]); // Friends가 아니라 IUser가 아닌가 싶다융.
+  const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
   const [chatMemberList, setChatMemberList] = useState<IChatMember[]>([]);
 
@@ -226,7 +227,7 @@ function ChatPage() {
   };
 
   const handleUserDoubleClick = (userIdx: number) => {
-    navigate(`/profile/${userIdx}`);
+    navigate(`/userpage/${userIdx}`);
   };
 
   useEffect(() => {
@@ -315,10 +316,12 @@ function ChatPage() {
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton
-          pageType={'chat'}
-          onChatState={() => onClickChannelLeave(idx)}
-        />
+        {chatData && (
+          <UtilButton
+            pageType={'chat'}
+            onChatState={() => onClickChannelLeave(idx)}
+          />
+        )}
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
