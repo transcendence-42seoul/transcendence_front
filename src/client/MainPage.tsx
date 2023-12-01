@@ -289,11 +289,11 @@ function MainPage() {
     navigate('/setting');
   };
 
-  const {
-    isOpen: isCreateChallengeOpen,
-    onOpen: onOpenCreateChallenge,
-    onClose: onCloseCreateChallenge,
-  } = useDisclosure();
+  // const {
+  //   isOpen: isCreateChallengeOpen,
+  //   onOpen: onOpenCreateChallenge,
+  //   onClose: onCloseCreateChallenge,
+  // } = useDisclosure();
 
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
@@ -404,7 +404,7 @@ function MainPage() {
                     />
                   ))}
               </div>
-              <CreateChallengeModal requestedIdx={userIdx} />
+              {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { useRecoilValue } from 'recoil';
 import { UserItemProps } from './UserItem';
 import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
-import { ChallengModalAtom } from '../../recoil/challengemodalAtom';
+import { ChallengModalAtom } from '../../recoil/challengeModalAtom.ts';
 
 export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
   const { userIdx, currentDmUserIdx, position, onBlock, closeContextMenu } =
