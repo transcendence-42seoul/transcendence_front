@@ -1,6 +1,10 @@
 import { useNavigate, useParams } from 'react-router';
 import { UtilButton } from './components/UtilButton';
-import { chatSocket, chatSocketLeave } from './mini_chat/chat.socket';
+import {
+  chatSocket,
+  chatSocketConnect,
+  chatSocketLeave,
+} from './mini_chat/chat.socket';
 import MiniChatting from './mini_chat/MiniChatting';
 import NotificationButton from './components/NotificationButton';
 import setting from '../assets/setting.svg';
@@ -84,7 +88,19 @@ function DmPage() {
 
   useEffect(() => {
     fetchUserIdx();
+    chatSocketConnect();
+
+    return () => {
+      chatSocketLeave();
+    };
   }, []);
+
+  useEffect(() => {
+    if (!dmData) return;
+    chatSocket.emit('joinChat', {
+      room_id: dmData.idx,
+    });
+  }, [dmData]);
 
   useEffect(() => {
     if (userIdx === 0) return;
