@@ -24,7 +24,7 @@ import { useNavigate } from 'react-router';
 import { appSocket } from '../../../common/socket/app.socket';
 import { TUserStatus } from '../../../common/avatar/SmallAvatar';
 import { useRecoilState } from 'recoil';
-import { ChallengModalAtom } from '../../../recoil/challengemodalAtom';
+import { ChallengModalAtom } from '../../../recoil/challengeModalAtom';
 
 type difficultyLevelType = 'normal' | 'hard';
 
@@ -96,8 +96,8 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
   };
 
   useEffect(() => {
-    seModalState({
-      itsOpen: isCreateChallengeOpen,
+    setModalState({
+      isOpen: isCreateChallengeOpen,
       onOpen: onOpenCreateChallenge,
       onClose: onCloseCreateChallenge,
     });
