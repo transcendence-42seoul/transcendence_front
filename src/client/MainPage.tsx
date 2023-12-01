@@ -289,11 +289,11 @@ function MainPage() {
     navigate('/setting');
   };
 
-  // const {
-  //   isOpen: isCreateChallengeOpen,
-  //   onOpen: onOpenCreateChallenge,
-  //   onClose: onCloseCreateChallenge,
-  // } = useDisclosure();
+  const {
+    isOpen: isCreateChallengeOpen,
+    onOpen: onOpenCreateChallenge,
+    onClose: onCloseCreateChallenge,
+  } = useDisclosure();
 
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
@@ -384,7 +384,6 @@ function MainPage() {
                   ))}
                 </div>
               )}
-
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'online' ? (
@@ -393,6 +392,11 @@ function MainPage() {
                       position={contextMenu.position}
                       onBlock={() => handleBlockOnline(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
+                      modalState={{
+                        isOpen: isCreateChallengeOpen,
+                        onOpen: onOpenCreateChallenge,
+                        onClose: onCloseCreateChallenge,
+                      }}
                     />
                   ) : (
                     <FriendContextMenu
@@ -404,7 +408,14 @@ function MainPage() {
                     />
                   ))}
               </div>
-              {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
+              <CreateChallengeModal
+                requestedIdx={userIdx}
+                modalState={{
+                  isOpen: isCreateChallengeOpen,
+                  onOpen: onOpenCreateChallenge,
+                  onClose: onCloseCreateChallenge,
+                }}
+              />
             </div>
           </div>
         </div>

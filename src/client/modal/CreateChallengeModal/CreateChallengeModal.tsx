@@ -12,7 +12,6 @@ import {
   RadioGroup,
   Spinner,
   Stack,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import {
@@ -23,17 +22,20 @@ import {
 import { useNavigate } from 'react-router';
 import { appSocket } from '../../../common/socket/app.socket';
 import { TUserStatus } from '../../../common/avatar/SmallAvatar';
-import { useRecoilState } from 'recoil';
-import { ChallengModalAtom } from '../../../recoil/challengeModalAtom';
 
 type difficultyLevelType = 'normal' | 'hard';
 
 interface CreateChallengeModalProps {
-  requestedIdx: number;
+  requestedIdx: number | undefined;
+  modalState: {
+    isOpen: boolean;
+    onOpen: () => void;
+    onClose: () => void;
+  };
 }
 
 export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
-  const { requestedIdx } = props;
+  const { requestedIdx, modalState } = props;
   const navigate = useNavigate();
   const [difficultyLevel, setDifficultyLevel] =
     useState<difficultyLevelType>('normal');
@@ -44,14 +46,9 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
 
   const [submitState, setSubmitState] = useState<boolean>(false);
 
-  const [_, setModalState] = useRecoilState(ChallengModalAtom);
-
   const handleSubmit = () => {
-    // event.stopPropagation();
-    console.log('1adfasdfaasdlkfmlksdmflamsdlfkmsdfsadf');
     setSubmitState(true);
-    // gameSocketConnect();
-
+    gameSocketConnect();
     appSocket.emit('checkEnableChallengeGame', {
       gameMode: difficultyLevel,
       requestedIdx,
@@ -60,9 +57,6 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
     appSocket.on(
       'checkEnableChallengeGameSuccess',
       (data: { status: TUserStatus; success: false }) => {
-        console.log('1');
-
-        console.log('checkEnableChallengeGameSuccess', data);
         const { success } = data;
         if (!success) {
           setEnableRequest(false);
@@ -71,40 +65,23 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
         }
       },
     );
-    console.log('2');
-
     gameSocket.on('createGameSuccess', (game) => {
       navigate(`/game/${game.room_id}`);
     });
   };
 
-  const {
-    isOpen: isCreateChallengeOpen,
-    onOpen: onOpenCreateChallenge,
-    onClose: onCloseCreateChallenge,
-  } = useDisclosure();
-
   const handleModalClose = () => {
-    console.log('111111');
+    if (submitState) appSocket.emit('cancelChallengeGame', { requestedIdx });
     setSubmitState(false);
-    onCloseCreateChallenge();
+    modalState.onClose();
     setDifficultyLevel('normal');
     gameSocketDisconnect();
     gameSocket.off('createGameSuccess');
-    // gameSocket.off('submitChallenge');
-    // gameSocket.off('error');
   };
 
   useEffect(() => {
-    setModalState({
-      isOpen: isCreateChallengeOpen,
-      onOpen: onOpenCreateChallenge,
-      onClose: onCloseCreateChallenge,
-    });
-    gameSocketConnect();
     return () => {
-      console.log('unmount');
-      // handleModalClose();
+      modalState.onClose();
       appSocket.emit('cancelChallengeGame', { requestedIdx });
       appSocket.off('checkEnableChallengeGameSuccess');
       gameSocketDisconnect();
@@ -113,17 +90,7 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
 
   return (
     <>
-      <li
-        className="p-2 hover:bg-gray-100 cursor-pointer"
-        onClick={onOpenCreateChallenge}
-      >
-        챌린지
-      </li>
-      <Modal
-        isOpen={isCreateChallengeOpen}
-        onClose={handleModalClose}
-        isCentered
-      >
+      <Modal isOpen={modalState.isOpen} onClose={handleModalClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>챌린지 신청</ModalHeader>
@@ -161,8 +128,7 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
                 도전
               </Button>
             )}
-            <Button>취소</Button>
-            {/* <Button onClick={handleModalClose}>취소</Button> */}
+            <Button onClick={handleModalClose}>취소</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

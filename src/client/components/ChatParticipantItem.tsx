@@ -1,16 +1,16 @@
-import { useRecoilValue } from 'recoil';
 import { UserItemProps } from './UserItem';
 import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
-import { ChallengModalAtom } from '../../recoil/challengeModalAtom.ts';
 
 export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
-  const { userIdx, currentDmUserIdx, position, onBlock, closeContextMenu } =
-    props;
-
-  const modalState = useRecoilValue(ChallengModalAtom);
-
-  console.log('modalState', modalState);
+  const {
+    userIdx,
+    currentDmUserIdx,
+    position,
+    onBlock,
+    closeContextMenu,
+    challengModalState,
+  } = props;
   const navigateToDm = DmNavigation();
 
   const showDmOption =
@@ -45,8 +45,7 @@ export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            modalState.onOpen();
-            console.log('챌린지');
+            challengModalState.onOpen();
           }}
         >
           챌린지

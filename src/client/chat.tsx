@@ -16,6 +16,7 @@ import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatParticipantContextMenu } from './components/ChatParticipantItem';
 import UpdateChatStateModal from './components/UpdateChatState';
 import { useDisclosure } from '@chakra-ui/react';
+import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 
 interface ChatData {
   name: string;
@@ -185,6 +186,7 @@ function ChatPage() {
         user: chatMember,
         position: { x: e.clientX, y: e.clientY },
       });
+      setClickedUserIdx(chatMember.user.idx);
     }
   };
 
@@ -222,6 +224,7 @@ function ChatPage() {
         user: friend,
         position: { x: e.clientX, y: e.clientY },
       });
+      setClickedUserIdx(friend.idx);
     }
   };
 
@@ -317,6 +320,13 @@ function ChatPage() {
     navigate('/setting');
   };
 
+  const {
+    isOpen: isCreateChallengeOpen,
+    onOpen: onOpenCreateChallenge,
+    onClose: onCloseCreateChallenge,
+  } = useDisclosure();
+
+  const [clickedUserIdx, setClickedUserIdx] = useState<number>(0);
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
@@ -439,6 +449,11 @@ function ChatPage() {
                           handleBlockChatMember(contextMenu.user.idx)
                         }
                         closeContextMenu={() => closeContextMenu()}
+                        challengModalState={{
+                          isOpen: isCreateChallengeOpen,
+                          onOpen: onOpenCreateChallenge,
+                          onClose: onCloseCreateChallenge,
+                        }}
                       />
                     ) : (
                       <ChatParticipantContextMenu
@@ -448,6 +463,11 @@ function ChatPage() {
                           handleBlockChatMember(contextMenu.user.idx)
                         }
                         closeContextMenu={() => closeContextMenu()}
+                        challengModalState={{
+                          isOpen: isCreateChallengeOpen,
+                          onOpen: onOpenCreateChallenge,
+                          onClose: onCloseCreateChallenge,
+                        }}
                       />
                     )
                   ) : (
@@ -459,6 +479,23 @@ function ChatPage() {
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ))}
+                {/* {contextMenu && ( */}
+                <CreateChallengeModal
+                  requestedIdx={
+                    clickedUserIdx
+                    // contextMenu
+                    //   ? contextMenu?.type === 'chatMember'
+                    //     ? (contextMenu?.user as IChatMember).user.idx
+                    //     : (contextMenu?.user as Friends).idx
+                    //   : undefined
+                  }
+                  modalState={{
+                    isOpen: isCreateChallengeOpen,
+                    onOpen: onOpenCreateChallenge,
+                    onClose: onCloseCreateChallenge,
+                  }}
+                />
+                {/* )} */}
               </div>
             </div>
           </div>

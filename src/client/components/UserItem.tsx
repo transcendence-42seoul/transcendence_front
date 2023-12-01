@@ -1,6 +1,3 @@
-import { useRecoilValue } from 'recoil';
-import { ChallengModalAtom } from '../../recoil/challengeModalAtom.ts';
-
 import { DmNavigation } from './DmNavigation';
 
 export interface UserItemProps {
@@ -40,15 +37,24 @@ export interface UserContextMenuProps {
   position: { x: number; y: number };
   onBlock: (id: number) => void;
   closeContextMenu: () => void;
+  challengModalState: {
+    isOpen: boolean;
+    onOpen: () => void;
+    onClose: () => void;
+  };
 }
 
 export const UserContextMenu = (props: UserContextMenuProps) => {
-  const { userIdx, currentDmUserIdx, position, onBlock, closeContextMenu } =
-    props;
+  const {
+    userIdx,
+    currentDmUserIdx,
+    position,
+    onBlock,
+    closeContextMenu,
+    challengModalState,
+  } = props;
 
-  const modalState = useRecoilValue(ChallengModalAtom);
-  console.log('modalState', modalState);
-
+  console.log('userIdx', userIdx);
   const getDm = DmNavigation();
 
   const showDmOption =
@@ -76,13 +82,11 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
-            modalState.onOpen();
+            challengModalState.onOpen();
           }}
         >
           챌린지
         </li>
-        {/* <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li> */}
-        {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
         {showDmOption && (
           <li
             className="p-2 hover:bg-gray-100 cursor-pointer"
