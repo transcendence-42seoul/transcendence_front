@@ -61,10 +61,13 @@ function App() {
   };
 
   useEffect(() => {
-    checkToken();
     return () => {
       appSocketDisconnect();
     };
+  }, []);
+
+  useEffect(() => {
+    checkToken();
   }, [currentPath]);
 
   return (
