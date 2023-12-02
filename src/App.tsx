@@ -20,6 +20,7 @@ import {
   appSocketDisconnect,
 } from './common/socket/app.socket';
 import axios from 'axios';
+import TestWelcomePage from './client/test';
 import { useRecoilState } from 'recoil';
 import { UserIdAtom } from './recoil/userAtom';
 import ModalLayout from './client/modal/ModalLayout/ModalLayout';
@@ -75,6 +76,7 @@ function App() {
       <Routes>
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/test" element={<TestWelcomePage />} />
         <Route path="/game/:id" element={<GamePage />} />
         <Route
           path="/main"

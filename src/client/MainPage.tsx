@@ -12,6 +12,8 @@ import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatItem, IChatRoom, PasswordModal } from './components/ChatItem';
+import { appSocket } from '../common/socket/app.socket';
+// import { appSocket } from '../common/socket/app.socket';
 import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 
 interface IContextMenu {
@@ -82,6 +84,24 @@ function MainPage() {
 
     fetchFriendList();
   }, [userIdx]);
+
+  // useEffect(() => {
+  //   const handleIsBan = (data: any) => {
+  //     console.log('sdfsdfd');
+  //     console.log('handleisBan', data, data.isBan, data.room_id);
+  //     if (data.isBan) {
+  //       alert('차단된 사용자입니다.');
+  //     } else {
+  //       navigate(`/chat/${data.room_id}`);
+  //     }
+  //   };
+
+  //   appSocket.on('isBan', handleIsBan);
+
+  //   return () => {
+  //     appSocket.off('isBan', handleIsBan);
+  //   };
+  // }, [appSocket]);
 
   const onChatRoomAdded = () => {
     setChatRoomAdded(true);
