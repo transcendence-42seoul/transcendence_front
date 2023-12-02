@@ -392,7 +392,7 @@ function MainPage() {
                       position={contextMenu.position}
                       onBlock={() => handleBlockOnline(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
-                      modalState={{
+                      challengModalState={{
                         isOpen: isCreateChallengeOpen,
                         onOpen: onOpenCreateChallenge,
                         onClose: onCloseCreateChallenge,
