@@ -14,10 +14,13 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 import { CreateLadderModal } from '../modal/CreateLadderModal/CreateLadderModal';
+import axios from 'axios';
+import { getCookie } from '../../common/cookie/cookie';
+import { IGame } from '../../game/ready/GameReadyPage';
 
 interface CreateChannelModalProps {
   isOpen: boolean;
@@ -133,8 +136,10 @@ interface UtilButton {
 
 export const UtilButton = (props: UtilButtonProps) => {
   const { pageType, onChatState } = props;
+  const [gameInfo, setGameInfo] = useState<IGame | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const pattern = /^\/chat\/(\d+)$/;
 
   const {
     isOpen: isCreateChannelOpen,
@@ -167,7 +172,31 @@ export const UtilButton = (props: UtilButtonProps) => {
     );
   };
 
-  var pattern = /^\/chat\/(\d+)$/;
+  const getGameInfo = async () => {
+    const token = getCookie('token');
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/games`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setGameInfo(res.data);
+      return res.data;
+    } catch (error) {
+      setGameInfo(null);
+      return null;
+    }
+  };
+
+  const handleClickCurrentGameBtn = async () => {
+    const game: IGame = await getGameInfo();
+    if (game) navigate(`/game/${game.room_id}`);
+    else alert('현재 진행중인 게임이 없습니다.');
+  };
+
+  useEffect(() => {
+    getGameInfo();
+  }, []);
 
   return (
     <div className="h-1/6 flex flex-row items-center align-middle justify-between">
@@ -189,6 +218,13 @@ export const UtilButton = (props: UtilButtonProps) => {
         onClose={onCloseCreateChannel}
         onChatRoomAdded={onChatState}
       />
+      {gameInfo && (
+        <UtilButton
+          key={10}
+          label={'현재 게임'}
+          onClick={handleClickCurrentGameBtn}
+        />
+      )}
     </div>
   );
 };

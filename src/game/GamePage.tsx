@@ -60,12 +60,11 @@ const GamePage = () => {
 
     gameSocket.on('error', (error) => {
       navigation('/login');
-      console.log(error);
       console.error('Socket connection error:', error);
     });
 
     gameSocket.on('disconnect', () => {
-      console.log('소켓이 연결이 끊겼습니다.');
+      console.error('게임 소켓이 연결이 끊겼습니다.');
     });
 
     try {
