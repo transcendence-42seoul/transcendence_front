@@ -33,6 +33,7 @@ export const CreateLadderModal = () => {
   const [difficultyLevel, setDifficultyLevel] =
     useState<difficultyLevelType>('normal');
 
+  const [enableJoinQueue, setEnalbeJoinQueue] = useState<boolean>(true);
   const handleTypeChange = (value: difficultyLevelType) => {
     setDifficultyLevel(value);
   };
@@ -48,8 +49,7 @@ export const CreateLadderModal = () => {
     });
 
     gameSocket.on('error', () => {
-      // removeCookie('token');
-      navigate('/login');
+      setEnalbeJoinQueue(false);
     });
 
     gameSocket.on('createGameSuccess', (game) => {
@@ -71,6 +71,7 @@ export const CreateLadderModal = () => {
     gameSocket.off('createGameSuccess');
     gameSocket.off('joinLadderQueue');
     gameSocket.off('error');
+    setEnalbeJoinQueue(true);
   };
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export const CreateLadderModal = () => {
       handleModalClose();
     };
   }, []);
+
   return (
     <>
       <Button
@@ -95,24 +97,28 @@ export const CreateLadderModal = () => {
           <ModalHeader>경쟁전 신청</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            {!submitState ? (
-              <RadioGroup onChange={handleTypeChange} value={difficultyLevel}>
-                <Stack direction="row" className="flex justify-evenly">
-                  <Radio value="normal">Normal</Radio>
-                  <Radio value="hard">Hard</Radio>
-                </Stack>
-              </RadioGroup>
+            {enableJoinQueue ? (
+              !submitState ? (
+                <RadioGroup onChange={handleTypeChange} value={difficultyLevel}>
+                  <Stack direction="row" className="flex justify-evenly">
+                    <Radio value="normal">Normal</Radio>
+                    <Radio value="hard">Hard</Radio>
+                  </Stack>
+                </RadioGroup>
+              ) : (
+                <Center>
+                  <Spinner
+                    className="flex justify-center"
+                    thickness="4px"
+                    speed="0.65s"
+                    emptyColor="gray.200"
+                    color="blue.500"
+                    size="xl"
+                  />
+                </Center>
+              )
             ) : (
-              <Center>
-                <Spinner
-                  className="flex justify-center"
-                  thickness="4px"
-                  speed="0.65s"
-                  emptyColor="gray.200"
-                  color="blue.500"
-                  size="xl"
-                />
-              </Center>
+              <span className="text-2xl">경쟁전에 참여할 수 없습니다.</span>
             )}
           </ModalBody>
           <ModalFooter>

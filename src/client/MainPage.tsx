@@ -12,6 +12,7 @@ import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatItem, IChatRoom, PasswordModal } from './components/ChatItem';
+import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 
 interface IContextMenu {
   type: 'online' | 'friend';
@@ -288,6 +289,12 @@ function MainPage() {
     navigate('/setting');
   };
 
+  const {
+    isOpen: isCreateChallengeOpen,
+    onOpen: onOpenCreateChallenge,
+    onClose: onCloseCreateChallenge,
+  } = useDisclosure();
+
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
@@ -377,7 +384,6 @@ function MainPage() {
                   ))}
                 </div>
               )}
-
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'online' ? (
@@ -386,6 +392,11 @@ function MainPage() {
                       position={contextMenu.position}
                       onBlock={() => handleBlockOnline(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
+                      modalState={{
+                        isOpen: isCreateChallengeOpen,
+                        onOpen: onOpenCreateChallenge,
+                        onClose: onCloseCreateChallenge,
+                      }}
                     />
                   ) : (
                     <FriendContextMenu
@@ -397,6 +408,14 @@ function MainPage() {
                     />
                   ))}
               </div>
+              <CreateChallengeModal
+                requestedIdx={userIdx}
+                modalState={{
+                  isOpen: isCreateChallengeOpen,
+                  onOpen: onOpenCreateChallenge,
+                  onClose: onCloseCreateChallenge,
+                }}
+              />
             </div>
           </div>
         </div>

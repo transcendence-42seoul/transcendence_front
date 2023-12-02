@@ -1,10 +1,16 @@
+import { UserItemProps } from './UserItem';
 import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
 
 export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
-  const { userIdx, currentDmUserIdx, position, onBlock, closeContextMenu } =
-    props;
-
+  const {
+    userIdx,
+    currentDmUserIdx,
+    position,
+    onBlock,
+    closeContextMenu,
+    challengModalState,
+  } = props;
   const navigateToDm = DmNavigation();
 
   const showDmOption =
@@ -18,7 +24,14 @@ export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
     >
       {/* 메뉴 내용 */}
       <ul className="divide-y divide-gray-100">
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">친구신청</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+          }}
+        >
+          친구신청
+        </li>
         <li
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
@@ -28,7 +41,15 @@ export const ChatParticipantContextMenu = (props: UserContextMenuProps) => {
         >
           차단
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            challengModalState.onOpen();
+          }}
+        >
+          챌린지
+        </li>
         {showDmOption && (
           <li
             className="p-2 hover:bg-gray-100 cursor-pointer"

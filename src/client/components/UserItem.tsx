@@ -37,12 +37,24 @@ export interface UserContextMenuProps {
   position: { x: number; y: number };
   onBlock: (id: number) => void;
   closeContextMenu: () => void;
+  challengModalState: {
+    isOpen: boolean;
+    onOpen: () => void;
+    onClose: () => void;
+  };
 }
 
 export const UserContextMenu = (props: UserContextMenuProps) => {
-  const { userIdx, currentDmUserIdx, position, onBlock, closeContextMenu } =
-    props;
+  const {
+    userIdx,
+    currentDmUserIdx,
+    position,
+    onBlock,
+    closeContextMenu,
+    challengModalState,
+  } = props;
 
+  console.log('userIdx', userIdx);
   const getDm = DmNavigation();
 
   const showDmOption =
@@ -66,8 +78,15 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
         >
           차단
         </li>
-        {/* <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li> */}
-        {/* <CreateChallengeModal requestedIdx={userIdx} /> */}
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            challengModalState.onOpen();
+          }}
+        >
+          챌린지
+        </li>
         {showDmOption && (
           <li
             className="p-2 hover:bg-gray-100 cursor-pointer"
