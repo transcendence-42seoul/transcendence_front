@@ -16,15 +16,22 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 
-function UpdateChatStateModal({ isOpen, opOpen, onClose, chatIdx, type }) {
+interface UpdateChatStateModalProps {
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  chatIdx: number;
+  type: 'PUBLIC' | 'PRIVATE';
+}
+
+function UpdateChatStateModal(props: UpdateChatStateModalProps) {
+  const { isOpen, onClose, chatIdx, type } = props;
   const navigate = useNavigate();
 
   const [chatType, setChatType] = useState(type);
   const [password, setPassword] = useState('');
 
   const isPrivate = chatType === 'PRIVATE';
-  console.log('isPrivate', isPrivate);
-
   const handleTypeChange = (type: any) => {
     setChatType(type);
     if (type === 'PUBLIC') {

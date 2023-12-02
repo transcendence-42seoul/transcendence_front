@@ -18,6 +18,7 @@ import UpdateChatStateModal from './components/UpdateChatState';
 import { useDisclosure } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import { appSocket } from '../common/socket/app.socket';
+import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 
 interface ChatData {
   name: string;
@@ -62,7 +63,7 @@ function ChatPage() {
 
   const [activeTab, setActiveTab] = useState('chat');
 
-  const [friendsList, setFriendsList] = useState<Friends[]>([]); // Friends가 아니라 IUser가 아닌가 싶다융.
+  const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
   const [chatMemberList, setChatMemberList] = useState<IChatMember[]>([]);
 
@@ -235,6 +236,7 @@ function ChatPage() {
         user: chatMember,
         position: { x: e.clientX, y: e.clientY },
       });
+      setClickedUserIdx(chatMember.user.idx);
     }
   };
 
@@ -272,11 +274,12 @@ function ChatPage() {
         user: friend,
         position: { x: e.clientX, y: e.clientY },
       });
+      setClickedUserIdx(friend.idx);
     }
   };
 
   const handleUserDoubleClick = (userIdx: number) => {
-    navigate(`/profile/${userIdx}`);
+    navigate(`/userpage/${userIdx}`);
   };
 
   useEffect(() => {
@@ -361,6 +364,10 @@ function ChatPage() {
     //   fetchChatMembers();
     // };
 
+    chatSocket.emit('joinChat', {
+      room_id: idx,
+    });
+
     chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
     chatSocket.on('showError', handleShowError);
@@ -377,6 +384,7 @@ function ChatPage() {
       appSocket.off('banned', handleBanned);
       appSocket.off('isBan', handleIsBan);
       chatSocket.off('ownerLeaveChat', handleOwnerLeave);
+      // chatSocketLeave();
     };
   }, [idx]);
 
@@ -426,13 +434,22 @@ function ChatPage() {
     });
   };
 
+  const {
+    isOpen: isCreateChallengeOpen,
+    onOpen: onOpenCreateChallenge,
+    onClose: onCloseCreateChallenge,
+  } = useDisclosure();
+
+  const [clickedUserIdx, setClickedUserIdx] = useState<number>(0);
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
-        <UtilButton
-          pageType={'chat'}
-          onChatState={() => onClickChannelLeave(idx)}
-        />
+        {chatData && (
+          <UtilButton
+            pageType={'chat'}
+            onChatState={() => onClickChannelLeave(idx)}
+          />
+        )}
         <div className="flex flex-col h-5/6">
           <div className="flex flex-col justify-between h-full">
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
@@ -546,6 +563,11 @@ function ChatPage() {
                           position={contextMenu.position}
                           onBlock={() => handleBlockChatMember(chatMember.idx)}
                           closeContextMenu={() => closeContextMenu()}
+                          challengModalState={{
+                            isOpen: isCreateChallengeOpen,
+                            onOpen: onOpenCreateChallenge,
+                            onClose: onCloseCreateChallenge,
+                          }}
                         />
                       ) : (
                         <AdminContextMenu
@@ -562,6 +584,11 @@ function ChatPage() {
                             handleBanChatMember(chatMember.user.idx);
                           }}
                           closeContextMenu={() => closeContextMenu()}
+                          challengModalState={{
+                            isOpen: isCreateChallengeOpen,
+                            onOpen: onOpenCreateChallenge,
+                            onClose: onCloseCreateChallenge,
+                          }}
                         />
                       );
                     })()
@@ -574,6 +601,23 @@ function ChatPage() {
                       closeContextMenu={() => closeContextMenu()}
                     />
                   ))}
+                {/* {contextMenu && ( */}
+                <CreateChallengeModal
+                  requestedIdx={
+                    clickedUserIdx
+                    // contextMenu
+                    //   ? contextMenu?.type === 'chatMember'
+                    //     ? (contextMenu?.user as IChatMember).user.idx
+                    //     : (contextMenu?.user as Friends).idx
+                    //   : undefined
+                  }
+                  modalState={{
+                    isOpen: isCreateChallengeOpen,
+                    onOpen: onOpenCreateChallenge,
+                    onClose: onCloseCreateChallenge,
+                  }}
+                />
+                {/* )} */}
               </div>
             </div>
           </div>

@@ -1,20 +1,27 @@
 import { UserItemProps } from './UserItem';
+import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
 
 export const AdiminItem = (props: UserItemProps) => {
-  const { user, onClick, onDoubleClick, onContextMenu } = props;
+  const {
+    userNickname,
+    userHighlighted,
+    onClick,
+    onDoubleClick,
+    onContextMenu,
+  } = props;
   return (
     <div
       className={`flex justify-between items-center p-4 my-2 mx-2
 				border border-gray-300 rounded-lg shadow-sm cursor-pointer ${
-          user.isHighlighted ? 'bg-blue-100' : 'bg-white'
+          userHighlighted ? 'bg-blue-100' : 'bg-white'
         } cursor-pointer`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
       {/* 수정 해야함 */}
-      <span>{user.user.nickname}</span>
+      <span>{userNickname}</span>
       {/*  */}
     </div>
   );
@@ -33,13 +40,20 @@ interface AdminContextMenuProps extends UserContextMenuProps {
 export const AdminContextMenu = (props: AdminContextMenuProps) => {
   const {
     userIdx,
+    currentDmUserIdx,
     position,
     onBlock,
     onKick,
     onMute,
     onBan,
     closeContextMenu,
+    challengModalState,
   } = props;
+
+  const navigateToDm = DmNavigation();
+
+  const showDmOption =
+    typeof currentDmUserIdx === 'undefined' || currentDmUserIdx !== userIdx;
 
   return (
     <div
@@ -49,7 +63,14 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
     >
       {/* 메뉴 내용 */}
       <ul className="divide-y divide-gray-100">
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">친구신청</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+          }}
+        >
+          친구신청
+        </li>
         <li
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
@@ -59,8 +80,23 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
         >
           차단
         </li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">챌린지</li>
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">DM보내기</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            challengModalState.onOpen();
+          }}
+        >
+          챌린지
+        </li>
+        {showDmOption && (
+          <li
+            className="p-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => navigateToDm(userIdx)}
+          >
+            DM보내기
+          </li>
+        )}
         <li
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {

@@ -14,6 +14,7 @@ import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatItem, IChatRoom, PasswordModal } from './components/ChatItem';
 import { appSocket } from '../common/socket/app.socket';
 // import { appSocket } from '../common/socket/app.socket';
+import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 
 interface IContextMenu {
   type: 'online' | 'friend';
@@ -123,11 +124,11 @@ function MainPage() {
     } else {
       chatSocketConnect();
 
-      // joinChat 이벤트 보내기
-      chatSocket.emit('joinChat', {
-        room_id: chatRoom.idx,
-        password: chatRoom.password,
-      });
+      //   joinChat 이벤트 보내기
+      //   chatSocket.emit('joinChat', {
+      //     room_id: chatRoom.idx,
+      //     password: chatRoom.password,
+      //   });
 
       console.log('chatRoom.idx', chatRoom.idx);
 
@@ -138,10 +139,10 @@ function MainPage() {
   const handleJoinPrivateChat = (chatRoom: IChatRoom, password: string) => {
     chatSocketConnect();
 
-    chatSocket.emit('joinChat', {
-      room_id: chatRoom.idx,
-      password: password,
-    });
+    // chatSocket.emit('joinChat', {
+    //   room_id: chatRoom.idx,
+    //   password: password,
+    // });
 
     navigate(`/chat/${chatRoom.idx}`);
   };
@@ -251,7 +252,7 @@ function MainPage() {
   };
 
   const handleUserDoubleClick = (user: IOnlineItem | Friends) => {
-    navigate(`/profile/${user.idx}`);
+    navigate(`/userpage/${user.idx}`);
   };
 
   useEffect(() => {
@@ -307,6 +308,12 @@ function MainPage() {
   const handleSettingsClick = () => {
     navigate('/setting');
   };
+
+  const {
+    isOpen: isCreateChallengeOpen,
+    onOpen: onOpenCreateChallenge,
+    onClose: onCloseCreateChallenge,
+  } = useDisclosure();
 
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
@@ -397,7 +404,6 @@ function MainPage() {
                   ))}
                 </div>
               )}
-
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'online' ? (
@@ -406,6 +412,11 @@ function MainPage() {
                       position={contextMenu.position}
                       onBlock={() => handleBlockOnline(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
+                      challengModalState={{
+                        isOpen: isCreateChallengeOpen,
+                        onOpen: onOpenCreateChallenge,
+                        onClose: onCloseCreateChallenge,
+                      }}
                     />
                   ) : (
                     <FriendContextMenu
@@ -417,6 +428,14 @@ function MainPage() {
                     />
                   ))}
               </div>
+              <CreateChallengeModal
+                requestedIdx={userIdx}
+                modalState={{
+                  isOpen: isCreateChallengeOpen,
+                  onOpen: onOpenCreateChallenge,
+                  onClose: onCloseCreateChallenge,
+                }}
+              />
             </div>
           </div>
         </div>
