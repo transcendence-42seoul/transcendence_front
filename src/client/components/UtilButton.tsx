@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { chatSocket, chatSocketConnect } from '../mini_chat/chat.socket';
 import { CreateLadderModal } from '../modal/CreateLadderModal/CreateLadderModal';
 
@@ -133,6 +133,8 @@ interface UtilButton {
 
 export const UtilButton = (props: UtilButtonProps) => {
   const { pageType, onChatState } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     isOpen: isCreateChannelOpen,
@@ -165,13 +167,23 @@ export const UtilButton = (props: UtilButtonProps) => {
     );
   };
 
+  var pattern = /^\/chat\/(\d+)$/;
+
   return (
     <div className="h-1/6 flex flex-row items-center align-middle justify-between">
       <CreateLadderModal />
       {utilButtonData.map((button, index) => (
         <UtilButton key={index} label={button.label} onClick={button.onClick} />
       ))}
-
+      {location.pathname.match(pattern) && (
+        <UtilButton
+          key={10}
+          label={'홈'}
+          onClick={() => {
+            navigate('/main');
+          }}
+        />
+      )}
       <CreateChannelModal
         isOpen={isCreateChannelOpen}
         onClose={onCloseCreateChannel}
