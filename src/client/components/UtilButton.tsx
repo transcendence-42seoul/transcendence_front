@@ -21,6 +21,7 @@ import { CreateLadderModal } from '../modal/CreateLadderModal/CreateLadderModal'
 import axios from 'axios';
 import { getCookie } from '../../common/cookie/cookie';
 import { IGame } from '../../game/ready/GameReadyPage';
+import { v4 as uuidv4 } from 'uuid';
 
 interface CreateChannelModalProps {
   isOpen: boolean;
@@ -206,7 +207,7 @@ export const UtilButton = (props: UtilButtonProps) => {
       ))}
       {location.pathname.match(pattern) && (
         <UtilButton
-          key={10}
+          key={uuidv4()}
           label={'홈'}
           onClick={() => {
             navigate('/main');
@@ -220,7 +221,7 @@ export const UtilButton = (props: UtilButtonProps) => {
       />
       {gameInfo && (
         <UtilButton
-          key={10}
+          key={uuidv4()}
           label={'현재 게임'}
           onClick={handleClickCurrentGameBtn}
         />
