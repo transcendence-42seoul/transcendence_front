@@ -65,17 +65,24 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
         }
       },
     );
-    gameSocket.on('createGameSuccess', (game) => {
+
+    appSocket.on('cancelChallengeGame', () => {
+      handleModalClose();
+    });
+
+    appSocket.on('createGameSuccess', (game) => {
       navigate(`/game/${game.room_id}`);
     });
   };
 
   const handleModalClose = () => {
+    // 231202 requested한테 취소 전달되는 부분?
     if (submitState) appSocket.emit('cancelChallengeGame', { requestedIdx });
     setSubmitState(false);
     modalState.onClose();
     setDifficultyLevel('normal');
     gameSocketDisconnect();
+    appSocket.off('cancelChallengeGame');
     gameSocket.off('createGameSuccess');
   };
 

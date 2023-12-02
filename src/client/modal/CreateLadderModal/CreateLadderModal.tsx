@@ -41,7 +41,6 @@ export const CreateLadderModal = () => {
   const [submitState, setSubmitState] = useState<boolean>(false);
 
   const handleSubmit = () => {
-    console.log('adfasdfasdfasd');
     setSubmitState(true);
     gameSocketConnect();
     gameSocket.emit('joinLadderQueue', {

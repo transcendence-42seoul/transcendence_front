@@ -1,5 +1,6 @@
 import {
   Button,
+  Center,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -7,6 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
@@ -18,18 +20,29 @@ import {
 import { useNavigate } from 'react-router';
 import { appSocket } from '../../../common/socket/app.socket';
 
+interface IRequestData {
+  nickname: string;
+  requesterIdx: number;
+  gameMode: 'normal' | 'hard';
+}
+
 export const ChallengeNotificationModal = () => {
-  const [requesterNickname, setRequesterNickname] = useState<string>();
-  const [requesterIdx, setRequesterIdx] = useState<number>();
+  const [requestData, setRequestData] = useState<IRequestData>();
+  const [submitState, setSubmitState] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = () => {
-    // gameSocketConnect();
-    // appSocket.emit('acceptChallengeGame', {
-    //   requestedIdx,
-    //   gameMode: difficultyLevel,
-    // });
-    // handleModalClose();
+    gameSocketConnect();
+    gameSocket.emit('acceptChallengeGame', {
+      requesterIdx: requestData?.requesterIdx,
+      gameMode: requestData?.gameMode,
+    });
+
+    appSocket.on('createGameSuccess', (game) => {
+      navigate(`/game/${game.room_id}`);
+    });
+    setSubmitState(true);
   };
 
   const {
@@ -39,32 +52,46 @@ export const ChallengeNotificationModal = () => {
   } = useDisclosure();
 
   const handleModalClose = () => {
+    if (!submitState)
+      appSocket.emit('cancelChallengeGame', {
+        requestedIdx: requestData?.requesterIdx,
+      });
     onCloseRequetedChallenge();
     gameSocketDisconnect();
     gameSocket.off('createGameSuccess');
-    gameSocket.off('submitChalleng');
-    gameSocket.off('error');
+    setSubmitState(false);
   };
 
   useEffect(() => {
-    appSocket.on(
-      'requestedChallenge',
-      (data: { nickname: string; requesterIdx: number }) => {
-        setRequesterNickname(data.nickname);
-        setRequesterIdx(data.requesterIdx);
-        onOpenRequetedChallenge();
-      },
-    );
+    let timer: NodeJS.Timeout;
+    if (requestData?.nickname) {
+      timer = setTimeout(() => {
+        if (!submitState) {
+          handleModalClose();
+        }
+      }, 5000);
+    }
 
-    appSocket.on('createdGame', (data) => {
-      navigate(`/game/${data.room_id}`);
+    return () => clearTimeout(timer);
+  }, [requestData, submitState]);
+
+  useEffect(() => {
+    appSocket.on('requestedChallenge', (data: IRequestData) => {
+      setRequestData(data);
+      onOpenRequetedChallenge();
     });
+
+    appSocket.on('cancelChallengeGame', () => {
+      handleModalClose();
+    });
+
     return () => {
       handleModalClose();
-      // appSocket.emit('cancelChallengeGame', { requestedIdx });
+      appSocket.off('requestedChallenge');
       appSocket.off('checkEnableChallengeGameSuccess');
     };
   }, []);
+
   return (
     <>
       <Modal
@@ -77,17 +104,37 @@ export const ChallengeNotificationModal = () => {
           <ModalHeader>챌린지 신청</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <div className="flex justify-center">
-              <span className="text-blue-500 text-xl">
-                {`${requesterNickname}가 챌린지 게임을 신청했습니다.`}
-              </span>
-            </div>
+            {!submitState ? (
+              <div className="flex justify-center">
+                <span className="text-black-500 text-xl">
+                  {`${requestData?.nickname}가 ${
+                    requestData?.gameMode === 'normal' ? 'Normal' : 'Hard'
+                  } 게임을 도전했습니다.`}
+                  {`5초 안에 수락해주세요!`}
+                </span>
+              </div>
+            ) : (
+              <Center>
+                <Spinner
+                  className="flex justify-center"
+                  thickness="4px"
+                  speed="0.65s"
+                  emptyColor="gray.200"
+                  color="blue.500"
+                  size="xl"
+                />
+              </Center>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-              수락
-            </Button>
-            <Button onClick={handleModalClose}>거절</Button>
+            {!submitState && (
+              <>
+                <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+                  수락
+                </Button>
+                <Button onClick={handleModalClose}>거절</Button>
+              </>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
