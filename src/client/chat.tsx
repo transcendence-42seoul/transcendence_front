@@ -13,9 +13,11 @@ import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import axios from 'axios';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
-import { ChatParticipantContextMenu } from './components/ChatParticipantItem';
+import { AdminContextMenu } from './components/AdminItem';
 import UpdateChatStateModal from './components/UpdateChatState';
 import { useDisclosure } from '@chakra-ui/react';
+import { useLocation } from 'react-router-dom';
+import { appSocket } from '../common/socket/app.socket';
 
 interface ChatData {
   name: string;
@@ -43,6 +45,8 @@ function ChatPage() {
   const { idx } = useParams();
 
   const navigate = useNavigate();
+
+  const location = useLocation();
 
   const {
     isOpen: isUpdateChatStateOpen,
@@ -100,6 +104,50 @@ function ChatPage() {
       password: data.password,
     };
   };
+
+  // const getRolePriority = (role: string) => {
+  //   const rolePriority: { [key: string]: number } = {
+  //     Owner: 3,
+  //     Admin: 2,
+  //     User: 1,
+  //   };
+  //   return rolePriority[role] || 0;
+  // };
+
+  // const isPossibleAdminMenu = (targetIdx: number) => {
+  //   const currentUserParticipant = chatMemberList.find(
+  //     (participant) => participant.user.idx === userIdx,
+  //   );
+  //   const targetParticipant = chatMemberList.find(
+  //     (participant) => participant.user.idx === targetIdx,
+  //   );
+
+  //   if (!currentUserParticipant || !targetParticipant) {
+  //     return false;
+  //   }
+
+  //   const currentUserRolePriority = getRolePriority(
+  //     currentUserParticipant.role,
+  //   );
+  //   const targetUserRolePriority = getRolePriority(targetParticipant.role);
+
+  //   console.log(
+  //     'currentUser',
+  //     currentUserParticipant,
+  //     userIdx,
+  //     currentUserRolePriority,
+  //   );
+  //   console.log(
+  //     'targetUser',
+  //     targetParticipant,
+  //     targetIdx,
+  //     targetUserRolePriority,
+  //   );
+
+  //   console.log(currentUserRolePriority, targetUserRolePriority);
+
+  //   return currentUserRolePriority <= targetUserRolePriority;
+  // };
 
   const isCurrentUserRoleUser = () => {
     const currentUserParticipant = chatMemberList.find(
@@ -163,6 +211,8 @@ function ChatPage() {
     e: React.MouseEvent<Element, MouseEvent>,
     chatMember: IChatMember,
   ) => {
+    console.log('handle chat member right click');
+    console.log('chatMember', chatMember);
     e.preventDefault();
     const isAlreadyHighlighted = chatMember.isHighlighted;
     setChatMemberList(
@@ -250,6 +300,41 @@ function ChatPage() {
     setChatMemberList(participant);
   };
 
+  const handleShowError = (data: any) => {
+    alert(data.message);
+  };
+
+  const handleKicked = (data: any) => {
+    console.log(data);
+    alert(`you are kicked from ${data}`);
+    if (location.pathname === `/chat/${data}`) {
+      navigate('/main');
+    }
+  };
+
+  const handleBanned = (data: any) => {
+    console.log(data);
+    alert(`you are banned from ${data}`);
+    if (location.pathname === `/chat/${data}`) {
+      navigate('/main');
+    }
+  };
+
+  const handleIsBan = () => {
+    navigate('/main');
+    setTimeout(() => {
+      alert('차단된 사용자입니다.');
+    }, 50);
+  };
+
+  const handleOwnerLeave = (data: any) => {
+    console.log('ownerleave', data);
+    alert(`owner is out from ${data}`);
+    if (location.pathname === `/chat/${data}`) {
+      navigate('/main');
+    }
+  };
+
   useEffect(() => {
     const fetchChatMembers = async () => {
       try {
@@ -278,19 +363,26 @@ function ChatPage() {
 
     chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
+    chatSocket.on('showError', handleShowError);
+    appSocket.on('kicked', handleKicked);
+    appSocket.on('banned', handleBanned);
+    appSocket.on('isBan', handleIsBan);
+    chatSocket.on('ownerLeaveChat', handleOwnerLeave);
 
     return () => {
       chatSocket.off('leaveChat', onClickChannelLeave);
       chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
+      chatSocket.off('showError', handleShowError);
+      appSocket.off('kicked', handleKicked);
+      appSocket.off('banned', handleBanned);
+      appSocket.off('isBan', handleIsBan);
+      chatSocket.off('ownerLeaveChat', handleOwnerLeave);
     };
   }, [idx]);
 
   const onClickChannelLeave = (room_id: string | undefined) => {
     chatSocket.emit('leaveChat', room_id);
     chatSocketLeave();
-    // setChatMemberList((prevChatMembers) =>
-    //   prevChatMembers.filter((chatMember) => chatMember.idx !== room_id),
-    // );
     navigate('/main');
   };
 
@@ -310,6 +402,28 @@ function ChatPage() {
 
   const handleSettingsClick = () => {
     navigate('/setting');
+  };
+
+  const handleKickChatMember = (kickedIdx: number) => {
+    chatSocket.emit('kick', {
+      chatIdx: idx,
+      kickedIdx: kickedIdx,
+    });
+  };
+
+  const handleMuteChatMember = (mutedIdx: number) => {
+    console.log('handleMuteChatMember');
+    chatSocket.emit('mute', {
+      chatIdx: idx,
+      mutedIdx: mutedIdx,
+    });
+  };
+
+  const handleBanChatMember = (bannedIdx: number) => {
+    chatSocket.emit('ban', {
+      chatIdx: idx,
+      bannedIdx: bannedIdx,
+    });
   };
 
   return (
@@ -424,25 +538,33 @@ function ChatPage() {
               <div ref={contextMenuRef}>
                 {contextMenu &&
                   (contextMenu.type === 'chatMember' ? (
-                    isCurrentUserRoleUser() ? (
-                      <UserContextMenu
-                        userIdx={contextMenu.user.idx}
-                        position={contextMenu.position}
-                        onBlock={() =>
-                          handleBlockChatMember(contextMenu.user.idx)
-                        }
-                        closeContextMenu={() => closeContextMenu()}
-                      />
-                    ) : (
-                      <ChatParticipantContextMenu
-                        userIdx={contextMenu.user.idx}
-                        position={contextMenu.position}
-                        onBlock={() =>
-                          handleBlockChatMember(contextMenu.user.idx)
-                        }
-                        closeContextMenu={() => closeContextMenu()}
-                      />
-                    )
+                    (() => {
+                      const chatMember = contextMenu.user as IChatMember;
+                      return isCurrentUserRoleUser() ? (
+                        <UserContextMenu
+                          userIdx={chatMember.idx}
+                          position={contextMenu.position}
+                          onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          closeContextMenu={() => closeContextMenu()}
+                        />
+                      ) : (
+                        <AdminContextMenu
+                          userIdx={chatMember.idx}
+                          position={contextMenu.position}
+                          onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          onKick={() => {
+                            handleKickChatMember(chatMember.user.idx);
+                          }}
+                          onMute={() => {
+                            handleMuteChatMember(chatMember.user.idx);
+                          }}
+                          onBan={() => {
+                            handleBanChatMember(chatMember.user.idx);
+                          }}
+                          closeContextMenu={() => closeContextMenu()}
+                        />
+                      );
+                    })()
                   ) : (
                     <FriendContextMenu
                       friendIdx={contextMenu.user.idx}

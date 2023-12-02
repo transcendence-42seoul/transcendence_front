@@ -20,6 +20,7 @@ import {
   appSocketDisconnect,
 } from './common/socket/app.socket';
 import axios from 'axios';
+import TestWelcomePage from './client/test';
 
 function App() {
   const location = useLocation();
@@ -76,6 +77,7 @@ function App() {
         <Route path="/ban-list" element={<BanListPage />} />
         <Route path="/avatar-setting" element={<AvatarSetting />} />
         <Route path="/chat/:idx" element={<ChatPage />} />
+        <Route path="/test" element={<TestWelcomePage />} />
       </Routes>
     </ChakraProvider>
   );
