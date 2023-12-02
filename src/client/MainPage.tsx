@@ -42,10 +42,7 @@ function MainPage() {
 
   const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
-  const [onlineList, setOnlineList] = useState<IOnlineItem[]>([
-    { idx: 1, nickname: '온라인 A', isHighlighted: false },
-    { idx: 2, nickname: '온라인 B', isHighlighted: false },
-  ]);
+  const [onlineList, setOnlineList] = useState<IOnlineItem[]>([]);
 
   const [contextMenu, setContextMenu] = useState<IContextMenu | null>(null);
   const contextMenuRef = useRef(null);
@@ -84,6 +81,30 @@ function MainPage() {
 
     fetchFriendList();
   }, [userIdx]);
+
+  const handleReceiveOnlineUsers = (user: IOnlineItem[]) => {
+    console.log('handleReceiveOnlineUsers', user);
+    setOnlineList(user);
+  };
+
+  useEffect(() => {
+    console.log('hereherheehrehrheehrhehreh111!!!');
+    appSocket.emit('requestOnlineUsers');
+    appSocket.on('onlineUsers', (users) => {
+      const formattedUsers = users.map((user: IOnlineItem) => ({
+        idx: user.idx,
+        nickname: user.nickname,
+        isHighlighted: false,
+      }));
+      setOnlineList(formattedUsers);
+    });
+    console.log('onlineList', onlineList);
+
+    return () => {
+      // appSocket.off('onlineUsers', handleReceiveOnlineUsers);
+      appSocket.off('onlineUsers');
+    };
+  }, [appSocket]);
 
   // useEffect(() => {
   //   const handleIsBan = (data: any) => {
@@ -198,6 +219,10 @@ function MainPage() {
           : { ...item, isHighlighted: false },
       ),
     );
+
+    if (online.idx === userIdx) {
+      return;
+    }
 
     if (
       contextMenu &&
