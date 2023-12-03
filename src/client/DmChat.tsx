@@ -174,6 +174,10 @@ function DmPage() {
       });
     }
 
+    if (memberData.idx === userIdx) {
+      return;
+    }
+
     if (
       contextMenu &&
       contextMenu.type === 'member' &&

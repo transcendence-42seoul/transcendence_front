@@ -94,6 +94,7 @@ function SettingPage() {
 
   const handleLogoutConfirm = () => {
     appSocket.emit('logout');
+    appSocket.disconnect();
     Cookies.remove('token');
     navigate('/login');
     onCloseLogoutModal();

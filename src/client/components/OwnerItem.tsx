@@ -1,8 +1,7 @@
-import { UserItemProps } from './UserItem';
 import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
 
-interface AdminContextMenuProps extends UserContextMenuProps {
+interface OwnerContextMenuProps extends UserContextMenuProps {
   // userIdx: number;
   // position: { x: number; y: number };
   // onBlock: (id: number) => void;
@@ -11,9 +10,11 @@ interface AdminContextMenuProps extends UserContextMenuProps {
   onKick: (id: number) => void;
   onMute: (id: number) => void;
   onBan: (id: number) => void;
+  onGrant: (id: number) => void;
+  onRevoke: (id: number) => void;
 }
 
-export const AdminContextMenu = (props: AdminContextMenuProps) => {
+export const OwnerContextMenu = (props: OwnerContextMenuProps) => {
   const {
     userIdx,
     currentDmUserIdx,
@@ -23,6 +24,8 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
     onKick,
     onMute,
     onBan,
+    onGrant,
+    onRevoke,
     closeContextMenu,
     challengModalState,
   } = props;
@@ -74,37 +77,43 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
             DM보내기
           </li>
         )}
-        {role === 'USER' && (
-          <>
-            <li
-              className="p-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => {
-                closeContextMenu();
-                onKick(userIdx);
-              }}
-            >
-              강퇴하기
-            </li>
-            <li
-              className="p-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => {
-                closeContextMenu();
-                onBan(userIdx);
-              }}
-            >
-              밴하기
-            </li>
-            <li
-              className="p-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => {
-                closeContextMenu();
-                onMute(userIdx);
-              }}
-            >
-              채팅금지
-            </li>
-          </>
-        )}
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            onKick(userIdx);
+          }}
+        >
+          강퇴하기
+        </li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            onBan(userIdx);
+          }}
+        >
+          밴하기
+        </li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            onMute(userIdx);
+          }}
+        >
+          채팅금지
+        </li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            if (role === 'ADMIN') onRevoke(userIdx);
+            else onGrant(userIdx);
+          }}
+        >
+          {role === 'ADMIN' ? '권한회수' : '권한부여'}
+        </li>
       </ul>
     </div>
   );

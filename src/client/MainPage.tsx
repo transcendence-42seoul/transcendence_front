@@ -42,10 +42,7 @@ function MainPage() {
 
   const [friendsList, setFriendsList] = useState<Friends[]>([]);
 
-  const [onlineList, setOnlineList] = useState<IOnlineItem[]>([
-    { idx: 1, nickname: '온라인 A', isHighlighted: false },
-    { idx: 2, nickname: '온라인 B', isHighlighted: false },
-  ]);
+  const [onlineList, setOnlineList] = useState<IOnlineItem[]>([]);
 
   const [contextMenu, setContextMenu] = useState<IContextMenu | null>(null);
   const contextMenuRef = useRef(null);
@@ -66,8 +63,25 @@ function MainPage() {
     }
   };
 
+  const fetchOnlineList = async () => {
+    try {
+      const onlineUsers = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/users/online`,
+      );
+      const formattedUsers = onlineUsers.data.map((user: IOnlineItem) => ({
+        idx: user.idx,
+        nickname: user.nickname,
+        isHighlighted: false,
+      }));
+      setOnlineList(formattedUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchUserIdx();
+    fetchOnlineList();
   }, []);
 
   useEffect(() => {
@@ -84,6 +98,21 @@ function MainPage() {
 
     fetchFriendList();
   }, [userIdx]);
+
+  useEffect(() => {
+    appSocket.on('onlineUsers', (users) => {
+      const formattedUsers = users.map((user: IOnlineItem) => ({
+        idx: user.idx,
+        nickname: user.nickname,
+        isHighlighted: false,
+      }));
+      setOnlineList(formattedUsers);
+    });
+
+    return () => {
+      appSocket.off('onlineUsers');
+    };
+  }, [appSocket]);
 
   // useEffect(() => {
   //   const handleIsBan = (data: any) => {
@@ -199,6 +228,10 @@ function MainPage() {
       ),
     );
 
+    if (online.idx === userIdx) {
+      return;
+    }
+
     if (
       contextMenu &&
       contextMenu.type === 'online' &&
@@ -288,8 +321,30 @@ function MainPage() {
 
     document.addEventListener('mousedown', handleOutsideClick);
 
+    appSocket.on('chatRoomCreated', (newChatRoom) => {
+      setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom]);
+    });
+
+    appSocket.on('chatRoomUpdated', (updatedChatRoom) => {
+      setChatRooms((prevChatRooms) =>
+        prevChatRooms.map((chatRoom) =>
+          chatRoom.idx === updatedChatRoom.idx ? updatedChatRoom : chatRoom,
+        ),
+      );
+    });
+
+    appSocket.on('chatRoomDeleted', (deletedChatIdx: string) => {
+      let tmp = [...chatRooms];
+      tmp = tmp.filter((chatRoom) => chatRoom.idx !== parseInt(deletedChatIdx));
+      setChatRooms(tmp);
+    });
+
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
+
+      appSocket.off('chatRoomCreated');
+      appSocket.off('chatRoomUpdated');
+      appSocket.off('chatRoomDeleted');
     };
   }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
 

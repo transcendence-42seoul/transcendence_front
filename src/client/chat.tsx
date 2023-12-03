@@ -19,6 +19,7 @@ import { useDisclosure } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import { appSocket } from '../common/socket/app.socket';
 import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
+import { OwnerContextMenu } from './components/OwnerItem';
 
 interface ChatData {
   name: string;
@@ -150,21 +151,29 @@ function ChatPage() {
   //   return currentUserRolePriority <= targetUserRolePriority;
   // };
 
-  const isCurrentUserRoleUser = () => {
+  const CurrentUserRole = () => {
     const currentUserParticipant = chatMemberList.find(
       (participant) => participant.user.idx === userIdx,
     );
 
-    return currentUserParticipant && currentUserParticipant.role === 'USER';
+    return currentUserParticipant ? currentUserParticipant.role : 'Guest';
   };
 
-  const isCurrentUserRoleOwner = () => {
-    const currentUserParticipant = chatMemberList.find(
-      (participant) => participant.user.idx === userIdx,
-    );
+  // const isCurrentUserRoleAdmin = () => {
+  //   const currentUserParticipant = chatMemberList.find(
+  //     (participant) => participant.user.idx === userIdx,
+  //   );
 
-    return currentUserParticipant && currentUserParticipant.role === 'OWNER';
-  };
+  //   return currentUserParticipant && currentUserParticipant.role === 'USER';
+  // };
+
+  // const isCurrentUserRoleOwner = () => {
+  //   const currentUserParticipant = chatMemberList.find(
+  //     (participant) => participant.user.idx === userIdx,
+  //   );
+
+  //   return currentUserParticipant && currentUserParticipant.role === 'OWNER';
+  // };
 
   useEffect(() => {
     fetchUserIdx();
@@ -212,8 +221,6 @@ function ChatPage() {
     e: React.MouseEvent<Element, MouseEvent>,
     chatMember: IChatMember,
   ) => {
-    console.log('handle chat member right click');
-    console.log('chatMember', chatMember);
     e.preventDefault();
     const isAlreadyHighlighted = chatMember.isHighlighted;
     setChatMemberList(
@@ -223,6 +230,10 @@ function ChatPage() {
           : { ...item, isHighlighted: false },
       ),
     );
+
+    if (chatMember.user.idx === userIdx) {
+      return;
+    }
 
     if (
       contextMenu &&
@@ -415,7 +426,7 @@ function ChatPage() {
   const handleKickChatMember = (kickedIdx: number) => {
     chatSocket.emit('kick', {
       chatIdx: idx,
-      kickedIdx: kickedIdx,
+      managedIdx: kickedIdx,
     });
   };
 
@@ -423,14 +434,30 @@ function ChatPage() {
     console.log('handleMuteChatMember');
     chatSocket.emit('mute', {
       chatIdx: idx,
-      mutedIdx: mutedIdx,
+      managedIdx: mutedIdx,
     });
   };
 
   const handleBanChatMember = (bannedIdx: number) => {
     chatSocket.emit('ban', {
       chatIdx: idx,
-      bannedIdx: bannedIdx,
+      managedIdx: bannedIdx,
+    });
+  };
+
+  const handleGrantChatMember = (grantedIdx: number) => {
+    console.log('handleGrantChatMember', grantedIdx);
+    chatSocket.emit('grant', {
+      chatIdx: idx,
+      managedIdx: grantedIdx,
+    });
+  };
+
+  const handleRevokeChatMember = (revokedIdx: number) => {
+    console.log('handleRevokeChatMember', revokedIdx);
+    chatSocket.emit('revoke', {
+      chatIdx: idx,
+      managedIdx: revokedIdx,
     });
   };
 
@@ -455,7 +482,7 @@ function ChatPage() {
             <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center">
               {userIdx > 0} {chatData?.name}
               {/* Check if the current user role is admin */}
-              {isCurrentUserRoleOwner() ? (
+              {CurrentUserRole() === 'OWNER' ? (
                 <div
                   className="w-12 h-12 rounded-full"
                   onClick={onOpenUpdateChatState}
@@ -557,22 +584,11 @@ function ChatPage() {
                   (contextMenu.type === 'chatMember' ? (
                     (() => {
                       const chatMember = contextMenu.user as IChatMember;
-                      return isCurrentUserRoleUser() ? (
-                        <UserContextMenu
+                      return CurrentUserRole() === 'OWNER' ? (
+                        <OwnerContextMenu
                           userIdx={chatMember.idx}
                           position={contextMenu.position}
-                          onBlock={() => handleBlockChatMember(chatMember.idx)}
-                          closeContextMenu={() => closeContextMenu()}
-                          challengModalState={{
-                            isOpen: isCreateChallengeOpen,
-                            onOpen: onOpenCreateChallenge,
-                            onClose: onCloseCreateChallenge,
-                          }}
-                        />
-                      ) : (
-                        <AdminContextMenu
-                          userIdx={chatMember.idx}
-                          position={contextMenu.position}
+                          role={chatMember.role}
                           onBlock={() => handleBlockChatMember(chatMember.idx)}
                           onKick={() => {
                             handleKickChatMember(chatMember.user.idx);
@@ -583,6 +599,46 @@ function ChatPage() {
                           onBan={() => {
                             handleBanChatMember(chatMember.user.idx);
                           }}
+                          onGrant={() => {
+                            handleGrantChatMember(chatMember.user.idx);
+                          }}
+                          onRevoke={() => {
+                            handleRevokeChatMember(chatMember.user.idx);
+                          }}
+                          closeContextMenu={() => closeContextMenu()}
+                          challengModalState={{
+                            isOpen: isCreateChallengeOpen,
+                            onOpen: onOpenCreateChallenge,
+                            onClose: onCloseCreateChallenge,
+                          }}
+                        />
+                      ) : CurrentUserRole() === 'ADMIN' ? (
+                        <AdminContextMenu
+                          userIdx={chatMember.idx}
+                          position={contextMenu.position}
+                          role={chatMember.role}
+                          onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          onKick={() => {
+                            handleKickChatMember(chatMember.user.idx);
+                          }}
+                          onMute={() => {
+                            handleMuteChatMember(chatMember.user.idx);
+                          }}
+                          onBan={() => {
+                            handleBanChatMember(chatMember.user.idx);
+                          }}
+                          closeContextMenu={() => closeContextMenu()}
+                          challengModalState={{
+                            isOpen: isCreateChallengeOpen,
+                            onOpen: onOpenCreateChallenge,
+                            onClose: onCloseCreateChallenge,
+                          }}
+                        />
+                      ) : (
+                        <UserContextMenu
+                          userIdx={chatMember.idx}
+                          position={contextMenu.position}
+                          onBlock={() => handleBlockChatMember(chatMember.idx)}
                           closeContextMenu={() => closeContextMenu()}
                           challengModalState={{
                             isOpen: isCreateChallengeOpen,
