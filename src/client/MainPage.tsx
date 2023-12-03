@@ -63,8 +63,25 @@ function MainPage() {
     }
   };
 
+  const fetchOnlineList = async () => {
+    try {
+      const onlineUsers = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/users/online`,
+      );
+      const formattedUsers = onlineUsers.data.map((user: IOnlineItem) => ({
+        idx: user.idx,
+        nickname: user.nickname,
+        isHighlighted: false,
+      }));
+      setOnlineList(formattedUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchUserIdx();
+    fetchOnlineList();
   }, []);
 
   useEffect(() => {
@@ -82,14 +99,7 @@ function MainPage() {
     fetchFriendList();
   }, [userIdx]);
 
-  const handleReceiveOnlineUsers = (user: IOnlineItem[]) => {
-    console.log('handleReceiveOnlineUsers', user);
-    setOnlineList(user);
-  };
-
   useEffect(() => {
-    console.log('hereherheehrehrheehrhehreh111!!!');
-    appSocket.emit('requestOnlineUsers');
     appSocket.on('onlineUsers', (users) => {
       const formattedUsers = users.map((user: IOnlineItem) => ({
         idx: user.idx,
@@ -98,10 +108,8 @@ function MainPage() {
       }));
       setOnlineList(formattedUsers);
     });
-    console.log('onlineList', onlineList);
 
     return () => {
-      // appSocket.off('onlineUsers', handleReceiveOnlineUsers);
       appSocket.off('onlineUsers');
     };
   }, [appSocket]);
@@ -339,8 +347,6 @@ function MainPage() {
       appSocket.off('chatRoomDeleted');
     };
   }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
-
-  useEffect(() => {});
 
   const handleDeleteFriend = (friendIdx: number) => {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendIdx));
