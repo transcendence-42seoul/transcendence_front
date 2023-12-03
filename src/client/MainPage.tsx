@@ -313,10 +313,34 @@ function MainPage() {
 
     document.addEventListener('mousedown', handleOutsideClick);
 
+    appSocket.on('chatRoomCreated', (newChatRoom) => {
+      setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom]);
+    });
+
+    appSocket.on('chatRoomUpdated', (updatedChatRoom) => {
+      setChatRooms((prevChatRooms) =>
+        prevChatRooms.map((chatRoom) =>
+          chatRoom.idx === updatedChatRoom.idx ? updatedChatRoom : chatRoom,
+        ),
+      );
+    });
+
+    appSocket.on('chatRoomDeleted', (deletedChatIdx: string) => {
+      let tmp = [...chatRooms];
+      tmp = tmp.filter((chatRoom) => chatRoom.idx !== parseInt(deletedChatIdx));
+      setChatRooms(tmp);
+    });
+
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
+
+      appSocket.off('chatRoomCreated');
+      appSocket.off('chatRoomUpdated');
+      appSocket.off('chatRoomDeleted');
     };
   }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
+
+  useEffect(() => {});
 
   const handleDeleteFriend = (friendIdx: number) => {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendIdx));
