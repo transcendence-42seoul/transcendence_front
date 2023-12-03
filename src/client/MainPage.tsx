@@ -259,7 +259,7 @@ function MainPage() {
     const fetchChatRooms = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:3000/chats/private-public',
+          `${import.meta.env.VITE_SERVER_URL}/chats/private-public`,
         );
         const chatRoomsData = response.data.map((chatRoom: IChatRoom) => ({
           ...chatRoom,
