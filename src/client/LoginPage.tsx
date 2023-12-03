@@ -1,4 +1,3 @@
-import logo from '../assets/logo.svg';
 import { Button } from '@chakra-ui/react';
 import axios from 'axios';
 
@@ -7,7 +6,7 @@ function LoginPage() {
   const handleLogin = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:3000/auth/oauth/42/authorize',
+        `${import.meta.env.VITE_SERVER_URL}/auth/oauth/42/authorize`,
       );
       window.location.href = response.data.url;
     } catch (error) {
@@ -16,19 +15,27 @@ function LoginPage() {
   };
 
   return (
-    <div className="bg-basic-color h-screen flex flex-col items-center justify-start align-middle mt-24 bg-green-200">
-      <div className="w-screen h-3/5  flex justify-evenly items-center">
-        <img src={logo} alt="logo" style={{ width: '100px', height: 'auto' }} />
-      </div>
-      <div>
+    <div className="bg-basic-color w-screen h-screen flex flex-col items-start justify-start align-middl bg-pink-50">
+      <div
+        className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-opacity-100 px-12 py-6 rounded flex flex-col justify-start items-center"
+        style={{ width: '40%', height: '30%' }}
+      >
+        <h1 className="text-7xl font-bold pb-12">기절초퐁</h1>
         <Button
           colorScheme="teal"
           variant="outline"
           onClick={handleLogin}
           mr={1}
         >
-          42 Intra
+          42 계정으로 로그인
         </Button>
+      </div>
+      <div className="bg-basic-color w-screen h-screen flex flex-row justify-center items-start">
+        <img
+          src={'./welcom1.png'}
+          alt="left"
+          style={{ width: '100%', height: '100%', objectFit: 'none' }}
+        />
       </div>
     </div>
   );
