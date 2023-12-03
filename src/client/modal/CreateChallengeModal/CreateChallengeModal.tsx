@@ -117,16 +117,21 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
                 </span>
               </div>
             ) : (
-              <Center>
-                <Spinner
-                  className="flex justify-center"
-                  thickness="4px"
-                  speed="0.65s"
-                  emptyColor="gray.200"
-                  color="blue.500"
-                  size="xl"
-                />
-              </Center>
+              <>
+                <div className="text-center font-bold mb-10">
+                  상대방이 수락하면 게임이 시작됩니다.
+                </div>
+                <Center>
+                  <Spinner
+                    className="flex justify-center"
+                    thickness="4px"
+                    speed="0.65s"
+                    emptyColor="gray.200"
+                    color="blue.500"
+                    size="xl"
+                  />
+                </Center>
+              </>
             )}
           </ModalBody>
           <ModalFooter>
