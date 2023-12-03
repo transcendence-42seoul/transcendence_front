@@ -5,6 +5,7 @@ import edit from '../assets/edit.svg';
 import check from '../assets/check.svg';
 import axios from 'axios';
 import { getCookie } from '../common/cookie/cookie';
+import { v4 as uuidv4 } from 'uuid';
 
 /* FetchUserData.tsx */
 interface User {
@@ -113,7 +114,7 @@ function MyProfile() {
   };
 
   // 임시 데이터 생성
-  const createDummyData = (type) => {
+  const createDummyData = (type: string) => {
     return Array.from({ length: 5 }, (_, index) => ({
       id: index,
       type: type,
@@ -130,10 +131,8 @@ function MyProfile() {
   // 승률을 나타내는 원의 둘레 계산
   const radius = 45; // 반지름
   const circumference = 2 * Math.PI * radius;
-  const offset =
-    userData && userData.record
-      ? circumference - (userData.record.win_rate / 100) * circumference
-      : 0;
+  const winRate = userData?.record.win_rate || 0;
+  const offset = winRate ? circumference - (winRate / 100) * circumference : 0;
 
   // update username
   const handleUsernameUpdateClick = () => {
@@ -308,7 +307,7 @@ function MyProfile() {
           <nav className="flex p-1">
             {['all', 'rank', 'normal'].map((tabName) => (
               <button
-                key={tabName}
+                key={uuidv4()}
                 className={`flex-1 p-2 text-center ${
                   activeTab === tabName
                     ? 'text-blue-600 border-b-2 border-blue-600'
@@ -367,7 +366,7 @@ function GameTable({ games }) {
         <tbody>
           {games.map((game) => (
             <tr
-              key={game.id}
+              key={uuidv4()}
               className={`${
                 game.content.result === '승'
                   ? 'bg-blue-100 hover:bg-blue-200'

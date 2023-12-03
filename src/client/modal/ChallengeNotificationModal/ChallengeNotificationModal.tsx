@@ -105,13 +105,16 @@ export const ChallengeNotificationModal = () => {
           <ModalCloseButton />
           <ModalBody pb={6}>
             {!submitState ? (
-              <div className="flex justify-center">
-                <span className="text-black-500 text-xl">
-                  {`${requestData?.nickname}가 ${
-                    requestData?.gameMode === 'normal' ? 'Normal' : 'Hard'
-                  } 게임을 도전했습니다.`}
-                  {`5초 안에 수락해주세요!`}
+              <div className="flex flex-col justify-center font-bold">
+                <span className="text-center text-black-500">
+                  {`도전자 : ${requestData?.nickname}`}
                 </span>
+                <span className="text-center text-black-500">
+                  {`일반 (${
+                    requestData?.gameMode === 'normal' ? 'Normal' : 'Hard'
+                  }) 게임을 도전했습니다.`}
+                </span>
+                <h3 className="text-center">5초 안에 수락해주세요!</h3>
               </div>
             ) : (
               <Center>

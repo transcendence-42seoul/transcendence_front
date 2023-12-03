@@ -20,9 +20,6 @@ import {
   appSocketDisconnect,
 } from './common/socket/app.socket';
 import axios from 'axios';
-import TestWelcomePage from './client/test';
-import { useRecoilState } from 'recoil';
-import { UserIdAtom } from './recoil/userAtom';
 import ModalLayout from './client/modal/ModalLayout/ModalLayout';
 import DmPage from './client/DmChat';
 
@@ -30,7 +27,6 @@ function App() {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
-  const [userId, setUserId] = useRecoilState(UserIdAtom);
   const checkToken = async () => {
     const token = getCookie('token');
     if (!token) {
@@ -44,7 +40,6 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       });
-      setUserId(res.data.id);
     } catch (error) {
       console.error('token 올바르지 않습니다.');
       removeCookie('token');
@@ -76,7 +71,6 @@ function App() {
       <Routes>
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/test" element={<TestWelcomePage />} />
         <Route path="/game/:id" element={<GamePage />} />
         <Route
           path="/main"
