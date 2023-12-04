@@ -31,7 +31,7 @@ function MainPage() {
   const [chatRooms, setChatRooms] = useState<IChatRoom[]>([]);
   const [chatRoomAdded, setChatRoomAdded] = useState(true);
   const [activeTab, setActiveTab] = useState('lobby');
-
+  const [challengeUserIdx, setChallengeUserIdx] = useState<number>(0);
   const [selectedChat, setSelectedChat] = useState<IChatRoom | null>(null);
 
   const {
@@ -159,8 +159,6 @@ function MainPage() {
       //     password: chatRoom.password,
       //   });
 
-      console.log('chatRoom.idx', chatRoom.idx);
-
       navigate(`/chat/${chatRoom.idx}`);
     }
   };
@@ -244,6 +242,7 @@ function MainPage() {
         user: online,
         position: { x: e.clientX, y: e.clientY },
       });
+      setChallengeUserIdx(online.idx);
     }
   };
 
@@ -281,11 +280,12 @@ function MainPage() {
         user: friend,
         position: { x: e.clientX, y: e.clientY },
       });
+      setChallengeUserIdx(friend.idx);
     }
   };
 
   const handleUserDoubleClick = (user: IOnlineItem | Friends) => {
-    navigate(`/userpage/${user.idx}`);
+    navigate(`/profile/${user.idx}`);
   };
 
   useEffect(() => {
@@ -484,7 +484,7 @@ function MainPage() {
                   ))}
               </div>
               <CreateChallengeModal
-                requestedIdx={userIdx}
+                requestedIdx={challengeUserIdx}
                 modalState={{
                   isOpen: isCreateChallengeOpen,
                   onOpen: onOpenCreateChallenge,

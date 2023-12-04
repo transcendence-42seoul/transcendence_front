@@ -33,3 +33,28 @@ export interface IUser {
   tfa_enabled: boolean;
   tfa_secret: null;
 }
+
+export interface IProfileUser {
+  idx: number;
+  nickname: string;
+  avatar: {
+    image_data: Buffer;
+  };
+  record: {
+    total_game: number;
+    ladder_game: number;
+    challenge_game: number;
+    total_win: number;
+    ladder_win: number;
+    challenge_win: number;
+    total_lose: number;
+    ladder_lose: number;
+    challenge_lose: number;
+    total_rate: number;
+    ladder_rate: number;
+    challenge_rate: number;
+  };
+  ranking: {
+    score: number;
+  };
+}
