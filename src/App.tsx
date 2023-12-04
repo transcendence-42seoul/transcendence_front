@@ -8,7 +8,7 @@ import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
 import GamePage from './game/GamePage';
 import UserPage from './client/UserPage';
-import MyPage from './client/MyPage';
+import MyPage from './client/MyPage/MyPage';
 import BanListPage from './client/BanListPage';
 import AvatarSetting from './client/AvatarSetting';
 import ChatPage from './client/chat';
