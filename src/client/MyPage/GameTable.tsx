@@ -25,8 +25,12 @@ const GameTable = (props: IGameTable) => {
         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
           <tr>
             <th scope="col" className="px-6 py-3">
+              상대 유저
+            </th>
+            <th scope="col" className="px-6 py-3">
               승패
             </th>
+
             <th scope="col" className="px-6 py-3">
               게임타입
             </th>
@@ -52,6 +56,7 @@ const GameTable = (props: IGameTable) => {
                     : 'bg-red-100 hover:bg-red-200'
                 } border-b m-2`}
               >
+                <td className="px-6 py-4">{`${history.opponent_nickname}[${history.opponent_id}]`}</td>
                 <td className="px-6 py-4">{history.win ? '승' : '패'}</td>
                 <td className="px-6 py-4">
                   {history.game_type <= 2 ? 'LADDER' : 'CHALLENGE'}
