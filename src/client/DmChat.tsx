@@ -146,7 +146,7 @@ function DmPage() {
   };
 
   const handleUserDoubleClick = (userIdx: number) => {
-    navigate(`/userpage/${userIdx}`);
+    navigate(`/profile/${userIdx}`);
   };
 
   const closeContextMenu = () => {

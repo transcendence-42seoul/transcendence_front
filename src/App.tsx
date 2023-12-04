@@ -7,7 +7,6 @@ import MainPage from './client/MainPage';
 import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
 import GamePage from './game/GamePage';
-import UserPage from './client/UserPage';
 import MyPage from './client/MyPage/MyPage';
 import BanListPage from './client/BanListPage';
 import AvatarSetting from './client/AvatarSetting';
@@ -89,10 +88,10 @@ function App() {
           }
         />
         <Route
-          path="/userpage/:idx"
+          path="/profile/:idx"
           element={
             <ModalLayout>
-              <UserPage />
+              <MyPage />
             </ModalLayout>
           }
         />

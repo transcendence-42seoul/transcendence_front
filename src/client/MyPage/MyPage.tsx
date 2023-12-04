@@ -9,6 +9,7 @@ import { GameModeType } from '../../game/ready/GameReadyPage';
 import { IProfileUser } from '../../common/entity/user';
 import DisplayWinningRate from './DisplayWinningRate';
 import DisplayGameHistory from './DisplayGameHistory';
+import { useParams } from 'react-router-dom';
 
 /* FetchUserData.tsx */
 
@@ -68,6 +69,8 @@ export interface IGameHistory {
 export type HitoryType = 'all' | 'ladder' | 'challenge';
 
 function MyProfile() {
+  const { idx } = useParams();
+
   const token = getCookie('token');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -146,7 +149,7 @@ function MyProfile() {
 
   const fetchUserData = async () => {
     const response = await axios.get(
-      `${import.meta.env.VITE_SERVER_URL}/users/idx/${userIdx}`,
+      `${import.meta.env.VITE_SERVER_URL}/users/idx/${idx}`,
     );
 
     setUserData(makeUserDataFormat(response.data));
@@ -199,20 +202,22 @@ function MyProfile() {
                 ) : (
                   <h2 className="text-2xl font-bold">{userData?.nickname}</h2>
                 )}
-                <button
-                  onClick={
-                    isEditingNickname
-                      ? handleSaveUsername
-                      : handleUsernameUpdateClick
-                  }
-                >
-                  {/* 수정 모드인 경우 '확인' 아이콘, 아닌 경우 '수정' 아이콘 */}
-                  <img
-                    className="object-scale-down h-12 w-12"
-                    src={isEditingNickname ? check : edit}
-                    alt={isEditingNickname ? '확인' : '수정'}
-                  />
-                </button>
+                {parseInt(idx!) === userIdx && (
+                  <button
+                    onClick={
+                      isEditingNickname
+                        ? handleSaveUsername
+                        : handleUsernameUpdateClick
+                    }
+                  >
+                    {/* 수정 모드인 경우 '확인' 아이콘, 아닌 경우 '수정' 아이콘 */}
+                    <img
+                      className="object-scale-down h-12 w-12"
+                      src={isEditingNickname ? check : edit}
+                      alt={isEditingNickname ? '확인' : '수정'}
+                    />
+                  </button>
+                )}
               </div>
               <p className="text-l mt-8 font-bold">LADDER SCORE</p>
               <p className="text-l text-center font-bold text-2xl">
@@ -233,14 +238,16 @@ function MyProfile() {
           </div>
 
           {/* profile button */}
-          <div className="flex justify-end pr-8">
-            <button
-              className="bg-blue-500 text-white px-4 rounded text-sm p-0.5"
-              onClick={onOpen}
-            >
-              프로필 수정
-            </button>
-          </div>
+          {parseInt(idx!) === userIdx && (
+            <div className="flex justify-end pr-8">
+              <button
+                className="bg-blue-500 text-white px-4 rounded text-sm p-0.5"
+                onClick={onOpen}
+              >
+                프로필 수정
+              </button>
+            </div>
+          )}
           {/* profile button */}
         </div>
         <ProfilePictureChangeModal
