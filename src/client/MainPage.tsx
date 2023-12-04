@@ -159,8 +159,6 @@ function MainPage() {
       //     password: chatRoom.password,
       //   });
 
-      console.log('chatRoom.idx', chatRoom.idx);
-
       navigate(`/chat/${chatRoom.idx}`);
     }
   };
