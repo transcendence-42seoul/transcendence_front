@@ -5,38 +5,14 @@ import edit from '../../assets/edit.svg';
 import check from '../../assets/check.svg';
 import axios from 'axios';
 import { getCookie } from '../../common/cookie/cookie';
-import { v4 as uuidv4 } from 'uuid';
 import { GameModeType } from '../../game/ready/GameReadyPage';
-import GameTable from './GameTable';
-import RateCircle from './RateCircle';
+import { IProfileUser } from '../../common/entity/user';
+import DisplayWinningRate from './DisplayWinningRate';
+import DisplayGameHistory from './DisplayGameHistory';
 
 /* FetchUserData.tsx */
-interface User {
-  idx: number;
-  nickname: string;
-  avatar: {
-    image_data: Buffer;
-  };
-  record: {
-    total_game: number;
-    ladder_game: number;
-    challenge_game: number;
-    total_win: number;
-    ladder_win: number;
-    challenge_win: number;
-    total_lose: number;
-    ladder_lose: number;
-    challenge_lose: number;
-    total_rate: number;
-    ladder_rate: number;
-    challenge_rate: number;
-  };
-  ranking: {
-    score: number;
-  };
-}
 
-const makeUserDataFormat = (data: any): User => {
+const makeUserDataFormat = (data: any): IProfileUser => {
   return {
     idx: data.idx,
     nickname: data.nickname,
@@ -70,10 +46,7 @@ const makeUserDataFormat = (data: any): User => {
   };
 };
 
-const convertToBase64Image = (imageBuffer: {
-  type: string;
-  data: number[];
-}) => {
+const convertToBase64Image = (imageBuffer: any) => {
   const binary = imageBuffer.data.reduce(
     (acc: any, byte: any) => acc + String.fromCharCode(byte),
     '',
@@ -92,18 +65,16 @@ export interface IGameHistory {
   opponent_nickname: string;
 }
 
-type HitoryType = 'all' | 'ladder' | 'challenge';
+export type HitoryType = 'all' | 'ladder' | 'challenge';
 
 function MyProfile() {
   const token = getCookie('token');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [activeTab, setActiveTab] = useState<HitoryType>('all');
-
   const [profileImage, setProfileImage] = useState();
 
-  const [userData, setUserData] = useState<User>();
+  const [userData, setUserData] = useState<IProfileUser>();
 
   const [userIdx, setUserIdx] = useState<number>(0);
 
@@ -123,7 +94,7 @@ function MyProfile() {
   }, [userIdx]);
 
   useEffect(() => {
-    if (userIdx > 0 && userData?.avatar) {
+    if (userIdx > 0 && userData?.avatar?.image_data) {
       setProfileImage(convertToBase64Image(userData.avatar.image_data));
     }
   }, [userIdx, userData]);
@@ -149,20 +120,7 @@ function MyProfile() {
   };
 
   // 승률을 나타내는 원의 둘레 계산
-  const radius = 45; // 반지름
-  const circumference = 2 * Math.PI * radius;
-  const totalRate = userData?.record.total_rate || 0;
-  const total_offset = totalRate
-    ? circumference - (totalRate / 100) * circumference
-    : 0;
-  const ladderRate = userData?.record.ladder_rate || 0;
-  const ladder_offset = ladderRate
-    ? circumference - (ladderRate / 100) * circumference
-    : 0;
-  const challengeRate = userData?.record.challenge_rate || 0;
-  const challenge_offset = challengeRate
-    ? circumference - (challengeRate / 100) * circumference
-    : 0;
+  const RADIUS = 45; // 반지름
 
   // update username
   const handleUsernameUpdateClick = () => {
@@ -262,41 +220,7 @@ function MyProfile() {
               </p>
             </div>
             {/* user */}
-
-            <RateCircle
-              radius={radius}
-              circumference={circumference}
-              offset={total_offset}
-              userData={{
-                rate: userData?.record.total_rate,
-                total: userData?.record.total_game,
-                win: userData?.record.total_win,
-                lose: userData?.record.total_lose,
-              }}
-            />
-            <RateCircle
-              radius={radius}
-              circumference={circumference}
-              offset={ladder_offset}
-              userData={{
-                rate: userData?.record.ladder_rate,
-                total: userData?.record.ladder_game,
-                win: userData?.record.ladder_win,
-                lose: userData?.record.ladder_lose,
-              }}
-            />
-            <RateCircle
-              radius={radius}
-              circumference={circumference}
-              offset={challenge_offset}
-              userData={{
-                rate: userData?.record.challenge_rate,
-                total: userData?.record.challenge_game,
-                win: userData?.record.challenge_win,
-                lose: userData?.record.challenge_lose,
-              }}
-            />
-
+            <DisplayWinningRate userData={userData} radius={RADIUS} />
             {/* profile image */}
             <div className="shrink-0">
               <img
@@ -324,30 +248,7 @@ function MyProfile() {
           onClose={onClose}
           onAvatarChange={handleAvatarChange}
         />
-        <div className="border-t">
-          <nav className="flex p-1">
-            {['all', 'ladder', 'challenge'].map((tabName) => (
-              <button
-                key={uuidv4()}
-                className={`flex-1 p-2 text-center ${
-                  activeTab === tabName
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-blue-600'
-                }`}
-                onClick={() => setActiveTab(tabName as HitoryType)}
-              >
-                {tabName === 'all'
-                  ? '전체'
-                  : tabName === 'ladder'
-                  ? '랭크전'
-                  : '일반전'}
-              </button>
-            ))}
-          </nav>
-          <div className="p-4">
-            <GameTable histories={gameHistory} type={activeTab} />
-          </div>
-        </div>
+        <DisplayGameHistory gameHistory={gameHistory} />
       </div>
     </div>
   );

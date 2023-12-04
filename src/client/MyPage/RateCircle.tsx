@@ -1,3 +1,5 @@
+import { HitoryType } from './MyPage';
+
 interface IRateCircle {
   radius: number;
   circumference: number;
@@ -8,9 +10,13 @@ interface IRateCircle {
     win: number | undefined;
     lose: number | undefined;
   };
+  type: HitoryType;
 }
 const RateCircle = (props: IRateCircle) => {
-  const { radius, circumference, offset, userData } = props;
+  const { radius, circumference, offset, userData, type } = props;
+
+  const typeToText =
+    type === 'all' ? 'TOTAL' : type === 'ladder' ? 'LADDER' : 'CHALLENGE';
   return (
     <div className="shrink-0">
       <svg width="100" height="100">
@@ -25,7 +31,7 @@ const RateCircle = (props: IRateCircle) => {
             cy="50"
           />
           <circle
-            className={`${offset === 0 ? 'text-red-300' : 'text-blue-600'}`}
+            className="text-blue-600"
             strokeWidth="10"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
@@ -46,7 +52,7 @@ const RateCircle = (props: IRateCircle) => {
           {userData.rate}%
         </text>
       </svg>
-      <p className="text-m text-center">Challenge</p>
+      <p className="text-m text-center">{typeToText}</p>
       <p className="text-m text-center">
         {userData.total}전 {userData.win}승 {userData.lose}패
       </p>

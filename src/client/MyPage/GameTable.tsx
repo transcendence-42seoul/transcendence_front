@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { IGameHistory } from './MyPage';
+import { HitoryType, IGameHistory } from './MyPage';
 
 interface IGameTable {
   histories: IGameHistory[];
-  type: 'all' | 'ladder' | 'challenge';
+  type: HitoryType;
 }
 
 function formatDate(dateString: string) {
