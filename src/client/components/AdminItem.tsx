@@ -1,4 +1,3 @@
-import { UserItemProps } from './UserItem';
 import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
 

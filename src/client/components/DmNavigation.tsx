@@ -3,7 +3,6 @@ import { getCookie } from '../../common/cookie/cookie';
 import axios from 'axios';
 import { makeDmData } from './DmItem';
 import { useEffect, useState } from 'react';
-import { chatSocket } from '../mini_chat/chat.socket';
 
 export const DmNavigation = () => {
   const navigate = useNavigate();

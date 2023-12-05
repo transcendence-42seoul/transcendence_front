@@ -401,7 +401,6 @@ class CGame {
   };
 
   keydownfunction = (key: KeyboardEvent) => {
-    let thisRunning = this.running;
     let thisLoop = this.loop;
     // let thisPlayer = {...this.player};
     console.log('player ' + this.player.score);
@@ -424,7 +423,7 @@ class CGame {
       this.player.move = DIRECTION.DOWN;
   };
 
-  keyupfunction = (key: KeyboardEvent) => {
+  keyupfunction = () => {
     this.player.move = DIRECTION.IDLE;
   };
 

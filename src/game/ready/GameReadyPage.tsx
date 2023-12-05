@@ -1,4 +1,3 @@
-// import { Button } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 import UserReadyProfile from './UserReadyProfile';
 import { useRecoilValue } from 'recoil';
@@ -77,9 +76,10 @@ export interface UserDataType {
 
 // const READY_SECOND = 3000;
 
-const renderTime = ({ remainingTime }) => {
+const renderTime = (props: { remainingTime: number }) => {
+  const { remainingTime } = props;
   const currentTime = useRef(remainingTime);
-  const prevTime = useRef(null);
+  const prevTime = useRef(0);
   const isNewTimeFirstTick = useRef(false);
   const [, setOneLastRerender] = useState(0);
 

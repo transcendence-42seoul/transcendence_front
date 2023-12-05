@@ -23,7 +23,7 @@ import { OwnerContextMenu } from './components/OwnerItem';
 
 interface ChatData {
   name: string;
-  type: string;
+  type: 'PUBLIC' | 'PRIVATE';
   password: string;
 }
 

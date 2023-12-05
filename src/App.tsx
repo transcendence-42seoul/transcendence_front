@@ -39,6 +39,9 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       });
+      if (res.status !== 200) {
+        throw new Error('token 올바르지 않습니다.');
+      }
     } catch (error) {
       console.error('token 올바르지 않습니다.');
       removeCookie('token');

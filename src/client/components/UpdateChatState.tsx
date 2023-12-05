@@ -20,8 +20,8 @@ interface UpdateChatStateModalProps {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
-  chatIdx: number;
-  type: 'PUBLIC' | 'PRIVATE';
+  chatIdx: string | undefined;
+  type: 'PUBLIC' | 'PRIVATE' | undefined;
 }
 
 function UpdateChatStateModal(props: UpdateChatStateModalProps) {
@@ -46,14 +46,18 @@ function UpdateChatStateModal(props: UpdateChatStateModalProps) {
 
     console.log('password', password);
 
-    chatSocket.emit('updateChat', { chatIdx, password }, (response) => {
-      if (response.status === 'success') {
-        console.log('Updated chat room with chat_idx:', response.chat.idx);
-        navigate(`/chat/${response.chat.idx}`);
-      } else {
-        console.error('Failed to update chat room');
-      }
-    });
+    chatSocket.emit(
+      'updateChat',
+      { chatIdx, password },
+      (response: { status: 'success'; chat: { idx: number } }) => {
+        if (response.status === 'success') {
+          console.log('Updated chat room with chat_idx:', response.chat.idx);
+          navigate(`/chat/${response.chat.idx}`);
+        } else {
+          console.error('Failed to update chat room');
+        }
+      },
+    );
   };
 
   return (

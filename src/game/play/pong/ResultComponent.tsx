@@ -1,6 +1,5 @@
 import { Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router';
-import { GameModeType } from '../../ready/GameReadyPage';
 import { useRecoilValue } from 'recoil';
 import {
   GameAtom,
