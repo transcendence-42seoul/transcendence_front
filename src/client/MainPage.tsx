@@ -68,6 +68,11 @@ function MainPage() {
       const onlineUsers = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/users/online`,
       );
+
+      const blockedUsers = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/block/${userIdx}`,
+      );
+
       const formattedUsers = onlineUsers.data.map((user: IOnlineItem) => ({
         idx: user.idx,
         nickname: user.nickname,
@@ -364,6 +369,11 @@ function MainPage() {
     navigate('/setting');
   };
 
+  const handleFriendRequest = (receiverIdx: number) => {
+    console.log('handleFriendRequest', receiverIdx);
+    appSocket.emit('friendRequest', receiverIdx);
+  };
+
   const {
     isOpen: isCreateChallengeOpen,
     onOpen: onOpenCreateChallenge,
@@ -397,7 +407,7 @@ function MainPage() {
       </div>
       <div className="flex flex-col basis-2/5 h-screen">
         <div className="h-1/6 flex flex-row justify-evenly">
-          <NotificationButton />
+          {userIdx > 0 && <NotificationButton userIdx={userIdx} />}
           <div className="w-1/2 flex justify-center items-center">
             <button onClick={handleSettingsClick} aria-label="Settings">
               <img
@@ -466,6 +476,9 @@ function MainPage() {
                       userIdx={contextMenu.user.idx}
                       position={contextMenu.position}
                       onBlock={() => handleBlockOnline(contextMenu.user.idx)}
+                      onFriendRequest={() =>
+                        handleFriendRequest(contextMenu.user.idx)
+                      }
                       closeContextMenu={() => closeContextMenu()}
                       challengModalState={{
                         isOpen: isCreateChallengeOpen,

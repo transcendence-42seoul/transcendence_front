@@ -36,6 +36,7 @@ export interface UserContextMenuProps {
   currentDmUserIdx?: number;
   position: { x: number; y: number };
   onBlock: (id: number) => void;
+  onFriendRequest: (id: number) => void;
   closeContextMenu: () => void;
   challengModalState: {
     isOpen: boolean;
@@ -50,6 +51,7 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
     currentDmUserIdx,
     position,
     onBlock,
+    onFriendRequest,
     closeContextMenu,
     challengModalState,
   } = props;
@@ -68,7 +70,15 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
     >
       {/* 메뉴 내용 */}
       <ul className="divide-y divide-gray-100">
-        <li className="p-2 hover:bg-gray-100 cursor-pointer">친구신청</li>
+        <li
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            closeContextMenu();
+            onFriendRequest(userIdx);
+          }}
+        >
+          친구신청
+        </li>
         <li
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {

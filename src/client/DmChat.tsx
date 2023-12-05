@@ -271,14 +271,14 @@ function DmPage() {
               {userIdx > 0} {dmData?.name}
             </div>
             <div className="bg-sky-200 mx-2 my-2 rounded-lg flex flex-col overflow-auto h-full">
-              <MiniChatting />
+              <MiniChatting pageType={'dm'} />
             </div>
           </div>
         </div>
       </div>
       <div className="flex flex-col basis-2/5 h-screen">
         <div className="h-1/6 flex flex-row justify-evenly">
-          <NotificationButton />
+          {userIdx > 0 && <NotificationButton userIdx={userIdx} />}
           <div className="w-1/2 flex justify-center items-center">
             <button onClick={handleSettingsClick} aria-label="Settings">
               <img

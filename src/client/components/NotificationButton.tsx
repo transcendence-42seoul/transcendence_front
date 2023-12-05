@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import bell from '../../assets/bell.svg';
 import { Button } from '@chakra-ui/react';
+import axios from 'axios';
+import { appSocket } from '../../common/socket/app.socket';
+import { useNavigate } from 'react-router-dom';
 
 interface ButtonData {
   label: string;
@@ -11,72 +14,120 @@ interface ButtonData {
 interface INotification {
   idx: number;
   sender_idx: number;
+  content: string;
   type: string;
-  message: string;
-  status: string;
+  room_idx?: number;
+  // status: string;
 }
 
-function NotificationButton() {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<INotification[]>([
-    {
-      idx: 1,
-      sender_idx: 1,
-      type: 'friend_request',
-      message: 'seokchoi가 친구 요청을 했습니다.',
-      status: 'unread',
-    },
-    {
-      idx: 2,
-      sender_idx: 2,
-      type: 'game_request',
-      message: 'jungchoi이 게임 요청을 했습니다.',
-      status: 'unread',
-    },
-    {
-      idx: 3,
-      sender_idx: 3,
-      type: 'message',
-      message: 'doykim이 메시지를 보냈습니다.',
-      status: 'unread',
-    },
-    {
-      idx: 4,
-      sender_idx: 4,
-      type: 'game_request',
-      message: 'soopark이 게임 요청을 했습니다.',
-      status: 'unread',
-    },
-  ]);
+type NotificationButtonProps = {
+  userIdx: number;
+};
 
-  const handleNotificationResponse = (e: React.MouseEvent, idx: number) => {
-    e.stopPropagation();
-    removeNotification(idx);
+function NotificationButton(props: NotificationButtonProps) {
+  const navigate = useNavigate();
+
+  const { userIdx } = props;
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<INotification[]>([]);
+
+  const fetchNotificationList = async () => {
+    try {
+      const notifications = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/alarms/${userIdx}`,
+      );
+      console.log('notifications', notifications);
+      const formattedNotifications = notifications.data.map(
+        (notification: INotification) => ({
+          idx: notification.idx,
+          sender_idx: notification.sender_idx,
+          content: notification.content,
+          type: notification.type,
+        }),
+      );
+      console.log('formattedNotifications', formattedNotifications);
+      setNotifications(formattedNotifications);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const removeNotification = (idx: number) => {
-    setNotifications(
-      notifications.filter((notification) => notification.idx !== idx),
-    );
+  const addNotification = (notification: INotification) => {
+    console.log('notify!', notification);
+    setNotifications((prevNotifications) => [
+      ...prevNotifications,
+      notification,
+    ]);
+  };
+
+  useEffect(() => {
+    appSocket.on('notification', addNotification);
+    appSocket.on('notificationList', (notifications: INotification[]) => {
+      setNotifications(notifications);
+    });
+
+    fetchNotificationList();
+
+    return () => {
+      appSocket.off('notification');
+      appSocket.off('notificationList');
+    };
+  }, [appSocket]);
+
+  // const removeNotification = (idx: number) => {
+  //   setNotifications(
+  //     notifications.filter((notification) => notification.idx !== idx),
+  //   );
+  // };
+
+  const handleAcceptFriendRequest = (e: React.MouseEvent, idx: number) => {
+    e.stopPropagation();
+    appSocket.emit('acceptFriendRequest', idx);
+  };
+
+  const handleDeclineFriendRequest = (e: React.MouseEvent, idx: number) => {
+    e.stopPropagation();
+    console.log('handleDeclineFriendRequest', idx);
+    appSocket.emit('declineFriendRequest', idx);
+  };
+
+  const handleGeneral = (e: React.MouseEvent, notification: INotification) => {
+    e.stopPropagation();
+    // removeNotification(notification.idx);
+    // navigate(`/dm/${notification.sender_idx}`);
+    appSocket.emit('generalNotification', notification.idx);
+  };
+
+  const handleOpen = (e: React.MouseEvent, notification: INotification) => {
+    e.stopPropagation();
+    navigate(`/dm/${notification.room_idx}`);
+    appSocket.emit('generalNotification', notification.idx);
   };
 
   const getNotificationButtons = (notification: INotification) => {
-    if (
-      notification.type === 'friend_request' ||
-      notification.type === 'game_request'
-    ) {
+    if (notification.type === 'friend_request') {
+      console.log('sdf', notification);
       return [
         {
           label: 'Accept',
           color: 'green',
           onClick: (e: React.MouseEvent) =>
-            handleNotificationResponse(e, notification.idx),
+            handleAcceptFriendRequest(e, notification.idx),
         },
         {
           label: 'Decline',
           color: 'red',
           onClick: (e: React.MouseEvent) =>
-            handleNotificationResponse(e, notification.idx),
+            handleDeclineFriendRequest(e, notification.idx),
+        },
+      ];
+    } else if (notification.type === 'dm') {
+      return [
+        {
+          label: 'Open',
+          color: 'blue',
+          onClick: (e: React.MouseEvent) => handleOpen(e, notification),
         },
       ];
     } else {
@@ -84,14 +135,13 @@ function NotificationButton() {
         {
           label: 'Close',
           color: 'gray',
-          onClick: (e: React.MouseEvent) =>
-            handleNotificationResponse(e, notification.idx),
+          onClick: (e: React.MouseEvent) => handleGeneral(e, notification),
         },
       ];
     }
   };
 
-  const NotificationButton = (props: ButtonData) => {
+  const NotificationAction = (props: ButtonData) => {
     const { label, color, onClick } = props;
 
     return (
@@ -119,11 +169,11 @@ function NotificationButton() {
                   key={notification.idx}
                   className="flex flex-col justify-between items-start p-3 border-b"
                 >
-                  <span className="text-sm mb-2">{notification.message}</span>
+                  <span className="text-sm mb-2">{notification.content}</span>
                   <div className="flex gap-2">
                     {getNotificationButtons(notification).map(
                       (buttonData, index) => (
-                        <NotificationButton
+                        <NotificationAction
                           key={index}
                           label={buttonData.label}
                           color={buttonData.color}

@@ -21,6 +21,7 @@ export const OwnerContextMenu = (props: OwnerContextMenuProps) => {
     position,
     role,
     onBlock,
+    onFriendRequest,
     onKick,
     onMute,
     onBan,
@@ -47,6 +48,7 @@ export const OwnerContextMenu = (props: OwnerContextMenuProps) => {
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
+            onFriendRequest(userIdx);
           }}
         >
           친구신청

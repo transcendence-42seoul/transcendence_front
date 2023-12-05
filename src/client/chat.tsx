@@ -341,6 +341,10 @@ function ChatPage() {
     }, 50);
   };
 
+  const handleIsBlock = (idx1: number, idx2: number) => {
+    // await axios.post
+  };
+
   const handleOwnerLeave = (data: any) => {
     console.log('ownerleave', data);
     alert(`owner is out from ${data}`);
@@ -413,10 +417,20 @@ function ChatPage() {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
 
-  const handleBlockChatMember = (chatMemberId: number) => {
-    setChatMemberList(
-      chatMemberList.filter((chatMember) => chatMember.idx !== chatMemberId),
-    );
+  const handleBlockChatMember = (chatMemberIdx: number) => {
+    chatSocket.emit('blockChatMember', {
+      chatIdx: idx,
+      managedIdx: chatMemberIdx,
+    });
+    appSocket.emit('block', {
+      chatIdx: idx,
+      managedIdx: chatMemberIdx,
+    });
+  };
+
+  const handleFriendRequest = (receiverIdx: number) => {
+    console.log('handleFriendRequest', receiverIdx);
+    appSocket.emit('friendRequest', receiverIdx);
   };
 
   const handleSettingsClick = () => {
@@ -504,14 +518,14 @@ function ChatPage() {
               />
             </div>
             <div className="bg-sky-200 mx-2 my-2 rounded-lg flex flex-col overflow-auto h-full">
-              <MiniChatting />
+              <MiniChatting pageType={'chat'} />
             </div>
           </div>
         </div>
       </div>
       <div className="flex flex-col basis-2/5 h-screen">
         <div className="h-1/6 flex flex-row justify-evenly">
-          <NotificationButton />
+          {userIdx > 0 && <NotificationButton userIdx={userIdx} />}
           <div className="w-1/2 flex justify-center items-center">
             <button onClick={handleSettingsClick} aria-label="Settings">
               <img
@@ -589,7 +603,12 @@ function ChatPage() {
                           userIdx={chatMember.idx}
                           position={contextMenu.position}
                           role={chatMember.role}
-                          onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          onBlock={() =>
+                            handleBlockChatMember(chatMember.user.idx)
+                          }
+                          onFriendRequest={() =>
+                            handleFriendRequest(chatMember.user.idx)
+                          }
                           onKick={() => {
                             handleKickChatMember(chatMember.user.idx);
                           }}
@@ -617,7 +636,12 @@ function ChatPage() {
                           userIdx={chatMember.idx}
                           position={contextMenu.position}
                           role={chatMember.role}
-                          onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          onBlock={() =>
+                            handleBlockChatMember(chatMember.user.idx)
+                          }
+                          onFriendRequest={() =>
+                            handleFriendRequest(chatMember.user.idx)
+                          }
                           onKick={() => {
                             handleKickChatMember(chatMember.user.idx);
                           }}
@@ -639,6 +663,9 @@ function ChatPage() {
                           userIdx={chatMember.idx}
                           position={contextMenu.position}
                           onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          onFriendRequest={() =>
+                            handleFriendRequest(chatMember.user.idx)
+                          }
                           closeContextMenu={() => closeContextMenu()}
                           challengModalState={{
                             isOpen: isCreateChallengeOpen,
