@@ -23,9 +23,6 @@ import {
 import { getCookie } from '../../../common/cookie/cookie';
 import { useNavigate } from 'react-router';
 
-// import { Cookies } from 'react-cookie';
-// import Cookies from 'js-cookie';
-
 type difficultyLevelType = 'normal' | 'hard';
 
 export const CreateLadderModal = () => {

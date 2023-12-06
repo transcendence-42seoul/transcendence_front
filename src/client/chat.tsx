@@ -23,7 +23,7 @@ import { OwnerContextMenu } from './components/OwnerItem';
 
 interface ChatData {
   name: string;
-  type: string;
+  type: 'PUBLIC' | 'PRIVATE';
   password: string;
 }
 
@@ -290,7 +290,7 @@ function ChatPage() {
   };
 
   const handleUserDoubleClick = (userIdx: number) => {
-    navigate(`/userpage/${userIdx}`);
+    navigate(`/profile/${userIdx}`);
   };
 
   useEffect(() => {

@@ -66,7 +66,7 @@ export const FetchUserData = (props: FetchUserDataProp) => {
   }, []);
 
   const onClickUser = () => {
-    navigate('/mypage');
+    navigate(`/profile/${props.idx}`);
   };
 
   return (

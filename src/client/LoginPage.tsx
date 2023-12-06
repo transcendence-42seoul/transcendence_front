@@ -32,9 +32,9 @@ function LoginPage() {
       </div>
       <div className="bg-basic-color w-screen h-screen flex flex-row justify-center items-start">
         <img
-          src={'./welcom1.png'}
+          src={'./gamepong.png'}
           alt="left"
-          style={{ width: '100%', height: '100%', objectFit: 'none' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
     </div>

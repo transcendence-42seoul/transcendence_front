@@ -7,8 +7,7 @@ import MainPage from './client/MainPage';
 import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
 import GamePage from './game/GamePage';
-import UserPage from './client/UserPage';
-import MyPage from './client/MyPage';
+import MyPage from './client/MyPage/MyPage';
 import BanListPage from './client/BanListPage';
 import AvatarSetting from './client/AvatarSetting';
 import ChatPage from './client/chat';
@@ -40,6 +39,9 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       });
+      if (res.status !== 200) {
+        throw new Error('token 올바르지 않습니다.');
+      }
     } catch (error) {
       console.error('token 올바르지 않습니다.');
       removeCookie('token');
@@ -89,10 +91,10 @@ function App() {
           }
         />
         <Route
-          path="/userpage/:idx"
+          path="/profile/:idx"
           element={
             <ModalLayout>
-              <UserPage />
+              <MyPage />
             </ModalLayout>
           }
         />
