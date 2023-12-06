@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import authentication from '../assets/authentication.svg';
 import block from '../assets/block.svg';
+import friend from '../assets/friend.svg';
 import logout from '../assets/logout.svg';
 import withdrawal from '../assets/withdrawal.svg';
 import {
@@ -174,6 +175,10 @@ function SettingPage() {
     navigate('/block-list');
   };
 
+  const handleFriendClick = () => {
+    navigate('/friend-list');
+  };
+
   const handleLogoutClick = () => {
     onOpenLogoutModal();
   };
@@ -258,6 +263,19 @@ function SettingPage() {
             style={{ width: '100px', height: 'auto' }}
           />
           <span className="flex-grow">차단목록</span>
+        </div>
+        {/* 친구목록 */}
+        <div
+          className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
+          onClick={handleFriendClick}
+        >
+          <img
+            src={friend}
+            alt="친구목록"
+            className="flex-item-logo"
+            style={{ width: '100px', height: 'auto' }}
+          />
+          <span className="flex-grow">친구목록</span>
         </div>
         {/* 로그아웃 */}
         <div

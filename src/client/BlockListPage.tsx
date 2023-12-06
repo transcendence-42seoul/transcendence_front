@@ -148,7 +148,7 @@ function BlockListPage() {
   return (
     <div className="flex flex-col h-screen w-screen">
       <div className="border-double border-4 border-sky-500 mx-2 rounded-lg p-4 flex items-center justify-center mt-3">
-        <h1 className="text-2xl font-semibold">채팅 목록</h1>
+        <h1 className="text-2xl font-semibold">차단 목록</h1>
       </div>
       <div className="bg-blue-200 m-2 rounded-lg flex flex-col overflow-auto h-full">
         {blockedUsers.length > 0 ? (

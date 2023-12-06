@@ -32,13 +32,14 @@ export const DmNavigation = () => {
   }, []);
 
   const navigateToDm = async (otherUserIdx: number) => {
+    console.log('here!');
+    console.log('otherUserIdx', otherUserIdx);
     try {
       const response = await axios.post(
         `${
           import.meta.env.VITE_SERVER_URL
         }/chats/dm/${userIdx}/${otherUserIdx}`,
       );
-
       const dmData = makeDmData(response.data);
 
       if (dmData && dmData.idx) {

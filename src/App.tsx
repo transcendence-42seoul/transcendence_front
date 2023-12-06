@@ -21,6 +21,7 @@ import {
 import axios from 'axios';
 import ModalLayout from './client/modal/ModalLayout/ModalLayout';
 import DmPage from './client/DmChat';
+import FriendListPage from './client/FriendListPage';
 
 function App() {
   const location = useLocation();
@@ -119,6 +120,14 @@ function App() {
           element={
             <ModalLayout>
               <BlockListPage />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/friend-list"
+          element={
+            <ModalLayout>
+              <FriendListPage />
             </ModalLayout>
           }
         />

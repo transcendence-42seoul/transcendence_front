@@ -6,14 +6,13 @@ import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
-import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
+import { chatSocketConnect } from './mini_chat/chat.socket';
 import axios from 'axios';
 import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { ChatItem, IChatRoom, PasswordModal } from './components/ChatItem';
 import { appSocket } from '../common/socket/app.socket';
-// import { appSocket } from '../common/socket/app.socket';
 import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 
 interface IContextMenu {
@@ -92,17 +91,31 @@ function MainPage() {
 
   useEffect(() => {
     const fetchFriendList = async () => {
-      if (userIdx > 0) {
-        try {
-          const friendsData = await FecthFriendList(userIdx);
-          setFriendsList(friendsData);
-        } catch (error) {
-          console.error('Error fetching friends list:', error);
-        }
+      if (userIdx <= 0) return;
+      try {
+        const friendsData = await FecthFriendList(userIdx);
+        console.log('friendsData = ', friendsData);
+        setFriendsList(friendsData);
+      } catch (error) {
+        console.error('Error fetching friends list:', error);
       }
     };
 
     fetchFriendList();
+
+    appSocket.on('updateFriendList', (friends) => {
+      const formattedFriends = friends.map((friend: Friends) => {
+        return {
+          ...friend,
+          isHighlighted: false,
+        };
+      });
+      setFriendsList(formattedFriends);
+    });
+
+    return () => {
+      appSocket.off('updateFriendList');
+    };
   }, [userIdx]);
 
   useEffect(() => {
