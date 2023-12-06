@@ -39,7 +39,9 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
   const navigate = useNavigate();
   const [difficultyLevel, setDifficultyLevel] =
     useState<difficultyLevelType>('normal');
-  const [enableRequest, setEnableRequest] = useState<boolean>(false);
+  const [enableRequest, setEnableRequest] = useState<
+    'possible' | 'impossible' | 'block'
+  >('possible');
   const handleTypeChange = (value: difficultyLevelType) => {
     setDifficultyLevel(value);
   };
@@ -56,12 +58,13 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
 
     appSocket.on(
       'checkEnableChallengeGameSuccess',
-      (data: { status: TUserStatus; success: false }) => {
-        const { success } = data;
-        if (!success) {
-          setEnableRequest(false);
+      (data: { status: TUserStatus; success: boolean; block: boolean }) => {
+        const { success, block } = data;
+        if (block) setEnableRequest('block');
+        else if (!success) {
+          setEnableRequest('impossible');
         } else {
-          setEnableRequest(true);
+          setEnableRequest('possible');
         }
       },
     );
@@ -110,10 +113,12 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
                   <Radio value="hard">Hard</Radio>
                 </Stack>
               </RadioGroup>
-            ) : !enableRequest ? (
+            ) : enableRequest != 'possible' ? (
               <div className="flex justify-center">
                 <span className="text-red-500">
-                  상대방이 오프라인이거나 게임중입니다.
+                  {enableRequest == 'impossible'
+                    ? '상대방이 오프라인이거나 게임중입니다.'
+                    : '차단된 상대방입니다.'}
                 </span>
               </div>
             ) : (
