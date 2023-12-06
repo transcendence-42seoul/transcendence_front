@@ -423,7 +423,6 @@ function ChatPage() {
       managedIdx: chatMemberIdx,
     });
     appSocket.emit('block', {
-      chatIdx: idx,
       managedIdx: chatMemberIdx,
     });
   };

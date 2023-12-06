@@ -359,11 +359,15 @@ function MainPage() {
   };
 
   const handleBlockFriend = (friendIdx: number) => {
-    setFriendsList(friendsList.filter((friend) => friend.idx !== friendIdx));
+    appSocket.emit('block', {
+      managedIdx: friendIdx,
+    });
   };
 
   const handleBlockOnline = (onlineIdx: number) => {
-    setOnlineList(onlineList.filter((online) => online.idx !== onlineIdx));
+    appSocket.emit('block', {
+      managedIdx: onlineIdx,
+    });
   };
 
   const handleSettingsClick = () => {
