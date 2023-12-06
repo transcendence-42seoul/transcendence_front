@@ -69,10 +69,6 @@ function MainPage() {
         `${import.meta.env.VITE_SERVER_URL}/users/online`,
       );
 
-      const blockedUsers = await axios.get(
-        `${import.meta.env.VITE_SERVER_URL}/block/${userIdx}`,
-      );
-
       const formattedUsers = onlineUsers.data.map((user: IOnlineItem) => ({
         idx: user.idx,
         nickname: user.nickname,
@@ -86,8 +82,13 @@ function MainPage() {
 
   useEffect(() => {
     fetchUserIdx();
-    fetchOnlineList();
   }, []);
+
+  useEffect(() => {
+    if (userIdx > 0) {
+      fetchOnlineList();
+    }
+  }, [userIdx]);
 
   useEffect(() => {
     const fetchFriendList = async () => {
