@@ -68,6 +68,8 @@ function ChatPage() {
 
   const [chatMemberList, setChatMemberList] = useState<IChatMember[]>([]);
 
+  const [challengeUserIdx, setChallengeUserIdx] = useState<number>(0);
+
   const [contextMenu, setContextMenu] = useState<IContextMenu | null>(null);
   const contextMenuRef = useRef(null);
 
@@ -247,7 +249,7 @@ function ChatPage() {
         user: chatMember,
         position: { x: e.clientX, y: e.clientY },
       });
-      setClickedUserIdx(chatMember.user.idx);
+      setChallengeUserIdx(chatMember.user.idx);
     }
   };
 
@@ -285,7 +287,7 @@ function ChatPage() {
         user: friend,
         position: { x: e.clientX, y: e.clientY },
       });
-      setClickedUserIdx(friend.idx);
+      setChallengeUserIdx(friend.idx);
     }
   };
 
@@ -481,7 +483,6 @@ function ChatPage() {
     onClose: onCloseCreateChallenge,
   } = useDisclosure();
 
-  const [clickedUserIdx, setClickedUserIdx] = useState<number>(0);
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
       <div className="flex flex-col basis-3/5 h-screen">
@@ -682,18 +683,16 @@ function ChatPage() {
                       onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
                       onBlock={() => handleBlockFriend(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
+                      challengModalState={{
+                        isOpen: isCreateChallengeOpen,
+                        onOpen: onOpenCreateChallenge,
+                        onClose: onCloseCreateChallenge,
+                      }}
                     />
                   ))}
                 {/* {contextMenu && ( */}
                 <CreateChallengeModal
-                  requestedIdx={
-                    clickedUserIdx
-                    // contextMenu
-                    //   ? contextMenu?.type === 'chatMember'
-                    //     ? (contextMenu?.user as IChatMember).user.idx
-                    //     : (contextMenu?.user as Friends).idx
-                    //   : undefined
-                  }
+                  requestedIdx={challengeUserIdx}
                   modalState={{
                     isOpen: isCreateChallengeOpen,
                     onOpen: onOpenCreateChallenge,

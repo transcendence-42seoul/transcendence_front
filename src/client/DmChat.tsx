@@ -22,6 +22,9 @@ import {
 } from './components/DmItem';
 import { FecthFriendList, Friends } from './components/FetchFriendList';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
+import { useDisclosure } from '@chakra-ui/react';
+import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
+import { appSocket } from '../common/socket/app.socket';
 
 function DmPage() {
   const navigate = useNavigate();
@@ -41,6 +44,8 @@ function DmPage() {
   const [activeTab, setActiveTab] = useState('chat');
 
   const [contextMenu, setContextMenu] = useState<DmContextMenu | null>(null);
+
+  const [challengeUserIdx, setChallengeUserIdx] = useState<number>(0);
 
   const contextMenuRef = useRef(null);
 
@@ -190,6 +195,7 @@ function DmPage() {
         user: memberData,
         position: { x: e.clientX, y: e.clientY },
       });
+      setChallengeUserIdx(memberData.idx);
     }
   };
 
@@ -243,6 +249,7 @@ function DmPage() {
         user: friend,
         position: { x: e.clientX, y: e.clientY },
       });
+      setChallengeUserIdx(friend.idx);
     }
   };
 
@@ -257,6 +264,17 @@ function DmPage() {
   const handleBlockFriend = (friendId: number) => {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };
+
+  const handleFriendRequest = (receiverIdx: number) => {
+    appSocket.emit('friendRequest', receiverIdx);
+  };
+
+
+  const {
+    isOpen: isCreateChallengeOpen,
+    onOpen: onOpenCreateChallenge,
+    onClose: onCloseCreateChallenge,
+  } = useDisclosure();
 
   return (
     <div className=" h-screen w-screen flex flex-row items-center justify-start align-middle">
@@ -353,7 +371,13 @@ function DmPage() {
                           currentDmUserIdx={memberData.idx}
                           position={contextMenu.position}
                           onBlock={handleBlockChatMember}
+                          onFriendRequest={() => handleFriendRequest(contextMenu.user.idx)}
                           closeContextMenu={() => closeContextMenu()}
+                          challengModalState={{
+                            isOpen: isCreateChallengeOpen,
+                            onOpen: onOpenCreateChallenge,
+                            onClose: onCloseCreateChallenge,
+                          }}
                         />
                       )
                     : memberData && (
@@ -368,9 +392,23 @@ function DmPage() {
                             handleBlockFriend(contextMenu.user.idx)
                           }
                           closeContextMenu={() => closeContextMenu()}
+                          challengModalState={{
+                            isOpen: isCreateChallengeOpen,
+                            onOpen: onOpenCreateChallenge,
+                            onClose: onCloseCreateChallenge,
+                          }}
                         />
                       ))}
+                          <CreateChallengeModal
+                requestedIdx={challengeUserIdx}
+                modalState={{
+                  isOpen: isCreateChallengeOpen,
+                  onOpen: onOpenCreateChallenge,
+                  onClose: onCloseCreateChallenge,
+                }}
+              />
               </div>
+
             </div>
           </div>
         </div>
