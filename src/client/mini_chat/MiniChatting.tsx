@@ -5,6 +5,7 @@ import { chatSocket, chatSocketConnect } from './chat.socket';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { getCookie } from '../../common/cookie/cookie';
+import { appSocket } from '../../common/socket/app.socket';
 
 interface IChat {
   idx: number;
@@ -43,7 +44,11 @@ function MyChat(chat: IChat) {
   );
 }
 
-function MiniChatting() {
+interface MiniChattingProps {
+  pageType: string;
+}
+
+function MiniChatting(props: MiniChattingProps) {
   const { idx } = useParams();
 
   const token = getCookie('token');
@@ -99,6 +104,9 @@ function MiniChatting() {
   const handleSubmit = (content: string) => {
     if (content == '') return;
     chatSocket.emit('sendMessage', { room_id: idx, message: content });
+    if (props.pageType === 'dm') {
+      appSocket.emit('dmNotification', idx);
+    }
   };
 
   const chatListRef = useRef<HTMLUListElement | null>(null);

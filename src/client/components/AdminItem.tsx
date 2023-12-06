@@ -19,6 +19,7 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
     position,
     role,
     onBlock,
+    onFriendRequest,
     onKick,
     onMute,
     onBan,
@@ -43,6 +44,7 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
           className="p-2 hover:bg-gray-100 cursor-pointer"
           onClick={() => {
             closeContextMenu();
+            onFriendRequest(userIdx);
           }}
         >
           친구신청
