@@ -1,5 +1,5 @@
-import { DmNavigation } from './DmNavigation';
 import { UserContextMenuProps } from './UserItem';
+import { DmNavigation } from './DmNavigation';
 
 interface OwnerContextMenuProps extends UserContextMenuProps {
   // userIdx: number;
@@ -31,7 +31,7 @@ export const OwnerContextMenu = (props: OwnerContextMenuProps) => {
     challengModalState,
   } = props;
 
-  const navigateToDm = DmNavigation();
+  const getDm = DmNavigation();
 
   const showDmOption =
     typeof currentDmUserIdx === 'undefined' || currentDmUserIdx !== userIdx;
@@ -74,7 +74,7 @@ export const OwnerContextMenu = (props: OwnerContextMenuProps) => {
         {showDmOption && (
           <li
             className="p-2 hover:bg-gray-100 cursor-pointer"
-            onClick={() => navigateToDm(userIdx)}
+            onClick={() => getDm(userIdx)}
           >
             DM보내기
           </li>

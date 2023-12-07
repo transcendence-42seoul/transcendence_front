@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import authentication from '../assets/authentication.svg';
 import block from '../assets/block.svg';
+import friend from '../assets/friend.svg';
 import logout from '../assets/logout.svg';
 import withdrawal from '../assets/withdrawal.svg';
 import {
@@ -16,6 +17,51 @@ import {
 } from '@chakra-ui/react';
 import { appSocket } from '../common/socket/app.socket';
 import Cookies from 'js-cookie';
+import { getCookie } from '../common/cookie/cookie';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+function TfaEnableModal({ isOpen, onClose, onTfaEnableConfirm }) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>2차 인증 확인</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>2차 인증을 활성화 하시겠습니까?</ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={onTfaEnableConfirm}>
+            네
+          </Button>
+          <Button variant="ghost" onClick={onClose}>
+            취소
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+function TfaDisableModal({ isOpen, onClose, onTfaDisableConfirm }) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>2차 인증 확인</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>2차 인증 활성화를 해제하시겠습니까?</ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={onTfaDisableConfirm}>
+            네
+          </Button>
+          <Button variant="ghost" onClick={onClose}>
+            취소
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
 
 function LogoutConfirmationModal({ isOpen, onClose, onLogoutConfirm }) {
   return (
@@ -64,6 +110,18 @@ function WithdrawalConfirmationModal({ isOpen, onClose, onWithdrawalConfirm }) {
 
 function SettingPage() {
   const navigate = useNavigate();
+
+  const token = getCookie('token');
+
+  const [userIdx, setUserIdx] = useState<number>(0);
+
+  const [tfaEnabled, setTfaEnabled] = useState<boolean>(false);
+
+  const {
+    isOpen: isTfaModalOpen,
+    onOpen: onOpenTfaModal,
+    onClose: onCloseTfaModal,
+  } = useDisclosure();
   const {
     isOpen: isLogoutModalOpen,
     onOpen: onOpenLogoutModal,
@@ -75,13 +133,50 @@ function SettingPage() {
     onClose: onCloseWithdrawalModal,
   } = useDisclosure();
 
+  const fetchUserIdx = async () => {
+    try {
+      const userData = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/auth`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log(userData.data);
+      setUserIdx(userData.data.user_idx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_SERVER_URL}/users/idx/${userIdx}`,
+    );
+
+    setTfaEnabled(response.data.tfa_enabled);
+  };
+
+  useEffect(() => {
+    fetchUserIdx();
+  }, []);
+
+  useEffect(() => {
+    if (userIdx > 0) fetchUserData();
+  }, [userIdx]);
+
   // 각 설정 항목에 대한 클릭 이벤트 핸들러
   const handleAuthenticationClick = () => {
-    navigate('/authentication');
+    onOpenTfaModal();
   };
 
   const handleBlockClick = () => {
-    navigate('/ban-list');
+    navigate('/block-list');
+  };
+
+  const handleFriendClick = () => {
+    navigate('/friend-list');
   };
 
   const handleLogoutClick = () => {
@@ -90,6 +185,39 @@ function SettingPage() {
 
   const handleWithdrawalClick = () => {
     onOpenWithdrawalModal();
+  };
+
+  const updateTfaEnabled = async (tfa_enabled: boolean) => {
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_SERVER_URL}/users/${userIdx}/tfa-enabled`,
+        { tfa_enabled: tfa_enabled },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleTfaEnableConfirm = async () => {
+    // add socket logic
+    await updateTfaEnabled(true);
+    setTfaEnabled(true);
+    onCloseTfaModal();
+  };
+
+  const handleTfaDisableConfirm = async () => {
+    // add socket logic
+    await updateTfaEnabled(false);
+    setTfaEnabled(false);
+    onCloseTfaModal();
   };
 
   const handleLogoutConfirm = () => {
@@ -136,6 +264,19 @@ function SettingPage() {
           />
           <span className="flex-grow">차단목록</span>
         </div>
+        {/* 친구목록 */}
+        <div
+          className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
+          onClick={handleFriendClick}
+        >
+          <img
+            src={friend}
+            alt="친구목록"
+            className="flex-item-logo"
+            style={{ width: '100px', height: 'auto' }}
+          />
+          <span className="flex-grow">친구목록</span>
+        </div>
         {/* 로그아웃 */}
         <div
           className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
@@ -163,6 +304,21 @@ function SettingPage() {
           <span className="flex-grow">회원탈퇴</span>
         </div>
       </div>
+      {/* 2차 인증 확인 모달 */}
+      {tfaEnabled ? (
+        <TfaDisableModal
+          isOpen={isTfaModalOpen}
+          onClose={onCloseTfaModal}
+          onTfaDisableConfirm={handleTfaDisableConfirm}
+        />
+      ) : (
+        <TfaEnableModal
+          isOpen={isTfaModalOpen}
+          onClose={onCloseTfaModal}
+          onTfaEnableConfirm={handleTfaEnableConfirm}
+        />
+      )}
+
       {/* 로그아웃 확인 모달 */}
       <LogoutConfirmationModal
         isOpen={isLogoutModalOpen}

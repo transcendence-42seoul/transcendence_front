@@ -20,6 +20,7 @@ import { useLocation } from 'react-router-dom';
 import { appSocket } from '../common/socket/app.socket';
 import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 import { OwnerContextMenu } from './components/OwnerItem';
+import { DmNavigation } from './components/DmNavigation';
 
 interface ChatData {
   name: string;
@@ -184,18 +185,31 @@ function ChatPage() {
 
   useEffect(() => {
     const fetchFriendList = async () => {
-      if (userIdx > 0) {
-        try {
-          const friendsData = await FecthFriendList(userIdx);
-          console.log('friendsData = ', friendsData);
-          setFriendsList(friendsData);
-        } catch (error) {
-          console.error('Error fetching friends list:', error);
-        }
+      if (userIdx <= 0) return;
+      try {
+        const friendsData = await FecthFriendList(userIdx);
+        console.log('friendsData = ', friendsData);
+        setFriendsList(friendsData);
+      } catch (error) {
+        console.error('Error fetching friends list:', error);
       }
     };
 
     fetchFriendList();
+
+    appSocket.on('updateFriendList', (friends) => {
+      const formattedFriends = friends.map((friend: Friends) => {
+        return {
+          ...friend,
+          isHighlighted: false,
+        };
+      });
+      setFriendsList(formattedFriends);
+    });
+
+    return () => {
+      appSocket.off('updateFriendList');
+    };
   }, [userIdx]);
 
   const handleFriendClick = (clickedFriend: Friends) => {
@@ -425,7 +439,6 @@ function ChatPage() {
       managedIdx: chatMemberIdx,
     });
     appSocket.emit('block', {
-      chatIdx: idx,
       managedIdx: chatMemberIdx,
     });
   };
@@ -601,7 +614,7 @@ function ChatPage() {
                       const chatMember = contextMenu.user as IChatMember;
                       return CurrentUserRole() === 'OWNER' ? (
                         <OwnerContextMenu
-                          userIdx={chatMember.idx}
+                          userIdx={chatMember.user.idx}
                           position={contextMenu.position}
                           role={chatMember.role}
                           onBlock={() =>
@@ -634,7 +647,7 @@ function ChatPage() {
                         />
                       ) : CurrentUserRole() === 'ADMIN' ? (
                         <AdminContextMenu
-                          userIdx={chatMember.idx}
+                          userIdx={chatMember.user.idx}
                           position={contextMenu.position}
                           role={chatMember.role}
                           onBlock={() =>
@@ -661,9 +674,11 @@ function ChatPage() {
                         />
                       ) : (
                         <UserContextMenu
-                          userIdx={chatMember.idx}
+                          userIdx={chatMember.user.idx}
                           position={contextMenu.position}
-                          onBlock={() => handleBlockChatMember(chatMember.idx)}
+                          onBlock={() =>
+                            handleBlockChatMember(chatMember.user.idx)
+                          }
                           onFriendRequest={() =>
                             handleFriendRequest(chatMember.user.idx)
                           }

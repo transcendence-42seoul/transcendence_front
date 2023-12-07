@@ -27,7 +27,7 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
     challengModalState,
   } = props;
 
-  const navigateToDm = DmNavigation();
+  const getDm = DmNavigation();
 
   const showDmOption =
     typeof currentDmUserIdx === 'undefined' || currentDmUserIdx !== userIdx;
@@ -70,7 +70,7 @@ export const AdminContextMenu = (props: AdminContextMenuProps) => {
         {showDmOption && (
           <li
             className="p-2 hover:bg-gray-100 cursor-pointer"
-            onClick={() => navigateToDm(userIdx)}
+            onClick={() => getDm(userIdx)}
           >
             DM보내기
           </li>

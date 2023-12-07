@@ -115,7 +115,12 @@ export const CreateChannelModal = (props: CreateChannelModalProps) => {
           )}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={handleSubmit}
+            isDisabled={!title || !maxPeople}
+          >
             Create
           </Button>
           <Button onClick={onClose}>Cancel</Button>

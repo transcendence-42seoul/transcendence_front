@@ -11,7 +11,7 @@ function AuthenticationPage() {
   const navigate = useNavigate();
   const [inputs, setInputs] = useState(Array(6).fill(''));
   const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [loading, setLoging] = useState(false);
+  const [loading, setLoading] = useState(false);
   const inputRefs = useRef(new Array(6).fill(null));
 
   const tfaCode = inputs.join('');
@@ -36,7 +36,7 @@ function AuthenticationPage() {
   const fetchQRCode = async () => {
     console.log('fetchQRCode');
     if (!qrCodeUrl) {
-      setLoging(true);
+      setLoading(true);
       try {
         const response = await fetch(
           `${import.meta.env.VITE_SERVER_URL}/auth/tfa/${userIdx}/switch`,
@@ -53,11 +53,10 @@ function AuthenticationPage() {
         }
         const data = await response.json();
         setQrCodeUrl(data.qrCode);
-        console.log('qrCode:', data.qrCode);
       } catch (error) {
         console.error('Error fetching QR code:', error);
       } finally {
-        setLoging(false);
+        setLoading(false);
       }
     }
   };

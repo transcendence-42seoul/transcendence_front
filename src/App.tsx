@@ -8,7 +8,7 @@ import SettingPage from './client/SettingPage';
 import AuthenticationPage from './client/Authentication';
 import GamePage from './game/GamePage';
 import MyPage from './client/MyPage/MyPage';
-import BanListPage from './client/BanListPage';
+import BlockListPage from './client/BlockListPage';
 import AvatarSetting from './client/AvatarSetting';
 import ChatPage from './client/chat';
 import { useLocation } from 'react-router-dom';
@@ -21,6 +21,7 @@ import {
 import axios from 'axios';
 import ModalLayout from './client/modal/ModalLayout/ModalLayout';
 import DmPage from './client/DmChat';
+import FriendListPage from './client/FriendListPage';
 
 function App() {
   const location = useLocation();
@@ -115,10 +116,18 @@ function App() {
           }
         />
         <Route
-          path="/ban-list"
+          path="/block-list"
           element={
             <ModalLayout>
-              <BanListPage />
+              <BlockListPage />
+            </ModalLayout>
+          }
+        />
+        <Route
+          path="/friend-list"
+          element={
+            <ModalLayout>
+              <FriendListPage />
             </ModalLayout>
           }
         />
