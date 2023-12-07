@@ -21,6 +21,7 @@ export const FriendItem = (props: FriendItemProps) => {
       onContextMenu={(e) => onContextMenu(e, friend)}
     >
       <span>{friend.nickname}</span>
+      <span>{friend.status}</span>
     </div>
   );
 };
