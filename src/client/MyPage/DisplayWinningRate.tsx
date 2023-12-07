@@ -2,7 +2,7 @@ import { IProfileUser } from '../../common/entity/user';
 import RateCircle from './RateCircle';
 
 interface IDisplayWinningRate {
-  userData: IProfileUser | undefined;
+  userData: IProfileUser | null;
   radius: number;
 }
 
