@@ -395,20 +395,11 @@ class CGame {
     this.update();
     this.draw();
 
-    // If the game is not over, draw the next frame.
     if (!this.over) requestAnimationFrame(this.loop);
-    else console.log('game over');
   };
 
   keydownfunction = (key: KeyboardEvent) => {
     let thisLoop = this.loop;
-    // let thisPlayer = {...this.player};
-    console.log('player ' + this.player.score);
-    console.log('ai ' + this.ai.score);
-
-    console.log('keydownfunction and running = ' + this.running);
-
-    // Handle the 'Press any key to begin' function and start the game.
     if (this.running === false) {
       this.running = true;
       window.requestAnimationFrame(thisLoop);

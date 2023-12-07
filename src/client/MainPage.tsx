@@ -94,7 +94,6 @@ function MainPage() {
       if (userIdx <= 0) return;
       try {
         const friendsData = await FecthFriendList(userIdx);
-        console.log('friendsData = ', friendsData);
         setFriendsList(friendsData);
       } catch (error) {
         console.error('Error fetching friends list:', error);
@@ -132,24 +131,6 @@ function MainPage() {
       appSocket.off('onlineUsers');
     };
   }, [appSocket]);
-
-  // useEffect(() => {
-  //   const handleIsBan = (data: any) => {
-  //     console.log('sdfsdfd');
-  //     console.log('handleisBan', data, data.isBan, data.room_id);
-  //     if (data.isBan) {
-  //       alert('차단된 사용자입니다.');
-  //     } else {
-  //       navigate(`/chat/${data.room_id}`);
-  //     }
-  //   };
-
-  //   appSocket.on('isBan', handleIsBan);
-
-  //   return () => {
-  //     appSocket.off('isBan', handleIsBan);
-  //   };
-  // }, [appSocket]);
 
   const onChatRoomAdded = () => {
     setChatRoomAdded(true);
@@ -382,7 +363,6 @@ function MainPage() {
   };
 
   const handleFriendRequest = (receiverIdx: number) => {
-    console.log('handleFriendRequest', receiverIdx);
     appSocket.emit('friendRequest', receiverIdx);
   };
 

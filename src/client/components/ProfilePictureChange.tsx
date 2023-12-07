@@ -71,8 +71,6 @@ export const ProfilePictureChangeModal = (
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log('이미지 업로드 결과:', data);
-
           if (data.success) {
             onAvatarChange(data.imageUrl);
             onClose();

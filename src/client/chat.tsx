@@ -112,50 +112,6 @@ function ChatPage() {
     };
   };
 
-  // const getRolePriority = (role: string) => {
-  //   const rolePriority: { [key: string]: number } = {
-  //     Owner: 3,
-  //     Admin: 2,
-  //     User: 1,
-  //   };
-  //   return rolePriority[role] || 0;
-  // };
-
-  // const isPossibleAdminMenu = (targetIdx: number) => {
-  //   const currentUserParticipant = chatMemberList.find(
-  //     (participant) => participant.user.idx === userIdx,
-  //   );
-  //   const targetParticipant = chatMemberList.find(
-  //     (participant) => participant.user.idx === targetIdx,
-  //   );
-
-  //   if (!currentUserParticipant || !targetParticipant) {
-  //     return false;
-  //   }
-
-  //   const currentUserRolePriority = getRolePriority(
-  //     currentUserParticipant.role,
-  //   );
-  //   const targetUserRolePriority = getRolePriority(targetParticipant.role);
-
-  //   console.log(
-  //     'currentUser',
-  //     currentUserParticipant,
-  //     userIdx,
-  //     currentUserRolePriority,
-  //   );
-  //   console.log(
-  //     'targetUser',
-  //     targetParticipant,
-  //     targetIdx,
-  //     targetUserRolePriority,
-  //   );
-
-  //   console.log(currentUserRolePriority, targetUserRolePriority);
-
-  //   return currentUserRolePriority <= targetUserRolePriority;
-  // };
-
   const CurrentUserRole = () => {
     const currentUserParticipant = chatMemberList.find(
       (participant) => participant.user.idx === userIdx,
@@ -163,22 +119,6 @@ function ChatPage() {
 
     return currentUserParticipant ? currentUserParticipant.role : 'Guest';
   };
-
-  // const isCurrentUserRoleAdmin = () => {
-  //   const currentUserParticipant = chatMemberList.find(
-  //     (participant) => participant.user.idx === userIdx,
-  //   );
-
-  //   return currentUserParticipant && currentUserParticipant.role === 'USER';
-  // };
-
-  // const isCurrentUserRoleOwner = () => {
-  //   const currentUserParticipant = chatMemberList.find(
-  //     (participant) => participant.user.idx === userIdx,
-  //   );
-
-  //   return currentUserParticipant && currentUserParticipant.role === 'OWNER';
-  // };
 
   useEffect(() => {
     fetchUserIdx();
@@ -190,7 +130,6 @@ function ChatPage() {
       if (userIdx <= 0) return;
       try {
         const friendsData = await FecthFriendList(userIdx);
-        console.log('friendsData = ', friendsData);
         setFriendsList(friendsData);
       } catch (error) {
         console.error('Error fetching friends list:', error);
@@ -225,7 +164,6 @@ function ChatPage() {
   };
 
   const handleChatMemberClick = (clickChatMember: IChatMember) => {
-    console.log('chatMemberList = ', clickChatMember);
     setChatMemberList(
       chatMemberList.map((chatMember) =>
         chatMember.idx === clickChatMember.idx
@@ -338,7 +276,6 @@ function ChatPage() {
   };
 
   const handleKicked = (data: any) => {
-    console.log(data);
     alert(`you are kicked from ${data}`);
     if (location.pathname === `/chat/${data}`) {
       navigate('/main');
@@ -346,7 +283,6 @@ function ChatPage() {
   };
 
   const handleBanned = (data: any) => {
-    console.log(data);
     alert(`you are banned from ${data}`);
     if (location.pathname === `/chat/${data}`) {
       navigate('/main');
@@ -365,7 +301,6 @@ function ChatPage() {
   };
 
   const handleOwnerLeave = (data: any) => {
-    console.log('ownerleave', data);
     alert(`owner is out from ${data}`);
     if (location.pathname === `/chat/${data}`) {
       navigate('/main');
@@ -379,7 +314,6 @@ function ChatPage() {
         const response = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/chats/participants/${idx}`,
         );
-        console.log(response.data);
         const chatMembers = response.data.map((member: IChatMember) => {
           return {
             ...member,
@@ -444,10 +378,10 @@ function ChatPage() {
     appSocket.emit('block', {
       managedIdx: chatMemberIdx,
     });
+    alert('차단했습니다.');
   };
 
   const handleFriendRequest = (receiverIdx: number) => {
-    console.log('handleFriendRequest', receiverIdx);
     appSocket.emit('friendRequest', receiverIdx);
   };
 
@@ -463,7 +397,6 @@ function ChatPage() {
   };
 
   const handleMuteChatMember = (mutedIdx: number) => {
-    console.log('handleMuteChatMember');
     chatSocket.emit('mute', {
       chatIdx: idx,
       managedIdx: mutedIdx,
@@ -478,7 +411,6 @@ function ChatPage() {
   };
 
   const handleGrantChatMember = (grantedIdx: number) => {
-    console.log('handleGrantChatMember', grantedIdx);
     chatSocket.emit('grant', {
       chatIdx: idx,
       managedIdx: grantedIdx,
@@ -486,7 +418,6 @@ function ChatPage() {
   };
 
   const handleRevokeChatMember = (revokedIdx: number) => {
-    console.log('handleRevokeChatMember', revokedIdx);
     chatSocket.emit('revoke', {
       chatIdx: idx,
       managedIdx: revokedIdx,

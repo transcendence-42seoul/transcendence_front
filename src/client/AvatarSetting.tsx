@@ -47,8 +47,6 @@ function AvatarSetting() {
 
   const updateNickname = () => {
     try {
-      console.log('nickname:', nickname);
-
       axios.patch(
         `${import.meta.env.VITE_SERVER_URL}/users/${userIdx}/nickname`,
         { nickname: nickname },
@@ -70,8 +68,6 @@ function AvatarSetting() {
 
   const handleCheckNickname = () => {
     try {
-      console.log('nickname:', nickname);
-
       if (nickname.trim() === '') {
         alert('닉네임을 입력해주세요.');
         return;
@@ -82,7 +78,6 @@ function AvatarSetting() {
           `${import.meta.env.VITE_SERVER_URL}/users/check-nickname/${nickname}`,
         )
         .then((response) => {
-          console.log(response.data);
           if (response.data) {
             setIsNicknameAvailable(true);
             alert('사용 가능한 사용자 이름입니다.');

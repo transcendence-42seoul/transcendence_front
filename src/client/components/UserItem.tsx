@@ -56,7 +56,6 @@ export const UserContextMenu = (props: UserContextMenuProps) => {
     challengModalState,
   } = props;
 
-  console.log('userIdx', userIdx);
   const getDm = DmNavigation();
 
   const showDmOption =

@@ -21,7 +21,6 @@ interface FriendUserProps {
 }
 export const FriendUser = (props: FriendUserProps) => {
   const { friend, onClick, onDoubleClick, handleDeleteFriend } = props;
-  console.log('friendUser', friend);
 
   return (
     <Flex
@@ -138,7 +137,6 @@ function FriendListPage() {
   };
 
   const handleReceiveFriendUsers = (friendUsers: FriendUser[]) => {
-    console.log('friendUsers', friendUsers);
     setFriendUsers(friendUsers);
   };
 

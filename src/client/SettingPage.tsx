@@ -143,7 +143,6 @@ function SettingPage() {
           },
         },
       );
-      console.log(userData.data);
       setUserIdx(userData.data.user_idx);
     } catch (error) {
       console.error(error);
@@ -199,8 +198,6 @@ function SettingPage() {
           },
         },
       );
-
-      console.log(response);
     } catch (error) {
       console.error(error);
     }

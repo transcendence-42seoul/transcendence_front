@@ -128,7 +128,6 @@ function MiniChatting(props: MiniChattingProps) {
     if (!userIdx) return;
     fetchMessageList();
     chatSocket.on('receiveMessage', (chat: IChat) => {
-      console.log('here receive callback', userIdx);
       handleReceiveChat(chat);
     });
 

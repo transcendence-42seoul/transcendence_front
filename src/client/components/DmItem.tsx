@@ -24,7 +24,6 @@ export const makeMemberData = (myIdx: number, data: any) => {
   );
 
   if (!otherUser) {
-    console.log('다른 사용자 정보를 찾을 수 없음');
     return null;
   }
 

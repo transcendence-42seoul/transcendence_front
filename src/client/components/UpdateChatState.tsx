@@ -44,14 +44,11 @@ function UpdateChatStateModal(props: UpdateChatStateModalProps) {
     onClose();
     chatSocketConnect();
 
-    console.log('password', password);
-
     chatSocket.emit(
       'updateChat',
       { chatIdx, password },
       (response: { status: 'success'; chat: { idx: number } }) => {
         if (response.status === 'success') {
-          console.log('Updated chat room with chat_idx:', response.chat.idx);
           navigate(`/chat/${response.chat.idx}`);
         } else {
           console.error('Failed to update chat room');

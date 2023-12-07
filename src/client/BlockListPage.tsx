@@ -24,8 +24,6 @@ interface BlockedUserProps {
 
 export const BlockedUser = (props: BlockedUserProps) => {
   const { block, onClick, onDoubleClick, handleUnblock } = props;
-  console.log('blockUser', block);
-
   return (
     <Flex
       key={block.idx}

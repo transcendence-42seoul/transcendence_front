@@ -85,7 +85,6 @@ function NotificationButton(props: NotificationButtonProps) {
 
   const handleDeclineFriendRequest = (e: React.MouseEvent, idx: number) => {
     e.stopPropagation();
-    console.log('handleDeclineFriendRequest', idx);
     appSocket.emit('declineFriendRequest', idx);
   };
 
@@ -102,7 +101,6 @@ function NotificationButton(props: NotificationButtonProps) {
 
   const getNotificationButtons = (notification: INotification) => {
     if (notification.type === 'friend_request') {
-      console.log('sdf', notification);
       return [
         {
           label: 'Accept',

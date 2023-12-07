@@ -63,9 +63,7 @@ export const CreateChannelModal = (props: CreateChannelModalProps) => {
       'createChat',
       { title, password, maxPeople },
       (response: CreateChatResponse) => {
-        console.log('response', response);
         if (response.status === 'success') {
-          console.log('Created chat room with chat_idx:', response.chatIdx);
           navigate(`/chat/${response.chatIdx}`);
         } else {
           console.error('Failed to create chat room');

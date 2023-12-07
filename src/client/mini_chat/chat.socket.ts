@@ -26,10 +26,6 @@ export const chatSocketConnect = () => {
     chatSocket.connect();
   }
 
-  chatSocket.on('connect', () => {
-    console.log('Connected to chat server');
-  });
-
   chatSocket.on('connect_error', (error) => {
     console.error('Connection error:', error);
   });
@@ -37,7 +33,6 @@ export const chatSocketConnect = () => {
 
 export const chatSocketLeave = () => {
   if (chatSocket.connected) {
-    console.log('disconnecting from chat server');
     chatSocket.disconnect();
   }
 };

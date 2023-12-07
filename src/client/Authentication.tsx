@@ -17,7 +17,6 @@ function AuthenticationPage() {
   const tfaCode = inputs.join('');
 
   const fetchUserIdx = async () => {
-    console.log('fetchUserIdx');
     try {
       const userData = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/auth`,
@@ -34,7 +33,6 @@ function AuthenticationPage() {
   };
 
   const fetchQRCode = async () => {
-    console.log('fetchQRCode');
     if (!qrCodeUrl) {
       setLoading(true);
       try {
@@ -62,11 +60,8 @@ function AuthenticationPage() {
   };
 
   const verifyTFA = async () => {
-    console.log('verifyTFA');
     if (inputs.every((input) => input.length === 1)) {
       try {
-        console.log('Code:', tfaCode);
-
         const response = await axios.post(
           `${import.meta.env.VITE_SERVER_URL}/auth/tfa/${userIdx}/verify`,
           { token: tfaCode },
@@ -77,8 +72,6 @@ function AuthenticationPage() {
             },
           },
         );
-
-        console.log('TFA Verified:', response.data.message);
         navigate('/main'); // 이동할 페이지 수정하기
       } catch (error: any) {
         if (error.response) {
