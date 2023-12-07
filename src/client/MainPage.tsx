@@ -343,7 +343,9 @@ function MainPage() {
   }, [chatRoomAdded, contextMenuRef, closeContextMenu]);
 
   const handleDeleteFriend = (friendIdx: number) => {
-    setFriendsList(friendsList.filter((friend) => friend.idx !== friendIdx));
+    appSocket.emit('deleteFriend', {
+      managedIdx: friendIdx,
+    });
   };
 
   const handleBlockFriend = (friendIdx: number) => {

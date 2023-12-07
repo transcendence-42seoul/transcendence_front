@@ -362,19 +362,19 @@ function ChatPage() {
     navigate('/main');
   };
 
-  const handleDeleteFriend = (friendId: number) => {
-    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
+  const handleDeleteFriend = (friendIdx: number) => {
+    appSocket.emit('deleteFriend', {
+      managedIdx: friendIdx,
+    });
   };
 
-  const handleBlockFriend = (friendId: number) => {
-    setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
+  const handleBlockFriend = (friendIdx: number) => {
+    appSocket.emit('block', {
+      managedIdx: friendIdx,
+    });
   };
 
   const handleBlockChatMember = (chatMemberIdx: number) => {
-    chatSocket.emit('blockChatMember', {
-      chatIdx: idx,
-      managedIdx: chatMemberIdx,
-    });
     appSocket.emit('block', {
       managedIdx: chatMemberIdx,
     });

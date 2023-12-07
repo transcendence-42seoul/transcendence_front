@@ -21,7 +21,33 @@ import { getCookie } from '../common/cookie/cookie';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function TfaEnableModal({ isOpen, onClose, onTfaEnableConfirm }) {
+interface TfaEnableModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onTfaEnableConfirm: () => void;
+}
+
+interface TfaDisavleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onTfaDisableConfirm: () => void;
+}
+
+interface LogoutConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onLogoutConfirm: () => void;
+}
+
+interface WithdrawalConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onWithdrawalConfirm: () => void;
+}
+
+function TfaEnableModal(props: TfaEnableModalProps) {
+  const { isOpen, onClose, onTfaEnableConfirm } = props;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -42,7 +68,9 @@ function TfaEnableModal({ isOpen, onClose, onTfaEnableConfirm }) {
   );
 }
 
-function TfaDisableModal({ isOpen, onClose, onTfaDisableConfirm }) {
+function TfaDisableModal(props: TfaDisavleModalProps) {
+  const { isOpen, onClose, onTfaDisableConfirm } = props;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -63,7 +91,9 @@ function TfaDisableModal({ isOpen, onClose, onTfaDisableConfirm }) {
   );
 }
 
-function LogoutConfirmationModal({ isOpen, onClose, onLogoutConfirm }) {
+function LogoutConfirmationModal(props: LogoutConfirmationModalProps) {
+  const { isOpen, onClose, onLogoutConfirm } = props;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -84,7 +114,9 @@ function LogoutConfirmationModal({ isOpen, onClose, onLogoutConfirm }) {
   );
 }
 
-function WithdrawalConfirmationModal({ isOpen, onClose, onWithdrawalConfirm }) {
+function WithdrawalConfirmationModal(props: WithdrawalConfirmationModalProps) {
+  const { isOpen, onClose, onWithdrawalConfirm } = props;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />

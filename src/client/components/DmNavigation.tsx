@@ -3,6 +3,7 @@ import { getCookie } from '../../common/cookie/cookie';
 import axios from 'axios';
 import { makeDmData } from './DmItem';
 import { useEffect, useState } from 'react';
+import { chatSocketConnect } from '../mini_chat/chat.socket';
 
 export const DmNavigation = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export const DmNavigation = () => {
       const dmData = makeDmData(response.data);
 
       if (dmData && dmData.idx) {
+        chatSocketConnect();
         navigate(`/dm/${dmData.idx}`);
       }
     } catch (error) {

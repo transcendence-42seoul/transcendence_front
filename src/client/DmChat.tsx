@@ -132,7 +132,6 @@ function DmPage() {
   const onClickChannelLeave = (room_id: string | undefined) => {
     chatSocket.emit('leaveDm', room_id);
     chatSocketLeave();
-
     navigate('/main');
   };
 
@@ -252,10 +251,12 @@ function DmPage() {
     }
   };
 
-  const handleBlockChatMember = () => {
+  const handleBlockChatMember = (chatMemberIdx: number) => {
+    appSocket.emit('block', {
+      managedIdx: chatMemberIdx,
+    });
     alert('차단했습니다.');
   };
-
   const handleDeleteFriend = (friendId: number) => {
     setFriendsList(friendsList.filter((friend) => friend.idx !== friendId));
   };

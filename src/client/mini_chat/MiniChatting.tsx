@@ -11,6 +11,7 @@ interface IChat {
   idx: number;
   content: string;
   send_at: Date;
+  room_idx: number;
   user: {
     idx: number;
     nickname: string;
@@ -96,14 +97,20 @@ function MiniChatting(props: MiniChattingProps) {
   };
 
   const handleReceiveChat = (chat: IChat) => {
+    console.log('chat', chat);
     if (chat.content === '') return;
+    if (idx !== undefined && chat.room_idx !== parseInt(idx)) return;
     const message = makeIChatMessage(chat);
     setChatList((prev: IChatMessage[]) => [...prev, message]);
   };
 
   const handleSubmit = (content: string) => {
     if (content == '') return;
-    chatSocket.emit('sendMessage', { room_id: idx, message: content });
+    if (idx === undefined) return;
+    chatSocket.emit('sendMessage', {
+      room_id: parseInt(idx),
+      message: content,
+    });
     if (props.pageType === 'dm') {
       appSocket.emit('dmNotification', idx);
     }
