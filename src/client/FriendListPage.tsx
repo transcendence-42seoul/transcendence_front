@@ -5,10 +5,12 @@ import logo from '../assets/logo.jpg';
 import axios from 'axios';
 import { appSocket } from '../common/socket/app.socket';
 import { Button, Flex, Image, Text } from '@chakra-ui/react';
+import { UserStatus } from '../game/GamePage';
 
 interface FriendUser {
   idx: number;
   nickname: string;
+  status: UserStatus;
   profileImage: string;
   isHighlighted: boolean;
 }
@@ -50,6 +52,9 @@ export const FriendUser = (props: FriendUserProps) => {
         />
         <Text fontSize="xl" fontWeight="medium" flex="1" isTruncated>
           {friend.nickname}
+        </Text>
+        <Text fontSize="xl" fontWeight="medium" flex="1" isTruncated>
+          {friend.status}
         </Text>
       </Flex>
       <Button

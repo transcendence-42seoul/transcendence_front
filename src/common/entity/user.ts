@@ -36,7 +36,7 @@ export interface IUser {
 
 export interface IProfileUser {
   idx: number;
-  nickname: string;
+  nickname: string | undefined;
   avatar: {
     image_data: Buffer;
   };

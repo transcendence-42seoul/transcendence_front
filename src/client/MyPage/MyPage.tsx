@@ -10,6 +10,8 @@ import { IProfileUser } from '../../common/entity/user';
 import DisplayWinningRate from './DisplayWinningRate';
 import DisplayGameHistory from './DisplayGameHistory';
 import { useParams } from 'react-router-dom';
+import { appSocket } from '../../common/socket/app.socket';
+import { FecthFriendList } from '../components/FetchFriendList';
 
 /* FetchUserData.tsx */
 
@@ -82,9 +84,9 @@ function MyProfile() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [profileImage, setProfileImage] = useState();
+  const [profileImage, setProfileImage] = useState<string>();
 
-  const [userData, setUserData] = useState<IProfileUser>();
+  const [userData, setUserData] = useState<IProfileUser | null>(null);
 
   const [userIdx, setUserIdx] = useState<number>(0);
 
@@ -92,29 +94,36 @@ function MyProfile() {
 
   const [newNickname, setNewNickname] = useState(userData?.nickname);
 
-  useEffect(() => {
-    fetchUserIdx();
-    getGameHistory();
-  }, []);
+  const [isFriend, setIsFriend] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
-  useEffect(() => {
-    if (userIdx > 0) {
-      fetchUserData();
-    }
-  }, [userIdx]);
+  const [gameHistory, setGameHistory] = useState<IGameHistory[]>([]);
 
-  useEffect(() => {
-    if (userIdx > 0 && userData?.avatar?.image_data) {
-      setProfileImage(convertToBase64Image(userData.avatar.image_data));
-    }
-  }, [userIdx, userData]);
-
-  const handleAvatarChange = (newAvatar) => {
+  const handleAvatarChange = (newAvatar: string) => {
     setProfileImage(newAvatar);
     onClose();
   };
 
-  const [gameHistory, setGameHistory] = useState<IGameHistory[]>([]);
+  const setFriendBlockStatus = async () => {
+    try {
+      const friendList = await FecthFriendList(userIdx);
+      const findOne = friendList.find(
+        (friend) => friend.idx === parseInt(idx!),
+      );
+      if (findOne) {
+        setIsFriend(true);
+      }
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/blocks/check/${idx}/${userIdx}`,
+      );
+      const { block } = response.data;
+      if (block) {
+        setIsBlocked(true);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   //win, game_type, my_score, opponent_score, time, opponent_id, opponent_nickname
   const getGameHistory = async () => {
@@ -156,11 +165,38 @@ function MyProfile() {
     const response = await axios.get(
       `${import.meta.env.VITE_SERVER_URL}/users/idx/${idx}`,
     );
-
     setUserData(makeUserDataFormat(response.data));
   };
 
-  const handleSaveUsername = () => {
+  const handleFriend = async () => {
+    if (!idx) return;
+    if (!isFriend) {
+      appSocket.emit('friendRequest', idx);
+    }
+  };
+
+  const handleBlock = async () => {
+    if (!idx) return;
+    if (parseInt(idx) === userIdx) return;
+    if (!isBlocked) {
+      appSocket.emit('block', {
+        managedIdx: idx,
+      });
+      alert('차단했습니다.');
+    } else {
+      try {
+        await axios.delete(
+          `${import.meta.env.VITE_SERVER_URL}/blocks/${idx}/${userIdx}`,
+        );
+        setIsBlocked(false);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setIsBlocked(!isBlocked);
+  };
+
+  const handleSaveUsername = async () => {
     fetch(`${import.meta.env.VITE_SERVER_URL}/users/${userIdx}/nickname`, {
       method: 'PATCH',
       headers: {
@@ -172,7 +208,8 @@ function MyProfile() {
         if (response.ok) {
           // 요청이 성공한 경우에만 사용자 이름 변경 및 수정 모드 종료
           setIsEditingNickname(false);
-          setUserData((prevUserData) => {
+          setUserData((prevUserData: IProfileUser | null) => {
+            if (!prevUserData) return null;
             return {
               ...prevUserData,
               nickname: newNickname,
@@ -186,6 +223,24 @@ function MyProfile() {
         console.error('에러 발생:', error);
       });
   };
+
+  useEffect(() => {
+    fetchUserIdx();
+    getGameHistory();
+  }, []);
+
+  useEffect(() => {
+    if (userIdx > 0) {
+      fetchUserData();
+      setFriendBlockStatus();
+    }
+  }, [userIdx]);
+
+  useEffect(() => {
+    if (userIdx > 0 && userData?.avatar?.image_data) {
+      setProfileImage(convertToBase64Image(userData.avatar.image_data));
+    }
+  }, [userIdx, userData]);
 
   return (
     <div className="h-screen w-screen bg-gray-100">
@@ -231,29 +286,49 @@ function MyProfile() {
             </div>
             {/* user */}
             <DisplayWinningRate userData={userData} radius={RADIUS} />
-            {/* profile image */}
             <div className="shrink-0">
               <img
                 className="w-24 h-24 rounded-full object-cover"
                 src={profileImage}
                 alt="Profile"
               />
+              <div className="flex flex-col justify-center items-center p-1">
+                {parseInt(idx!) === userIdx ? (
+                  <button
+                    className="bg-blue-500 text-white px-4 rounded text-sm p-0.5 m-1"
+                    onClick={onOpen}
+                  >
+                    프로필 수정
+                  </button>
+                ) : (
+                  <>
+                    {!isBlocked ? (
+                      <>
+                        {!isFriend && (
+                          <button
+                            className="bg-blue-500 text-white px-4 rounded text-sm p-0.5 m-1"
+                            onClick={() => handleFriend()}
+                          >
+                            친구 추가
+                          </button>
+                        )}
+                        <button
+                          className="bg-red-500 text-white px-4 rounded text-sm p-0.5 m-1"
+                          onClick={() => handleBlock()}
+                        >
+                          차단
+                        </button>
+                      </>
+                    ) : (
+                      <span className="bg-gray-500 text-white px-4 rounded text-sm p-0.5 m-1">
+                        차단된 상대
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-            {/* profile image */}
           </div>
-
-          {/* profile button */}
-          {parseInt(idx!) === userIdx && (
-            <div className="flex justify-end pr-8">
-              <button
-                className="bg-blue-500 text-white px-4 rounded text-sm p-0.5"
-                onClick={onOpen}
-              >
-                프로필 수정
-              </button>
-            </div>
-          )}
-          {/* profile button */}
         </div>
         <ProfilePictureChangeModal
           isOpen={isOpen}

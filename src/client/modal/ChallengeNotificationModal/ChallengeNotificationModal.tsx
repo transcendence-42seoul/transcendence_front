@@ -11,7 +11,7 @@ import {
   Spinner,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   gameSocket,
   gameSocketConnect,
@@ -60,6 +60,7 @@ export const ChallengeNotificationModal = () => {
     gameSocketDisconnect();
     gameSocket.off('createGameSuccess');
     setSubmitState(false);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -75,22 +76,39 @@ export const ChallengeNotificationModal = () => {
     return () => clearTimeout(timer);
   }, [requestData, submitState]);
 
-  useEffect(() => {
-    appSocket.on('requestedChallenge', (data: IRequestData) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleRequestChallenge = useCallback(
+    (data: IRequestData) => {
+      if (isLoading) {
+        appSocket.emit('cancelChallengeGame', {
+          requestedIdx: data?.requesterIdx,
+        });
+        return;
+      }
+      setIsLoading(true);
       setRequestData(data);
       onOpenRequetedChallenge();
-    });
+    },
+    [isLoading, requestData],
+  );
 
+  useEffect(() => {
     appSocket.on('cancelChallengeGame', () => {
       handleModalClose();
     });
-
     return () => {
       handleModalClose();
-      appSocket.off('requestedChallenge');
       appSocket.off('checkEnableChallengeGameSuccess');
     };
   }, []);
+
+  useEffect(() => {
+    appSocket.on('requestedChallenge', handleRequestChallenge);
+    return () => {
+      appSocket.off('requestedChallenge');
+    };
+  }, [isLoading, requestData]);
 
   return (
     <>

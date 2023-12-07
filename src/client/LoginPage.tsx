@@ -20,8 +20,12 @@ function LoginPage() {
         className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-opacity-100 px-12 py-6 rounded flex flex-col justify-start items-center"
         style={{ width: '40%', height: '30%' }}
       >
-        <h1 className="text-7xl font-bold pb-12">기절초퐁</h1>
+        <h1 className="text-7xl font-bold pb-12">氣</h1>
+        <h1 className="text-7xl font-bold pb-12">絶</h1>
+        <h1 className="text-7xl font-bold pb-12">招</h1>
+        <h1 className="text-7xl font-bold pb-12">퐁</h1>
         <Button
+          className="p-7 text-3xl"
           colorScheme="teal"
           variant="outline"
           onClick={handleLogin}
