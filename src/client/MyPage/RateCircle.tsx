@@ -30,18 +30,20 @@ const RateCircle = (props: IRateCircle) => {
             cx="50"
             cy="50"
           />
-          <circle
-            className="text-blue-600"
-            strokeWidth="10"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            stroke="currentColor"
-            fill="transparent"
-            r={radius}
-            cx="50"
-            cy="50"
-          />
+          {userData.rate && (
+            <circle
+              className="text-blue-600"
+              strokeWidth="10"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              strokeLinecap="round"
+              stroke="currentColor"
+              fill="transparent"
+              r={radius}
+              cx="50"
+              cy="50"
+            />
+          )}
         </g>
         <text
           x="50"

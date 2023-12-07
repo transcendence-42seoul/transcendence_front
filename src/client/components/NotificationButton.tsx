@@ -37,7 +37,6 @@ function NotificationButton(props: NotificationButtonProps) {
       const notifications = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/alarms/${userIdx}`,
       );
-      console.log('notifications', notifications);
       const formattedNotifications = notifications.data.map(
         (notification: INotification) => ({
           idx: notification.idx,
@@ -46,7 +45,6 @@ function NotificationButton(props: NotificationButtonProps) {
           type: notification.type,
         }),
       );
-      console.log('formattedNotifications', formattedNotifications);
       setNotifications(formattedNotifications);
     } catch (error) {
       console.log(error);
@@ -54,7 +52,6 @@ function NotificationButton(props: NotificationButtonProps) {
   };
 
   const addNotification = (notification: INotification) => {
-    console.log('notify!', notification);
     setNotifications((prevNotifications) => [
       ...prevNotifications,
       notification,
@@ -94,8 +91,6 @@ function NotificationButton(props: NotificationButtonProps) {
 
   const handleGeneral = (e: React.MouseEvent, notification: INotification) => {
     e.stopPropagation();
-    // removeNotification(notification.idx);
-    // navigate(`/dm/${notification.sender_idx}`);
     appSocket.emit('generalNotification', notification.idx);
   };
 

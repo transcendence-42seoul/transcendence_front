@@ -53,7 +53,7 @@ interface PasswordModalProps {
 }
 
 export const PasswordModal = (props: PasswordModalProps) => {
-  const { isOpen, onClose, onSubmit: onSubmit, chatRoom } = props;
+  const { isOpen, onClose, onSubmit, chatRoom } = props;
 
   const [password, setPassword] = useState('');
 

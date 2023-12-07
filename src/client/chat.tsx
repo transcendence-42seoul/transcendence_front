@@ -95,10 +95,12 @@ function ChatPage() {
       const response = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/chats/data/${idx}`,
       );
-      console.log(response.data);
       setChatData(makeChatData(response.data));
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error && error.response.status === 404) {
+        navigate('/main');
+        alert('존재하지 않는 채팅방입니다.');
+      }
     }
   };
 
@@ -332,6 +334,7 @@ function ChatPage() {
 
   const handleShowError = (data: any) => {
     alert(data.message);
+    navigate('/main');
   };
 
   const handleKicked = (data: any) => {
@@ -395,9 +398,9 @@ function ChatPage() {
     //   fetchChatMembers();
     // };
 
-    chatSocket.emit('joinChat', {
-      room_id: idx,
-    });
+    // chatSocket.emit('joinChat', {
+    //   room_id: idx,
+    // });
 
     chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);

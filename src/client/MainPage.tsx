@@ -6,7 +6,7 @@ import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
-import { chatSocketConnect } from './mini_chat/chat.socket';
+import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
 import axios from 'axios';
 import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
@@ -171,25 +171,19 @@ function MainPage() {
       onOpenPasswordModal();
     } else {
       chatSocketConnect();
-
-      //   joinChat 이벤트 보내기
-      //   chatSocket.emit('joinChat', {
-      //     room_id: chatRoom.idx,
-      //     password: chatRoom.password,
-      //   });
-
+      chatSocket.emit('joinChat', {
+        room_id: chatRoom.idx,
+      });
       navigate(`/chat/${chatRoom.idx}`);
     }
   };
 
   const handleJoinPrivateChat = (chatRoom: IChatRoom, password: string) => {
+    chatSocket.emit('joinChat', {
+      room_id: chatRoom.idx,
+      password,
+    });
     chatSocketConnect();
-
-    // chatSocket.emit('joinChat', {
-    //   room_id: chatRoom.idx,
-    //   password: password,
-    // });
-
     navigate(`/chat/${chatRoom.idx}`);
   };
 
