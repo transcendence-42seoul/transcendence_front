@@ -118,15 +118,13 @@ function MyProfile() {
 
   //win, game_type, my_score, opponent_score, time, opponent_id, opponent_nickname
   const getGameHistory = async () => {
-    const logs = await axios.get(`${import.meta.env.VITE_SERVER_URL}/records`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const logs = await axios.get(
+      `${import.meta.env.VITE_SERVER_URL}/records/${idx}`,
+    );
     const histories = logs.data.user_game_log.map((log: string) => {
       return JSON.parse(log);
     });
-    setGameHistory(histories);
+    setGameHistory(histories.reverse());
   };
 
   // 승률을 나타내는 원의 둘레 계산
