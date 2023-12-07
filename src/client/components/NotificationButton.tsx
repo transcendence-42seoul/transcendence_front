@@ -42,6 +42,7 @@ function NotificationButton(props: NotificationButtonProps) {
           idx: notification.idx,
           sender_idx: notification.sender_idx,
           content: notification.content,
+          room_idx: notification.room_idx,
           type: notification.type,
         }),
       );
@@ -59,12 +60,16 @@ function NotificationButton(props: NotificationButtonProps) {
   };
 
   useEffect(() => {
+    fetchNotificationList();
+  }, []);
+
+  useEffect(() => {
     appSocket.on('notification', addNotification);
     appSocket.on('notificationList', (notifications: INotification[]) => {
       setNotifications(notifications);
     });
 
-    fetchNotificationList();
+    // fetchNotificationList();
 
     return () => {
       appSocket.off('notification');
