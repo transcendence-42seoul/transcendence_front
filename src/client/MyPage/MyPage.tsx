@@ -31,15 +31,22 @@ const makeUserDataFormat = (data: any): IProfileUser => {
       challenge_win: data.record.general_win,
       challenge_lose: data.record.general_game - data.record.general_win,
       // total_rate: (data.record.total_win / data.record.total_game) * 100,
-      total_rate: Math.round(
-        (data.record.total_win / data.record.total_game) * 100,
-      ),
-      ladder_rate: Math.round(
-        (data.record.ladder_win / data.record.ladder_game) * 100,
-      ),
-      challenge_rate: Math.round(
-        (data.record.general_win / data.record.general_game) * 100,
-      ),
+      total_rate:
+        data.record.total_game === 0
+          ? 0
+          : Math.round((data.record.total_win / data.record.total_game) * 100),
+      ladder_rate:
+        data.record.ladder_game === 0
+          ? 0
+          : Math.round(
+              (data.record.ladder_win / data.record.ladder_game) * 100,
+            ),
+      challenge_rate:
+        data.record.general_game === 0
+          ? 0
+          : Math.round(
+              (data.record.general_win / data.record.general_game) * 100,
+            ),
     },
     ranking: {
       score: data.ranking.score,

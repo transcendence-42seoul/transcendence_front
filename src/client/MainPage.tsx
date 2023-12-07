@@ -511,6 +511,11 @@ function MainPage() {
                       onDelete={() => handleDeleteFriend(contextMenu.user.idx)}
                       onBlock={() => handleBlockFriend(contextMenu.user.idx)}
                       closeContextMenu={() => closeContextMenu()}
+                      challengModalState={{
+                        isOpen: isCreateChallengeOpen,
+                        onOpen: onOpenCreateChallenge,
+                        onClose: onCloseCreateChallenge,
+                      }}
                     />
                   ))}
               </div>
