@@ -127,42 +127,13 @@ function MainPage() {
       setOnlineList(formattedUsers);
     });
 
-    appSocket.on('kicked', handleKicked);
-    appSocket.on('banned', handleBanned);
-    appSocket.on('isBan', handleIsBan);
-
     return () => {
       appSocket.off('onlineUsers');
-      appSocket.off('kicked', handleKicked);
-      appSocket.off('banned', handleBanned);
-      appSocket.off('isBan', handleIsBan);
     };
   }, [appSocket]);
 
   const onChatRoomAdded = () => {
     setChatRoomAdded(true);
-  };
-
-  const handleKicked = (data: any) => {
-    console.log('here');
-    alert(`you are kicked from ${data}`);
-    if (location.pathname === `/chat/${data}`) {
-      navigate('/main');
-    }
-  };
-
-  const handleBanned = (data: any) => {
-    alert(`you are banned from ${data}`);
-    if (location.pathname === `/chat/${data}`) {
-      navigate('/main');
-    }
-  };
-
-  const handleIsBan = () => {
-    navigate('/main');
-    setTimeout(() => {
-      alert('차단된 사용자입니다.');
-    }, 50);
   };
 
   const handleChatClick = (chatRoom: IChatRoom) => {

@@ -20,7 +20,6 @@ import { useLocation } from 'react-router-dom';
 import { appSocket } from '../common/socket/app.socket';
 import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 import { OwnerContextMenu } from './components/OwnerItem';
-import { DmNavigation } from './components/DmNavigation';
 
 interface ChatData {
   name: string;
@@ -267,8 +266,6 @@ function ChatPage() {
   }, [navigate, contextMenuRef, closeContextMenu]);
 
   const handleReceiveChatParticipants = (participant: IChatMember[]) => {
-    console.log('here!');
-    console.log('participant ', participant);
     setChatMemberList(participant);
   };
 
@@ -277,8 +274,11 @@ function ChatPage() {
     navigate('/main');
   };
 
+  const handleShowMuteError = (data: any) => {
+    alert(data.message);
+  };
+
   const handleKicked = (data: any) => {
-    console.log('here');
     alert(`you are kicked from ${data}`);
     if (location.pathname === `/chat/${data}`) {
       navigate('/main');
@@ -293,10 +293,8 @@ function ChatPage() {
   };
 
   const handleIsBan = () => {
+    alert('차단된 사용자입니다.');
     navigate('/main');
-    setTimeout(() => {
-      alert('차단된 사용자입니다.');
-    }, 50);
   };
 
   const handleIsBlock = (idx1: number, idx2: number) => {
@@ -361,15 +359,29 @@ function ChatPage() {
   }, [idx]);
 
   useEffect(() => {
+    const getBanStatus = async () => {
+      const status = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/chats/ban/${idx}/${userIdx}`,
+      );
+      if (status.data) {
+        handleIsBan();
+      }
+    };
+    if (userIdx > 0) getBanStatus();
+  }, [userIdx]);
+
+  useEffect(() => {
     chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
     chatSocket.on('showError', handleShowError);
+    chatSocket.on('showMuteError', handleShowMuteError);
     chatSocket.on('ownerLeaveChat', handleOwnerLeave);
 
     return () => {
       chatSocket.off('leaveChat', onClickChannelLeave);
       chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
       chatSocket.off('showError', handleShowError);
+      chatSocket.off('showMuteError', handleShowMuteError);
       chatSocket.off('ownerLeaveChat', handleOwnerLeave);
     };
   }, [chatSocket]);
@@ -377,12 +389,12 @@ function ChatPage() {
   useEffect(() => {
     appSocket.on('kicked', handleKicked);
     appSocket.on('banned', handleBanned);
-    appSocket.on('isBan', handleIsBan);
+    // appSocket.on('isBan', handleIsBan);
 
     return () => {
       appSocket.off('kicked', handleKicked);
       appSocket.off('banned', handleBanned);
-      appSocket.off('isBan', handleIsBan);
+      // appSocket.off('isBan', handleIsBan);
     };
   }, [appSocket]);
 
