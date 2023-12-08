@@ -267,6 +267,8 @@ function ChatPage() {
   }, [navigate, contextMenuRef, closeContextMenu]);
 
   const handleReceiveChatParticipants = (participant: IChatMember[]) => {
+    console.log('here!');
+    console.log('participant ', participant);
     setChatMemberList(participant);
   };
 
@@ -276,6 +278,7 @@ function ChatPage() {
   };
 
   const handleKicked = (data: any) => {
+    console.log('here');
     alert(`you are kicked from ${data}`);
     if (location.pathname === `/chat/${data}`) {
       navigate('/main');
@@ -336,25 +339,52 @@ function ChatPage() {
     //   room_id: idx,
     // });
 
+    // chatSocketConnect();
+    // chatSocket.on('leaveChat', onClickChannelLeave);
+    // chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
+    // chatSocket.on('showError', handleShowError);
+    // appSocket.on('kicked', handleKicked);
+    // appSocket.on('banned', handleBanned);
+    // appSocket.on('isBan', handleIsBan);
+    // chatSocket.on('ownerLeaveChat', handleOwnerLeave);
+
+    // return () => {
+    //   chatSocket.off('leaveChat', onClickChannelLeave);
+    //   chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
+    //   chatSocket.off('showError', handleShowError);
+    //   appSocket.off('kicked', handleKicked);
+    //   appSocket.off('banned', handleBanned);
+    //   appSocket.off('isBan', handleIsBan);
+    //   chatSocket.off('ownerLeaveChat', handleOwnerLeave);
+    // chatSocketLeave();
+    // };
+  }, [idx]);
+
+  useEffect(() => {
     chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
     chatSocket.on('showError', handleShowError);
-    appSocket.on('kicked', handleKicked);
-    appSocket.on('banned', handleBanned);
-    appSocket.on('isBan', handleIsBan);
     chatSocket.on('ownerLeaveChat', handleOwnerLeave);
 
     return () => {
       chatSocket.off('leaveChat', onClickChannelLeave);
       chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
       chatSocket.off('showError', handleShowError);
+      chatSocket.off('ownerLeaveChat', handleOwnerLeave);
+    };
+  }, [chatSocket]);
+
+  useEffect(() => {
+    appSocket.on('kicked', handleKicked);
+    appSocket.on('banned', handleBanned);
+    appSocket.on('isBan', handleIsBan);
+
+    return () => {
       appSocket.off('kicked', handleKicked);
       appSocket.off('banned', handleBanned);
       appSocket.off('isBan', handleIsBan);
-      chatSocket.off('ownerLeaveChat', handleOwnerLeave);
-      // chatSocketLeave();
     };
-  }, [idx]);
+  }, [appSocket]);
 
   const onClickChannelLeave = (room_id: string | undefined) => {
     chatSocket.emit('leaveChat', room_id);
