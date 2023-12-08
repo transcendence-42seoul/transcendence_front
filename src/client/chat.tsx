@@ -20,6 +20,7 @@ import { useLocation } from 'react-router-dom';
 import { appSocket } from '../common/socket/app.socket';
 import { CreateChallengeModal } from './modal/CreateChallengeModal/CreateChallengeModal';
 import { OwnerContextMenu } from './components/OwnerItem';
+// import { handleShowError, navigateSocket } from './components/ErrorHandler';
 
 interface ChatData {
   name: string;
@@ -292,13 +293,9 @@ function ChatPage() {
     }
   };
 
-  const handleIsBan = () => {
-    alert('차단된 사용자입니다.');
+  const handleIsBanUser = (msg: string) => {
+    alert(msg);
     navigate('/main');
-  };
-
-  const handleIsBlock = (idx1: number, idx2: number) => {
-    // await axios.post
   };
 
   const handleOwnerLeave = (data: any) => {
@@ -328,34 +325,6 @@ function ChatPage() {
     };
 
     fetchChatMembers();
-
-    // const onLeaveChat = () => {
-    //   fetchChatMembers();
-    // };
-
-    // chatSocket.emit('joinChat', {
-    //   room_id: idx,
-    // });
-
-    // chatSocketConnect();
-    // chatSocket.on('leaveChat', onClickChannelLeave);
-    // chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
-    // chatSocket.on('showError', handleShowError);
-    // appSocket.on('kicked', handleKicked);
-    // appSocket.on('banned', handleBanned);
-    // appSocket.on('isBan', handleIsBan);
-    // chatSocket.on('ownerLeaveChat', handleOwnerLeave);
-
-    // return () => {
-    //   chatSocket.off('leaveChat', onClickChannelLeave);
-    //   chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
-    //   chatSocket.off('showError', handleShowError);
-    //   appSocket.off('kicked', handleKicked);
-    //   appSocket.off('banned', handleBanned);
-    //   appSocket.off('isBan', handleIsBan);
-    //   chatSocket.off('ownerLeaveChat', handleOwnerLeave);
-    // chatSocketLeave();
-    // };
   }, [idx]);
 
   useEffect(() => {
@@ -364,23 +333,42 @@ function ChatPage() {
         `${import.meta.env.VITE_SERVER_URL}/chats/ban/${idx}/${userIdx}`,
       );
       if (status.data) {
-        handleIsBan();
+        handleIsBanUser('차단된 유저입니다.');
       }
     };
-    if (userIdx > 0) getBanStatus();
+
+    const checkParticipant = async () => {
+      const status = await axios.get(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/chats/participant/${idx}/${userIdx}`,
+      );
+      if (!status.data) {
+        handleIsBanUser('참여자가 아닙니다.');
+      }
+    };
+    if (userIdx > 0) {
+      getBanStatus();
+      checkParticipant();
+    }
   }, [userIdx]);
 
   useEffect(() => {
-    chatSocket.on('leaveChat', onClickChannelLeave);
+    // chatSocket.on('leaveChat', onClickChannelLeave);
     chatSocket.on('receiveChatParticipants', handleReceiveChatParticipants);
     chatSocket.on('showError', handleShowError);
+    // chatSocket.on('navigateMain', navigateSocket);
     chatSocket.on('showMuteError', handleShowMuteError);
     chatSocket.on('ownerLeaveChat', handleOwnerLeave);
 
     return () => {
-      chatSocket.off('leaveChat', onClickChannelLeave);
-      chatSocket.off('receiveChatParticipants', handleReceiveChatParticipants);
+      // chatSocket.off('leaveChat', onClickChannelLeave);
+      chatSocket.off(
+        'receiveCxehatParticipants',
+        handleReceiveChatParticipants,
+      );
       chatSocket.off('showError', handleShowError);
+      // chatSocket.off('navigateMain', navigateSocket);
       chatSocket.off('showMuteError', handleShowMuteError);
       chatSocket.off('ownerLeaveChat', handleOwnerLeave);
     };
@@ -389,19 +377,20 @@ function ChatPage() {
   useEffect(() => {
     appSocket.on('kicked', handleKicked);
     appSocket.on('banned', handleBanned);
-    // appSocket.on('isBan', handleIsBan);
 
     return () => {
       appSocket.off('kicked', handleKicked);
       appSocket.off('banned', handleBanned);
-      // appSocket.off('isBan', handleIsBan);
     };
   }, [appSocket]);
 
   const onClickChannelLeave = (room_id: string | undefined) => {
-    chatSocket.emit('leaveChat', room_id);
-    chatSocketLeave();
-    navigate('/main');
+    chatSocket.emit('leaveChat', room_id, (response: any) => {
+      if (response.status) {
+        chatSocketLeave();
+        navigate('/main');
+      } else alert(response.message);
+    });
   };
 
   const handleDeleteFriend = (friendIdx: number) => {

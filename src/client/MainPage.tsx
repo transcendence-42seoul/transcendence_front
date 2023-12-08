@@ -6,7 +6,11 @@ import { UserContextMenu, UserItem } from './components/UserItem';
 import { FriendContextMenu, FriendItem } from './components/FriendItem';
 import UtilButton from './components/UtilButton';
 import NotificationButton from './components/NotificationButton';
-import { chatSocket, chatSocketConnect } from './mini_chat/chat.socket';
+import {
+  chatSocket,
+  chatSocketConnect,
+  chatSocketLeave,
+} from './mini_chat/chat.socket';
 import axios from 'axios';
 import { FetchUserData } from './components/FetchUserData';
 import { getCookie } from '../common/cookie/cookie';
@@ -160,12 +164,22 @@ function MainPage() {
   };
 
   const handleJoinPrivateChat = (chatRoom: IChatRoom, password: string) => {
-    chatSocket.emit('joinChat', {
-      room_id: chatRoom.idx,
-      password,
-    });
     chatSocketConnect();
-    navigate(`/chat/${chatRoom.idx}`);
+    chatSocket.emit(
+      'joinChat',
+      {
+        room_id: chatRoom.idx,
+        password,
+      },
+      (response: any) => {
+        if (response.status === 'success') {
+          navigate(`/chat/${chatRoom.idx}`);
+        } else if (response.message === 'Password is incorrect') {
+          alert(response.message);
+          chatSocketLeave();
+        }
+      },
+    );
   };
 
   const renderPasswordModal = () => {
@@ -284,6 +298,7 @@ function MainPage() {
 
   useEffect(() => {
     const fetchChatRooms = async () => {
+      console.log('fetchChatRooms');
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/chats/private-public`,
@@ -292,6 +307,7 @@ function MainPage() {
           ...chatRoom,
           isHighlighted: false,
         }));
+        console.log('chatRoomsData', chatRoomsData);
         setChatRooms(chatRoomsData);
       } catch (error) {
         console.error('채팅방 데이터를 가져오는데 실패했습니다:', error);
@@ -336,6 +352,8 @@ function MainPage() {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
 
+      chatSocket.off('acceptPrivateChat');
+      chatSocket.off('showPasswordError');
       appSocket.off('chatRoomCreated');
       appSocket.off('chatRoomUpdated');
       appSocket.off('chatRoomDeleted');
