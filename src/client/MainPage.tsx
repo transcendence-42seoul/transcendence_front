@@ -156,10 +156,17 @@ function MainPage() {
       onOpenPasswordModal();
     } else {
       chatSocketConnect();
-      chatSocket.emit('joinChat', {
-        room_id: chatRoom.idx,
-      });
-      navigate(`/chat/${chatRoom.idx}`);
+      chatSocket.emit(
+        'joinChat',
+        {
+          room_id: chatRoom.idx,
+        },
+        (response: any) => {
+          if (response.status === 'success') {
+            navigate(`/chat/${chatRoom.idx}`);
+          }
+        },
+      );
     }
   };
 
