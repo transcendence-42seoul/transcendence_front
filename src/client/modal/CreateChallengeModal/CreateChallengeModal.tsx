@@ -79,7 +79,6 @@ export const CreateChallengeModal = (props: CreateChallengeModalProps) => {
   };
 
   const handleModalClose = () => {
-    // 231202 requested한테 취소 전달되는 부분?
     if (submitState) appSocket.emit('cancelChallengeGame', { requestedIdx });
     setSubmitState(false);
     modalState.onClose();
