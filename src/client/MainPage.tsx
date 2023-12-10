@@ -305,7 +305,6 @@ function MainPage() {
 
   useEffect(() => {
     const fetchChatRooms = async () => {
-      console.log('fetchChatRooms');
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/chats/private-public`,
@@ -314,7 +313,6 @@ function MainPage() {
           ...chatRoom,
           isHighlighted: false,
         }));
-        console.log('chatRoomsData', chatRoomsData);
         setChatRooms(chatRoomsData);
       } catch (error) {
         console.error('채팅방 데이터를 가져오는데 실패했습니다:', error);

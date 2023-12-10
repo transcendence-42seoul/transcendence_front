@@ -52,16 +52,20 @@ function GamePlayPage(props: GamePlayPageProps) {
       <div className="w-full flex h-[85%] justify-center">
         <div className="w-full lg:w-8/12 h-full mx-5">
           <div className="flex bg-sky-200 h-[8rem] justify-evenly rounded-md">
-            <SmallUserProfile
-              mode={mode}
-              avatarData={userA_avatar}
-              recordData={host.record}
-            />
-            <SmallUserProfile
-              mode={mode}
-              avatarData={userB_avatar}
-              recordData={guest.record}
-            />
+            {host && guest && (
+              <>
+                <SmallUserProfile
+                  mode={mode}
+                  avatarData={userA_avatar}
+                  recordData={host.record}
+                />
+                <SmallUserProfile
+                  mode={mode}
+                  avatarData={userB_avatar}
+                  recordData={guest.record}
+                />
+              </>
+            )}
           </div>
           <div
             className={`w-ful h-[calc(100%-8rem)] bg-sky-100 rounded-bl-md rounded-br-md flex justify-center items-center`}

@@ -11,6 +11,7 @@ import {
   gameSocketConnect,
   gameSocketDisconnect,
 } from './socket/game.socket';
+import { Center, Spinner } from '@chakra-ui/react';
 
 export enum UserStatus {
   ONLINE = 'ONLINE',
@@ -19,7 +20,7 @@ export enum UserStatus {
 }
 
 const GamePage = () => {
-  const [userStatus, setUserStatus] = useState<UserStatus>(UserStatus.ONLINE);
+  const [userStatus, setUserStatus] = useState<UserStatus>(UserStatus.OFFLINE);
   const [gameData, setGameData] = useRecoilState(GameAtom);
 
   const [myId, setMyId] = useState<string>('');
@@ -50,13 +51,16 @@ const GamePage = () => {
             },
           },
         );
-        setUserStatus(response.data.__game_guest__.status);
+        if (response.data) setUserStatus(UserStatus.PLAYING);
         setGameData(response.data);
       } catch (error) {
         navigation('/main');
-        console.log(error);
       }
     };
+
+    gameSocket.on('getGameInfo', (data) => {
+      setGameData(data);
+    });
 
     gameSocket.on('error', (error) => {
       navigation('/login');
@@ -65,6 +69,10 @@ const GamePage = () => {
 
     gameSocket.on('disconnect', () => {
       console.error('게임 소켓이 연결이 끊겼습니다.');
+    });
+
+    gameSocket.on('gameStart', () => {
+      setUserStatus(UserStatus.PLAYING);
     });
 
     try {
@@ -85,13 +93,19 @@ const GamePage = () => {
 
   return (
     <>
-      {userStatus === UserStatus.PLAYING ? (
+      {userStatus === UserStatus.PLAYING && gameData ? (
         <GamePlayPage myId={myId} />
       ) : (
-        <GameReadyPage
-          gameMode={gameData.game_mode}
-          setUserStatus={setUserStatus}
-        />
+        <div className="w-full h-full flex justify-center items-center">
+          <Spinner
+            className="flex justify-center"
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </div>
       )}
     </>
   );
